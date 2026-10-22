@@ -1,7 +1,7 @@
 import { PawPrint } from "lucide-react";
 import { SmartImage } from "~/core/ui/SmartImage";
 
-export const LOGO_SRC = "/images/brand/logo-alfapet.png";
+export const LOGO_SRC = "/images/brand/logo-alfapet.jpeg";
 
 export function BrandLogo() {
   return (

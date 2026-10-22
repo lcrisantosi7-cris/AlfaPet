@@ -15,6 +15,7 @@ export default [
   route("logout", "routes/logout.ts"),
   layout("routes/app-layout.tsx", [
     index("modules/dashboard/dashboard.route.tsx"),
+    route("pacientes/nuevo", "modules/pacientes/nuevo.route.ts"),
     ...placeholderRoutes,
   ]),
 ] satisfies RouteConfig;

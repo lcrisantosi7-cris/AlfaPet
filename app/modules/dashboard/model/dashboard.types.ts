@@ -1,4 +1,4 @@
-export type Species = "Perro" | "Gato";
+export type Species = string;
 export type AppointmentStatus = "confirmada" | "pendiente";
 export type StatKind = "patients" | "appointmentsToday" | "pendingVaccines" | "productsInStock";
 

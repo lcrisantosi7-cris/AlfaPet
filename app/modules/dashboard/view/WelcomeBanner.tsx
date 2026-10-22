@@ -1,9 +1,21 @@
-import { Heart, PawPrint } from "lucide-react";
+import { PawPrint } from "lucide-react";
+import type { ReactNode } from "react";
 import { SmartImage } from "~/core/ui/SmartImage";
 
 export const HERO_SRC = "/images/hero/hero-mascotas.png";
 
-export function WelcomeBanner() {
+interface WelcomeBannerProps {
+  firstName: string;
+  appointmentsToday: number;
+  action: ReactNode;
+}
+
+function todaySummary(count: number) {
+  if (count === 0) return "No hay citas programadas para hoy.";
+  return count === 1 ? "Hay 1 cita programada para hoy." : `Hay ${count} citas programadas para hoy.`;
+}
+
+export function WelcomeBanner({ firstName, appointmentsToday, action }: WelcomeBannerProps) {
   return (
     <section
       aria-labelledby="bienvenida"
@@ -16,16 +28,11 @@ export function WelcomeBanner() {
       <PawPrint aria-hidden className="absolute top-5 right-1/3 size-6 -rotate-12 text-brand/50" />
 
       <div className="relative z-10 max-w-md">
-        <h1 id="bienvenida" className="text-3xl leading-tight font-bold sm:text-4xl">
-          ¡Bienvenido a
-          <span className="block text-4xl font-extrabold sm:text-5xl">
-            <span className="text-brand">Alfapet</span> Veterinaria!
-          </span>
+        <h1 id="bienvenida" className="text-3xl leading-tight font-extrabold sm:text-4xl">
+          ¡Hola, <span className="text-brand">{firstName}</span>!
         </h1>
-        <p className="mt-3 flex items-center gap-2 text-lg text-ink-muted">
-          Cuidamos a quienes te dan amor incondicional
-          <Heart className="size-5 shrink-0 fill-brand text-brand" aria-hidden />
-        </p>
+        <p className="mt-2 mb-5 text-lg text-ink-muted">{todaySummary(appointmentsToday)}</p>
+        {action}
       </div>
 
       <SmartImage

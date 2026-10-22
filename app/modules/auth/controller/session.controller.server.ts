@@ -1,49 +1,50 @@
-import { data, redirect } from "react-router";
-import { createSupabaseServerClient } from "~/core/supabase/client.server";
+import { redirect } from "react-router";
+import { ForbiddenError } from "~/core/errors/app-error";
+import { createSupabaseServerClient, type SupabaseServerClient } from "~/core/supabase/client.server";
+import { AuthService } from "../model/auth.service.server";
 import type { Role, SessionUser } from "../model/user.types";
 
-interface ProfileRow {
-  id: string;
-  full_name: string;
-  job_title: string | null;
-  role: Role;
-  avatar_url: string | null;
-  is_active: boolean;
+export interface AuthContext {
+  supabase: SupabaseServerClient;
+  headers: Headers;
+  user: SessionUser;
+}
+
+export class SessionGuard {
+  /** Evita repetir getUser + perfil cuando varios loaders de la misma petición piden sesión. */
+  private static readonly cache = new WeakMap<Request, Promise<AuthContext>>();
+
+  static async require(request: Request, allowedRoles?: readonly Role[]): Promise<AuthContext> {
+    let pending = SessionGuard.cache.get(request);
+    if (!pending) {
+      pending = SessionGuard.authenticate(request);
+      SessionGuard.cache.set(request, pending);
+    }
+
+    const context = await pending;
+    if (allowedRoles && !allowedRoles.includes(context.user.role)) {
+      throw new ForbiddenError(undefined, context.headers).toResponse();
+    }
+    return context;
+  }
+
+  private static async authenticate(request: Request): Promise<AuthContext> {
+    const { supabase, headers } = createSupabaseServerClient(request);
+    const auth = new AuthService(supabase);
+    const session = await auth.getSession();
+
+    if (session.kind === "anonymous") throw redirect("/login", { headers });
+    if (session.kind === "inactive") {
+      await auth.signOut();
+      throw redirect("/login?error=inactivo", { headers });
+    }
+    return { supabase, headers, user: session.user };
+  }
 }
 
 /**
- * Exige sesión válida (verificada con Supabase, no solo leyendo la cookie),
- * perfil activo y, opcionalmente, uno de los roles permitidos.
+ * Exige sesión válida, perfil activo y, opcionalmente, uno de los roles permitidos.
  * Úsalo al inicio de CADA loader/action protegido.
  */
-export async function requireUser(request: Request, allowedRoles?: readonly Role[]) {
-  const { supabase, headers } = createSupabaseServerClient(request);
-
-  const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) throw redirect("/login", { headers });
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, full_name, job_title, role, avatar_url, is_active")
-    .eq("id", auth.user.id)
-    .single<ProfileRow>();
-
-  if (!profile || !profile.is_active) {
-    await supabase.auth.signOut();
-    throw redirect("/login?error=inactivo", { headers });
-  }
-
-  if (allowedRoles && !allowedRoles.includes(profile.role)) {
-    throw data("No tienes permiso para ver esta sección", { status: 403, headers });
-  }
-
-  const user: SessionUser = {
-    id: profile.id,
-    name: profile.full_name,
-    jobTitle: profile.job_title ?? "",
-    role: profile.role,
-    avatarUrl: profile.avatar_url ?? undefined,
-  };
-
-  return { supabase, headers, user };
-}
+export const requireUser = (request: Request, allowedRoles?: readonly Role[]) =>
+  SessionGuard.require(request, allowedRoles);

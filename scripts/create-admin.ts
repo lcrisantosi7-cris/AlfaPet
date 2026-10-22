@@ -1,62 +1,58 @@
-import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-// Cargar variables del archivo .env
-dotenv.config();
+/**
+ * Crea el usuario administrador. Las credenciales vienen del entorno,
+ * nunca del código:  npm run admin:create
+ */
+class AdminProvisioner {
+    private readonly supabase: SupabaseClient;
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseServiceKey) {
-    console.error('Faltan variables de entorno (SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY).');
-    process.exit(1);
-}
-
-// Cliente con privilegios de administrador (Service Role)
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-    auth: { persistSession: false },
-});
-
-async function crearAdministrador() {
-    const emailAdmin = 'admin.alfapet@sullana.com'; // Cambia por el correo que deseas
-    const passwordAdmin = 'Admin123*#';             // Cambia por una contraseña segura
-    const nombreCompleto = 'Administrador AlfaPet';
-
-    console.log('Creando usuario administrador en Supabase Auth...');
-
-    // 1. Crear usuario en Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: emailAdmin,
-        password: passwordAdmin,
-        email_confirm: true, // Auto-confirmar el correo
-    });
-
-    if (authError) {
-        console.error('Error al crear usuario en Auth:', authError.message);
-        return;
+    constructor(
+        url: string,
+        serviceKey: string,
+        private readonly admin: { email: string; password: string; name: string; jobTitle: string },
+    ) {
+        this.supabase = createClient(url, serviceKey, { auth: { persistSession: false } });
     }
 
-    const userId = authData.user.id;
-    console.log(`Usuario Auth creado con ID: ${userId}`);
+    async run(): Promise<void> {
+        const { data, error } = await this.supabase.auth.admin.createUser({
+            email: this.admin.email,
+            password: this.admin.password,
+            email_confirm: true,
+        });
+        if (error) throw new Error(`Auth: ${error.message}`);
 
-    // 2. Insertar o actualizar su rol en la tabla public.profiles
-    const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-            id: userId,
-            full_name: nombreCompleto,
-            job_title: 'Gerente de Operaciones',
-            role: 'admin',
+        const { error: profileError } = await this.supabase.from("profiles").upsert({
+            id: data.user.id,
+            full_name: this.admin.name,
+            job_title: this.admin.jobTitle,
+            role: "admin",
             is_active: true,
         });
+        if (profileError) throw new Error(`Perfil: ${profileError.message}`);
 
-    if (profileError) {
-        console.error('Error al asignar el perfil de administrador:', profileError.message);
-    } else {
-        console.log('¡Administrador creado y configurado exitosamente en la base de datos!');
-        console.log(`Correo: ${emailAdmin}`);
-        console.log(`Contraseña: ${passwordAdmin}`);
+        console.log(`Administrador listo: ${this.admin.email}`);
     }
 }
 
-crearAdministrador();
+function requireEnv(name: string): string {
+    const value = process.env[name]?.trim();
+    if (!value) throw new Error(`Falta la variable de entorno ${name}`);
+    return value;
+}
+
+try {
+    const password = requireEnv("ADMIN_PASSWORD");
+    if (password.length < 12) throw new Error("ADMIN_PASSWORD debe tener al menos 12 caracteres");
+
+    await new AdminProvisioner(requireEnv("SUPABASE_URL"), requireEnv("SUPABASE_SERVICE_ROLE_KEY"), {
+        email: requireEnv("ADMIN_EMAIL").toLowerCase(),
+        password,
+        name: process.env.ADMIN_NAME?.trim() || "Administrador AlfaPet",
+        jobTitle: process.env.ADMIN_JOB_TITLE?.trim() || "Administrador",
+    }).run();
+} catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+}

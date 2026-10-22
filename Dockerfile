@@ -15,8 +15,11 @@ WORKDIR /app
 RUN npm run build
 
 FROM node:24-alpine
-COPY ./package.json package-lock.json /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=build-env /app/build /app/build
+ENV NODE_ENV=production
 WORKDIR /app
+COPY ./package.json package-lock.json ./
+COPY --from=production-dependencies-env /app/node_modules ./node_modules
+COPY --from=build-env /app/build ./build
+USER node
+EXPOSE 3000
 CMD ["npm", "run", "start"]

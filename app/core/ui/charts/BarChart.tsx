@@ -5,14 +5,18 @@ export interface BarDatum {
 
 interface BarChartProps {
   data: readonly BarDatum[];
+  /** Separación entre líneas de la escala; si se omite se calcula según el valor máximo. */
   step?: number;
   ariaLabel: string;
 }
 
+const niceStep = (peak: number) => (peak <= 5 ? 1 : peak <= 20 ? 5 : 10);
+
 /** Gráfico de barras en HTML/CSS puro (sin librerías externas). */
-export function BarChart({ data, step = 5, ariaLabel }: BarChartProps) {
-  const highest = Math.max(...data.map((d) => d.value), step);
-  const max = Math.ceil(highest / step) * step;
+export function BarChart({ data, step: stepProp, ariaLabel }: BarChartProps) {
+  const peak = Math.max(...data.map((d) => d.value), 1);
+  const step = stepProp ?? niceStep(peak);
+  const max = Math.ceil(peak / step) * step;
   const ticks = Array.from({ length: max / step + 1 }, (_, i) => i * step);
   const columns = { gridTemplateColumns: `repeat(${data.length}, minmax(0, 1fr))` };
 
