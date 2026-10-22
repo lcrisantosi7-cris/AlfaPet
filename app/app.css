@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   TOKENS SEMÁNTICOS — modo claro (por defecto)
+   Para cambiar la identidad visual se edita SOLO este bloque.
+   ============================================================ */
+:root {
+  --bg: #fdf8f2;
+  --surface: #ffffff;
+  --surface-muted: #fbf4ec;
+  --line: #f1e6d9;
+  --ink: #3b1d0e;
+  --ink-muted: #85705f;
+
+  --brand: #ea7107;
+  --brand-text: #b44f00;
+  --brand-soft: #fff0df;
+  --on-brand: #ffffff;
+
+  --sidebar: #4a2711;
+  --sidebar-deep: #2f190b;
+  --sidebar-ink: #fbeee1;
+
+  --tone-orange-soft: #fff4e8;
+  --tone-orange-icon: #ffe0c2;
+  --tone-orange-fg: #d4620a;
+  --tone-blue-soft: #eef5ff;
+  --tone-blue-icon: #d6e8ff;
+  --tone-blue-fg: #2260c2;
+  --tone-green-soft: #eaf8f1;
+  --tone-green-icon: #cdefdf;
+  --tone-green-fg: #137a4b;
+  --tone-purple-soft: #f6eeff;
+  --tone-purple-icon: #e8d5ff;
+  --tone-purple-fg: #7436c8;
+
+  --chart-1: #f78a1f;
+  --chart-2: #4a2a17;
+  --chart-3: #b8651c;
+  --chart-4: #ffb15e;
+  --chart-5: #d8cfc4;
+}
+
+/* ============================================================
+   TOKENS SEMÁNTICOS — modo oscuro
+   ============================================================ */
+.dark {
+  --bg: #17100c;
+  --surface: #231a14;
+  --surface-muted: #2b2019;
+  --line: #3a2b21;
+  --ink: #f7ebdd;
+  --ink-muted: #bba895;
+
+  --brand: #ea7107;
+  --brand-text: #ffa04d;
+  --brand-soft: #35210f;
+
+  --sidebar: #1d120b;
+  --sidebar-deep: #120b07;
+
+  --tone-orange-soft: #2d2016;
+  --tone-orange-icon: #4a2f19;
+  --tone-orange-fg: #ffa04d;
+  --tone-blue-soft: #182130;
+  --tone-blue-icon: #243a5a;
+  --tone-blue-fg: #86b6ff;
+  --tone-green-soft: #16261f;
+  --tone-green-icon: #1f4434;
+  --tone-green-fg: #62d69d;
+  --tone-purple-soft: #241a30;
+  --tone-purple-icon: #3d2a5a;
+  --tone-purple-fg: #c7a0ff;
+
+  --chart-2: #d1a678;
+  --chart-3: #c9742b;
+  --chart-5: #6b5b4e;
+}
+
+/* Expone los tokens como utilidades Tailwind: bg-surface, text-ink, border-line… */
+@theme inline {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+
+  --color-brand: var(--brand);
+  --color-brand-text: var(--brand-text);
+  --color-brand-soft: var(--brand-soft);
+  --color-on-brand: var(--on-brand);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-deep: var(--sidebar-deep);
+  --color-sidebar-ink: var(--sidebar-ink);
+
+  --color-tone-orange-soft: var(--tone-orange-soft);
+  --color-tone-orange-icon: var(--tone-orange-icon);
+  --color-tone-orange-fg: var(--tone-orange-fg);
+  --color-tone-blue-soft: var(--tone-blue-soft);
+  --color-tone-blue-icon: var(--tone-blue-icon);
+  --color-tone-blue-fg: var(--tone-blue-fg);
+  --color-tone-green-soft: var(--tone-green-soft);
+  --color-tone-green-icon: var(--tone-green-icon);
+  --color-tone-green-fg: var(--tone-green-fg);
+  --color-tone-purple-soft: var(--tone-purple-soft);
+  --color-tone-purple-icon: var(--tone-purple-icon);
+  --color-tone-purple-fg: var(--tone-purple-fg);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --shadow-card: 0 1px 2px rgb(74 39 17 / 0.04),
+    0 10px 28px -14px rgb(74 39 17 / 0.2);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-bg font-sans text-ink antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
