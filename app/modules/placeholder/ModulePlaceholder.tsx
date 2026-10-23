@@ -1,3 +1,4 @@
+import { Activity } from "lucide-react";
 import type { NavIconName } from "~/core/config/navigation";
 import { NAV_ICONS } from "~/core/layout/nav-icons";
 
@@ -7,7 +8,7 @@ interface ModulePlaceholderProps {
 }
 
 export function ModulePlaceholder({ label, icon }: ModulePlaceholderProps) {
-  const Icon = NAV_ICONS[icon];
+  const Icon = NAV_ICONS[icon] ?? Activity;
 
   return (
     <section className="mx-auto mt-16 flex max-w-md flex-col items-center gap-3 rounded-2xl border border-dashed border-line bg-surface p-10 text-center">
