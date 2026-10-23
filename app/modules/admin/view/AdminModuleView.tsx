@@ -10,7 +10,7 @@ type ActionResult = { ok?: boolean; message?: string };
 type Props = {
   moduleKey: string; title: string; rows: Row[]; metrics: Metric[]; columns: string[];
   readOnly: boolean; message?: string | null; patients: Option[];
-  appointments: AppointmentOption[]; vaccines: Option[];
+  appointments: AppointmentOption[]; vaccines: Option[]; veterinarians?: { id: string; full_name: string; job_title: string | null }[];
 };
 
 const ICONS: Record<string, typeof Activity> = {
@@ -63,7 +63,7 @@ function SelectField({ name, title, options, required = false, placeholder = "Se
   </label>;
 }
 
-export function AdminModuleView({ moduleKey, title, rows, metrics, columns, readOnly, patients, appointments, vaccines }: Props) {
+export function AdminModuleView({ moduleKey, title, rows, metrics, columns, readOnly, patients, appointments, vaccines, veterinarians = [] }: Props) {
   const Icon = ICONS[moduleKey] ?? Activity;
   const actionData = useActionData() as ActionResult | undefined;
   const [search, setSearch] = useState("");
@@ -102,15 +102,30 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
     {moduleKey === "configuracion" ? <Form method="post" className="rounded-2xl border border-line bg-surface p-5 shadow-card">
       <input type="hidden" name="intent" value="update-profile" />
       <h2 className="font-bold">Mi perfil</h2>
-      <p className="mt-1 text-sm text-ink-muted">Actualiza tu nombre y cargo. El rol y los permisos no se pueden cambiar desde este formulario.</p>
+      <p className="mt-1 text-sm text-ink-muted">Puedes cambiar tu nombre y, si lo necesitas, establecer una contraseña nueva. El rol y los permisos solo los administra el administrador.</p>
       <div className="mt-4 grid gap-3 sm:max-w-3xl sm:grid-cols-2">
         <Field name="full_name" title="Nombre completo" required defaultValue={String(rows[0]?.full_name ?? "")} />
-        <Field name="job_title" title="Cargo" defaultValue={String(rows[0]?.job_title ?? "")} />
+        <Field name="password" title="Nueva contraseña (opcional, mínimo 12 caracteres)" type="password" min="12" />
         <div className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted"><span>Rol</span><div className="flex h-11 items-center rounded-xl border border-line bg-surface-muted px-3 text-sm font-normal text-ink">{pretty(rows[0]?.role)}</div></div>
         <div className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted"><span>Estado de la cuenta</span><div className="flex h-11 items-center rounded-xl border border-line bg-surface-muted px-3 text-sm font-normal text-ink">{rows[0]?.is_active ? "Activa" : "Inactiva"}</div></div>
       </div>
-      <button type="submit" className="mt-4 h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand hover:opacity-90">Guardar perfil</button>
+      <button type="submit" className="mt-4 h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand transition hover:-translate-y-0.5 hover:shadow-lg">Guardar cambios</button>
     </Form> : null}
+
+    {moduleKey === "configuracion" && rows[0]?.role === "recepcion" ? <section className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+      <div><h2 className="font-bold">Perfiles de veterinarios</h2><p className="mt-1 text-sm text-ink-muted">Recepción puede corregir el nombre y establecer una nueva contraseña para un veterinario. Los perfiles de administración no aparecen aquí.</p></div>
+      {veterinarians.length === 0 ? <p className="mt-4 rounded-xl bg-surface-muted p-4 text-sm text-ink-muted">No hay veterinarios activos registrados.</p> : <div className="mt-4 grid gap-4 xl:grid-cols-2">
+        {veterinarians.map(vet => <Form key={vet.id} method="post" className="grid gap-3 rounded-2xl border border-line p-4 sm:grid-cols-2">
+          <input type="hidden" name="intent" value="update-veterinarian" />
+          <input type="hidden" name="profile_id" value={vet.id} />
+          <div className="sm:col-span-2"><p className="font-semibold">{vet.full_name}</p><p className="text-xs text-ink-muted">{vet.job_title || "Veterinario"}</p></div>
+          <Field name="full_name" title="Nombre completo" required defaultValue={vet.full_name} />
+          <Field name="password" title="Nueva contraseña (opcional)" type="password" min="12" />
+          <p className="text-xs text-ink-muted sm:col-span-2">Deja la contraseña vacía si solo deseas cambiar el nombre. Si la cambias, utiliza al menos 12 caracteres y comunícasela al veterinario de forma segura.</p>
+          <div className="sm:col-span-2"><button type="submit" className="h-10 rounded-xl border border-line px-4 text-sm font-semibold transition hover:border-brand hover:text-brand-text">Guardar perfil de veterinario</button></div>
+        </Form>)}
+      </div>}
+    </section> : null}
 
     {canCreate ? <details className="rounded-2xl border border-line bg-surface shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4 font-bold">{moduleKey === "consultas" ? "Registrar consulta clínica" : moduleKey === "vacunas" ? "Registrar vacunación" : "Registrar producto"} <span className="ml-2 text-xs font-normal text-ink-muted">Abrir formulario</span></summary>
