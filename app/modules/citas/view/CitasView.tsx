@@ -51,10 +51,24 @@ export function CitasView({ appointments, filters }: Props) {
 
     <div className="rounded-2xl border border-line bg-surface shadow-card">
       <div className="grid gap-3 border-b border-line p-4 md:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_1.3fr_auto_auto] xl:items-end">
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Desde<input type="date" value={from} onChange={e=>setFrom(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Hasta<input type="date" value={to} min={from || undefined} onChange={e=>setTo(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Estado<select value={status} onChange={e=>setStatus(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="todos">Todos los estados</option>{availableStatuses.map(value => <option key={value} value={value}>{statusLabel(value)}</option>})</select></label>
-        <label className="relative flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Buscar cita<span className="relative"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2" /><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Paciente, dueño o veterinario" className="h-11 w-full rounded-xl border border-line bg-bg pl-9 pr-3 text-sm font-normal text-ink" /></span></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Desde<input type="date" value={from} onChange={e => setFrom(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Hasta<input type="date" value={to} min={from || undefined} onChange={e => setTo(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">
+          Estado
+          <select
+            value={status}
+            onChange={e => setStatus(e.target.value)}
+            className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"
+          >
+            <option value="todos">Todos los estados</option>
+            {availableStatuses.map(value => (
+              <option key={value} value={value}>
+                {statusLabel(value)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="relative flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Buscar cita<span className="relative"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2" /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Paciente, dueño o veterinario" className="h-11 w-full rounded-xl border border-line bg-bg pl-9 pr-3 text-sm font-normal text-ink" /></span></label>
         <button onClick={applyFilters} className="h-11 rounded-xl bg-brand px-4 text-sm font-semibold text-on-brand hover:opacity-90"><SlidersHorizontal className="mr-2 inline size-4" />Aplicar</button>
         <button onClick={reset} className="h-11 rounded-xl border border-line px-4 text-sm font-semibold hover:bg-surface-muted">Limpiar</button>
       </div>
