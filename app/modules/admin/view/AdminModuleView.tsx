@@ -73,8 +73,8 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
   }, [rows, search]);
   const exportCsv = () => {
     const csvRows = [columns, ...filteredRows.map((row) => columns.map((column) => pretty(row[column])))];
-    const csv = csvRows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\\r\\n");
-    const blob = new Blob(["\\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
+    const csv = csvRows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\r\n");
+    const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
