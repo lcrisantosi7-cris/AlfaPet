@@ -85,7 +85,6 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
         .from("profiles")
         .select("id,full_name,job_title")
         .eq("role", "veterinario")
-        .eq("is_active", true)
         .order("full_name")
         .limit(200);
       if (staffError) throw new Response(`No se pudieron cargar los veterinarios: ${staffError.message}`, { status: 500, headers });
