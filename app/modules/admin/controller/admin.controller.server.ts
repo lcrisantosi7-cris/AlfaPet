@@ -27,7 +27,7 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   if (item.key === "configuracion") {
     const { data: profile, error } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
     if (error) throw new Response("No se pudo cargar la configuración del perfil.", { status: 500, headers });
-    return data({ key: item.key, title: TITLES[item.key], rows: profile ? [profile] : [], metrics: [], columns: profile ? Object.keys(profile) : [], readOnly: true }, { headers });
+    return data({ moduleKey: item.key, title: TITLES[item.key], rows: profile ? [profile] : [], metrics: [], columns: profile ? Object.keys(profile) : [], readOnly: true }, { headers });
   }
 
   if (item.key === "reportes") {
@@ -36,18 +36,15 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
       const { count, error } = await supabase.from(table).select("id", { count: "exact", head: true });
       return { label: table, value: error ? null : count, unavailable: Boolean(error) };
     }));
-    return data({ key: item.key, title: TITLES[item.key], rows: [], metrics: results, columns: [], readOnly: true }, { headers });
+    return data({ moduleKey: item.key, title: TITLES[item.key], rows: [], metrics: results, columns: [], readOnly: true }, { headers });
   }
 
   const table = TABLES[item.key];
   let query = supabase.from(table).select("*").limit(300);
-  if (item.key === "consultas" || item.key === "historial") query = query.order("created_at", { ascending: false });
-  else if (item.key === "vacunas") query = query.order("created_at", { ascending: false });
-  else query = query.order("name", { ascending: true });
 
   const { data: rows, error } = await query;
   if (error) throw new Response(`No se pudo cargar el módulo de ${TITLES[item.key].toLowerCase()}.`, { status: 500, headers });
   const safeRows = (rows ?? []) as Record<string, unknown>[];
   const columns = safeRows.length ? Object.keys(safeRows[0]).filter((key) => !["id", "created_by", "updated_at"].includes(key)).slice(0, 7) : [];
-  return data({ key: item.key, title: TITLES[item.key], rows: safeRows, metrics: [], columns, readOnly: true }, { headers });
+  return data({ moduleKey: item.key, title: TITLES[item.key], rows: safeRows, metrics: [], columns, readOnly: true }, { headers });
 }
