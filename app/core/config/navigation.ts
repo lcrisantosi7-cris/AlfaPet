@@ -32,7 +32,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: "vacunas", label: "Vacunas", path: "/vacunas", icon: "vaccines", roles: CLINICAL },
   { key: "productos", label: "Productos", path: "/productos", icon: "products", roles: ["admin", "recepcion"] },
   { key: "reportes", label: "Reportes", path: "/reportes", icon: "reports", roles: ["admin"] },
-  { key: "configuracion", label: "Configuración", path: "/configuracion", icon: "settings", roles: ["admin"] },
+  { key: "configuracion", label: "Mi perfil", path: "/configuracion", icon: "settings", roles: ALL },
 ];
 
 export const navItemsForRole = (role: Role) =>
