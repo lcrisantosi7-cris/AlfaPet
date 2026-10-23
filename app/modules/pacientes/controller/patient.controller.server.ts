@@ -10,7 +10,8 @@ import type { CreatePatientResult } from "../model/patient.types";
 export class PatientController {
     create = async ({ request }: ActionFunctionArgs) => {
         assertSameOrigin(request);
-        const { supabase, headers } = await requireUser(request);
+        // El veterinario solo consulta fichas; el alta corresponde a administración y recepción.
+        const { supabase, headers } = await requireUser(request, ["admin", "recepcion"]);
 
         const form = Object.fromEntries(await request.formData());
         const parsed = newPatientSchema.safeParse(form);
