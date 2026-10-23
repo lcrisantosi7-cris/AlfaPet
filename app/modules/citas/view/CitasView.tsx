@@ -16,7 +16,6 @@ type Props = {
 };
 const statusLabel = (value: string) => value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const dateTime = (value: string) => new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
-const dayValue = (value: string) => value ? new Date(value).toISOString().slice(0, 10) : "";
 
 export function CitasView({ appointments, filters, careTypes, vets, patients }: Props) {
   const actionData = useActionData() as { ok?: boolean; message?: string } | undefined;
