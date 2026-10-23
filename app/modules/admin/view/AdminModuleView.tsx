@@ -84,7 +84,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
       <summary className="cursor-pointer list-none px-5 py-4 font-bold">{moduleKey === "consultas" ? "Registrar consulta clínica" : moduleKey === "vacunas" ? "Registrar vacunación" : "Registrar producto"} <span className="ml-2 text-xs font-normal text-ink-muted">Abrir formulario</span></summary>
       <Form method="post" className="grid gap-4 border-t border-line p-5 sm:grid-cols-2 xl:grid-cols-3">
         <input type="hidden" name="intent" value="create" />
-        {#if moduleKey === "consultas"}
+        {moduleKey === "consultas" ? <>
           <SelectField name="patient_id" title="Paciente" options={patients} required />
           <SelectField name="appointment_id" title="Cita relacionada" options={appointments.map(a => ({ id: a.id, name: `${new Date(a.starts_at).toLocaleString("es-PE")} · ${a.patient?.name ?? "Paciente"}` }))} placeholder="Sin cita relacionada" />
           <Field name="weight_kg" title="Peso (kg)" type="number" step="0.01" min="0.01" max="5000" />
@@ -93,20 +93,20 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
           <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Diagnóstico *<textarea name="diagnosis" required rows={2} maxLength={4000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
           <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Tratamiento<textarea name="treatment" rows={2} maxLength={4000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
           <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Notas<textarea name="notes" rows={2} maxLength={4000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
-        {:else if moduleKey === "vacunas"}
+        </> : moduleKey === "vacunas" ? <>
           <SelectField name="patient_id" title="Paciente" options={patients} required />
           <SelectField name="vaccine_id" title="Vacuna" options={vaccines} required />
           <Field name="applied_at" title="Fecha de aplicación" type="date" required />
           <Field name="next_due_at" title="Próxima dosis" type="date" />
           <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Notas<textarea name="notes" rows={2} maxLength={4000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
-        {:else}
+        </> : <>
           <Field name="name" title="Nombre del producto" required />
           <Field name="sku" title="Código SKU" />
           <Field name="stock" title="Existencias iniciales" type="number" step="1" min="0" required />
           <Field name="min_stock" title="Stock mínimo" type="number" step="1" min="0" />
           <Field name="price" title="Precio unitario" type="number" step="0.01" min="0" required />
           <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Descripción<textarea name="description" rows={2} maxLength={4000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
-        {/if}
+        </>}
         <div className="flex items-end"><button type="submit" className="h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand hover:opacity-90">Guardar registro</button></div>
       </Form>
     </details> : null}
