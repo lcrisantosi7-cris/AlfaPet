@@ -158,6 +158,12 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
       </Form>
     </details> : null}
 
+    {moduleKey === "productos" ? <div className="grid gap-4 sm:grid-cols-3">
+      <article className="rounded-2xl border border-tone-red-soft bg-tone-red-soft/40 p-5"><p className="text-sm font-medium text-tone-red-fg">Stock en alerta</p><p className="mt-2 text-3xl font-extrabold">{rows.filter(row => Number(row.stock ?? 0) <= 10).length}</p><p className="mt-1 text-xs text-tone-red-fg">10 unidades o menos</p></article>
+      <article className="rounded-2xl border border-tone-amber-soft bg-tone-amber-soft/40 p-5"><p className="text-sm font-medium text-tone-amber-fg">Stock moderado</p><p className="mt-2 text-3xl font-extrabold">{rows.filter(row => Number(row.stock ?? 0) > 10 && Number(row.stock ?? 0) <= 20).length}</p><p className="mt-1 text-xs text-tone-amber-fg">De 11 a 20 unidades</p></article>
+      <article className="rounded-2xl border border-tone-green-soft bg-tone-green-soft/40 p-5"><p className="text-sm font-medium text-tone-green-fg">Stock normal</p><p className="mt-2 text-3xl font-extrabold">{rows.filter(row => Number(row.stock ?? 0) > 20).length}</p><p className="mt-1 text-xs text-tone-green-fg">Más de 20 unidades</p></article>
+    </div> : null}
+
     {metrics.length > 0 ? <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {metrics.map((metric) => <article key={metric.label} className="rounded-2xl border border-line bg-surface p-5 shadow-card">
         <p className="text-sm text-ink-muted">{metric.label}</p>
@@ -180,7 +186,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted"><tr>{columns.map((column) => <th key={column} className="px-5 py-4">{label(column)}</th>)}</tr></thead>
           <tbody className="divide-y divide-line">{filteredRows.map((row, index) => <tr key={String(row.id ?? index)} className="hover:bg-surface-muted/60">
-            {columns.map((column) => <td key={column} className="max-w-sm px-5 py-4 align-top"><span className={column === "diagnosis" || column === "name" || column === "full_name" ? "font-semibold" : ""}>{pretty(row[column])}</span></td>)}
+            {columns.map((column) => <td key={column} className="max-w-sm px-5 py-4 align-top">{moduleKey === "productos" && column === "stock" ? <span className={Number(row.stock ?? 0) <= 10 ? "inline-flex rounded-full bg-tone-red-soft px-2.5 py-1 text-xs font-bold text-tone-red-fg" : Number(row.stock ?? 0) <= 20 ? "inline-flex rounded-full bg-tone-amber-soft px-2.5 py-1 text-xs font-bold text-tone-amber-fg" : "inline-flex rounded-full bg-tone-green-soft px-2.5 py-1 text-xs font-bold text-tone-green-fg"}>{pretty(row.stock)} · {Number(row.stock ?? 0) <= 10 ? "Alerta" : Number(row.stock ?? 0) <= 20 ? "Moderado" : "Normal"}</span> : <span className={column === "diagnosis" || column === "name" || column === "full_name" ? "font-semibold" : ""}>{pretty(row[column])}</span>}</td>)}
           </tr>)}</tbody>
         </table>
       </div>}
