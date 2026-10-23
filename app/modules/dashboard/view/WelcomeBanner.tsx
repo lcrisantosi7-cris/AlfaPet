@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { SmartImage } from "~/core/ui/SmartImage";
 
-export const HERO_SRC = "/images/hero/hero-mascotas.png";
+export const HERO_SRC = "/images/brand/logo-alfapet.jpeg";
 
 interface WelcomeBannerProps {
   firstName: string;
