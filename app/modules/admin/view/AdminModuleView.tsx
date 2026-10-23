@@ -40,12 +40,12 @@ function pretty(value: unknown): string {
 function label(value: string) {
   return LABELS[value] ?? value.replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase());
 }
-function Field({ name, title, type = "text", required = false, step, min, max }: {
-  name: string; title: string; type?: string; required?: boolean; step?: string; min?: string; max?: string;
+function Field({ name, title, type = "text", required = false, step, min, max, defaultValue }: {
+  name: string; title: string; type?: string; required?: boolean; step?: string; min?: string; max?: string; defaultValue?: string;
 }) {
   return <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">
     {title}
-    <input name={name} type={type} required={required} step={step} min={min} max={max}
+    <input name={name} type={type} required={required} step={step} min={min} max={max} defaultValue={defaultValue}
       className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" />
   </label>;
 }
@@ -85,7 +85,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
       <h2 className="font-bold">Datos del perfil</h2>
       <p className="mt-1 text-sm text-ink-muted">Puedes actualizar tu nombre visible. El rol y los permisos se administran de forma separada.</p>
       <div className="mt-4 flex flex-col gap-3 sm:max-w-xl sm:flex-row sm:items-end">
-        <Field name="full_name" title="Nombre completo" required />
+        <Field name="full_name" title="Nombre completo" required defaultValue={String(rows[0]?.full_name ?? "")} />
         <button type="submit" className="h-11 shrink-0 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand hover:opacity-90">Guardar perfil</button>
       </div>
     </Form> : null}
