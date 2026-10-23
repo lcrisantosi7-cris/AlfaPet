@@ -2,7 +2,7 @@ import { Activity, ClipboardList, FileBarChart, Package, Settings2, Syringe } fr
 
 type Row = Record<string, unknown>;
 type Metric = { label: string; value: number | null; unavailable: boolean };
-type Props = { key: string; title: string; rows: Row[]; metrics: Metric[]; columns: string[]; readOnly: boolean };
+type Props = { moduleKey: string; title: string; rows: Row[]; metrics: Metric[]; columns: string[]; readOnly: boolean };
 
 const ICONS: Record<string, typeof Activity> = {
   consultas: ClipboardList, historial: Activity, vacunas: Syringe,
@@ -27,7 +27,7 @@ function label(value: string) {
   return LABELS[value] ?? value.replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase());
 }
 
-export function AdminModuleView({ key: moduleKey, title, rows, metrics, columns, readOnly }: Props) {
+export function AdminModuleView({ moduleKey, title, rows, metrics, columns, readOnly }: Props) {
   const Icon = ICONS[moduleKey] ?? Activity;
   return <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
     <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
