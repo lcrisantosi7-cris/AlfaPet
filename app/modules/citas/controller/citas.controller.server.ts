@@ -21,12 +21,13 @@ export async function citasLoader({ request }: LoaderFunctionArgs) {
 
   const [{ data: rows, error }, { data: careTypes, error: careError }, { data: vets, error: vetsError }] = await Promise.all([
     query,
-    supabase.from("care_types").select("id,label").eq("is_active", true).order("label"),
+    supabase.from("care_types").select("id,label").order("label"),
     supabase.from("profiles").select("id,full_name").eq("is_active", true).eq("role", "veterinario").order("full_name"),
   ]);
 
   if (error) throw new Response("No se pudieron cargar las citas.", { status: 500, headers });
-  if (careError || vetsError) throw new Response("No se pudieron cargar los catálogos de citas.", { status: 500, headers });
+  if (careError) throw new Response("No se pudieron cargar los tipos de atención desde Supabase. Revisa que care_types tenga las columnas id y label.", { status: 500, headers });
+  if (vetsError) throw new Response("No se pudieron cargar los veterinarios desde Supabase. Revisa los campos role e is_active de profiles.", { status: 500, headers });
 
   return data({
     userRole: user.role,
