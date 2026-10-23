@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, Search, SlidersHorizontal, Clock3, UserRound, PawPrint } from "lucide-react";
-import { Form, useActionData, useSearchParams } from "react-router";
+import { Form, useActionData, useNavigation, useSearchParams } from "react-router";
 
 type Appointment = {
   id: string; startsAt: string; status: string; notes: string | null; patientId?: string;
@@ -19,6 +19,10 @@ const dateTime = (value: string) => new Intl.DateTimeFormat("es-PE", { dateStyle
 
 export function CitasView({ appointments, filters, careTypes, vets, patients }: Props) {
   const actionData = useActionData() as { ok?: boolean; message?: string } | undefined;
+  const navigation = useNavigation();
+  const submitting = navigation.state === "submitting";
+  const now = new Date();
+  const localMinDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState(filters.status || "todos");
@@ -61,7 +65,7 @@ export function CitasView({ appointments, filters, careTypes, vets, patients }: 
           </select>
         </label>
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Fecha y hora *
-          <input name="starts_at" type="datetime-local" required min={new Date().toISOString().slice(0, 16)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" />
+          <input name="starts_at" type="datetime-local" required min={localMinDateTime} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" />
         </label>
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Veterinario
           <select name="vet_id" className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
@@ -72,7 +76,7 @@ export function CitasView({ appointments, filters, careTypes, vets, patients }: 
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Notas
           <textarea name="notes" rows={2} maxLength={2000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" />
         </label>
-        <div className="flex items-end"><button type="submit" className="h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand hover:opacity-90">Guardar cita</button></div>
+        <div className="flex items-end"><button type="submit" disabled={submitting} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{submitting && <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent" />}{submitting ? "Guardando cita…" : "Guardar cita"}</button></div>
       </Form>
     </details>
 
