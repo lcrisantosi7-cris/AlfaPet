@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { data, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 import { requireUser } from "~/modules/auth/controller/session.controller.server";
+import { assertSameOrigin } from "~/core/security/same-origin.server";
 import type { Role } from "~/modules/auth/model/user.types";
 
 const ROLES: readonly Role[] = ["admin", "veterinario", "recepcion"];
@@ -32,6 +33,7 @@ export async function personalLoader({ request }: LoaderFunctionArgs) {
 }
 
 export async function personalAction({ request }: ActionFunctionArgs) {
+  assertSameOrigin(request);
   const { headers, user } = await requireUser(request, ["admin"]);
   const form = await request.formData();
   const intent = field(form, "intent", 40);
