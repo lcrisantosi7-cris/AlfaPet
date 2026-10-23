@@ -265,6 +265,60 @@ export async function adminModuleAction({ request }: ActionFunctionArgs) {
       return data({ ok: true, message: "Producto registrado correctamente." }, { headers });
     }
 
+    if (["consultas", "vacunas", "productos"].includes(item.key) && (intent === "update" || intent === "delete")) {
+      if (item.key === "productos" && !INVENTORY_ROLES.includes(user.role as (typeof INVENTORY_ROLES)[number])) {
+        return data({ ok: false, message: "No tienes permiso para modificar inventario." }, { status: 403, headers });
+      }
+      if (["consultas", "vacunas"].includes(item.key) && !CLINICAL_ROLES.includes(user.role as (typeof CLINICAL_ROLES)[number])) {
+        return data({ ok: false, message: "No tienes permiso para modificar registros clínicos." }, { status: 403, headers });
+      }
+      const recordId = textField(form, "record_id", 80);
+      if (!recordId) return data({ ok: false, message: "No se recibió el registro seleccionado." }, { status: 400, headers });
+      const table = TABLES[item.key];
+
+      if (intent === "delete") {
+        const { error } = await supabase.from(table).delete().eq("id", recordId);
+        if (error) return data({ ok: false, message: `No se pudo eliminar el registro: ${error.message}` }, { status: 400, headers });
+        return data({ ok: true, message: "Registro eliminado correctamente." }, { headers });
+      }
+
+      const editable: Record<string, unknown> = {};
+      if (item.key === "productos") {
+        const name = textField(form, "name", 120);
+        const sku = textField(form, "sku", 40);
+        const price = numericField(form, "price", 0, 100000000);
+        const stock = numericField(form, "stock", 0, 100000000);
+        const minStock = numericField(form, "min_stock", 0, 100000000);
+        if (!name || !sku || price === null || stock === null || minStock === null) {
+          return data({ ok: false, message: "Completa nombre, SKU, precio y existencias válidas." }, { status: 400, headers });
+        }
+        Object.assign(editable, { name, sku, price, stock, min_stock: minStock, category: textField(form, "category", 60) });
+      } else if (item.key === "consultas") {
+        const diagnosis = textField(form, "diagnosis", 2000);
+        if (!diagnosis) return data({ ok: false, message: "El diagnóstico es obligatorio." }, { status: 400, headers });
+        Object.assign(editable, {
+          symptoms: textField(form, "symptoms", 2000),
+          diagnosis,
+          treatment: textField(form, "treatment", 2000),
+          notes: textField(form, "notes", 2000),
+          weight_kg: numericField(form, "weight_kg", 0.01, 5000),
+          temperature_c: numericField(form, "temperature_c", 30, 45),
+        });
+      } else {
+        const dueDate = textField(form, "due_date", 10);
+        const appliedAt = textField(form, "applied_at", 10);
+        if (!dueDate) return data({ ok: false, message: "La fecha de próxima dosis es obligatoria." }, { status: 400, headers });
+        Object.assign(editable, {
+          due_date: dueDate,
+          applied_at: appliedAt,
+          notes: textField(form, "notes", 500),
+        });
+      }
+      const { error } = await supabase.from(table).update(editable).eq("id", recordId);
+      if (error) return data({ ok: false, message: `No se pudo actualizar el registro: ${error.message}` }, { status: 400, headers });
+      return data({ ok: true, message: "Registro actualizado correctamente." }, { headers });
+    }
+
     if (item.key === "vacunas" && intent === "create") {
       const patientId = textField(form, "patient_id", 80);
       const vaccineId = textField(form, "vaccine_id", 20);
