@@ -40,6 +40,6 @@ export const navItemsForRole = (role: Role) =>
 
 export const findNavItem = (pathname: string) => {
   // React Router puede solicitar loaders como /consultas.data; normalizamos la URL.
-  const normalizedPath = pathname.replace(/\\.data$/, "").replace(/\\/+$/, "") || "/";
+  const normalizedPath = pathname.replace(/\.data$/, "").replace(/\/+$/, "") || "/";
   return NAV_ITEMS.find((item) => item.path === normalizedPath);
 };
