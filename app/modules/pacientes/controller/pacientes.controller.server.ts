@@ -1,6 +1,6 @@
 import { data, type LoaderFunctionArgs } from "react-router";
 import { requireUser } from "~/modules/auth/controller/session.controller.server";
-import { PatientRepository } from "./model/patient.repository.server";
+import { PatientRepository } from "../model/patient.repository.server";
 
 export async function pacientesLoader({ request }: LoaderFunctionArgs) {
   const { supabase, headers, user } = await requireUser(request);
