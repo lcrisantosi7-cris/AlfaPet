@@ -100,6 +100,12 @@ export async function citasAction({ request }: ActionFunctionArgs) {
       { status: 400, headers },
     );
   }
+  if (startsAt.getTime() <= Date.now()) {
+    return data(
+      { ok: false, message: "La cita debe programarse para una fecha y hora futuras." },
+      { status: 400, headers },
+    );
+  }
   // La columna appointments.notes limita el texto a 1000 caracteres según el esquema compartido.
   if (notes.length > 1000) {
     return data(
