@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, Search, SlidersHorizontal, Clock3, UserRound, PawPrint } from "lucide-react";
-import { useSearchParams } from "react-router";
+import { Form, useActionData, useSearchParams } from "react-router";
 
 type Appointment = {
   id: string; startsAt: string; status: string; notes: string | null; patientId?: string;
@@ -17,7 +17,7 @@ const statusLabel = (value: string) => value.replaceAll("_", " ").replace(/\b\w/
 const dateTime = (value: string) => new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 const dayValue = (value: string) => value ? new Date(value).toISOString().slice(0, 10) : "";
 
-export function CitasView({ appointments, filters }: Props) {
+export function CitasView({ appointments, filters, careTypes, vets, patients }: Props) {\n  const actionData = useActionData() as { ok?: boolean; message?: string } | undefined;
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState(filters.status || "todos");
@@ -42,6 +42,38 @@ export function CitasView({ appointments, filters }: Props) {
       <div><p className="text-sm font-semibold text-brand-text">GESTIÓN ASISTENCIAL</p><h1 className="mt-1 text-3xl font-extrabold tracking-tight">Citas y agenda</h1><p className="mt-2 max-w-2xl text-sm text-ink-muted">Consulta las atenciones programadas y filtra la agenda por fechas, estado o paciente.</p></div>
       <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-4 py-3 text-sm font-semibold"><CalendarDays className="size-5 text-brand-text" />{appointments.length} citas en resultados</div>
     </header>
+
+    {actionData?.message ? <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p> : null}
+    <details className="rounded-2xl border border-line bg-surface shadow-card">
+      <summary className="cursor-pointer list-none px-5 py-4 font-bold">Programar nueva cita <span className="ml-2 text-xs font-normal text-ink-muted">Abrir formulario</span></summary>
+      <Form method="post" className="grid gap-4 border-t border-line p-5 sm:grid-cols-2 xl:grid-cols-3">
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Paciente *
+          <select name="patient_id" required className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
+            <option value="">Selecciona un paciente</option>
+            {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Tipo de atención *
+          <select name="care_type_id" required className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
+            <option value="">Selecciona la atención</option>
+            {careTypes.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Fecha y hora *
+          <input name="starts_at" type="datetime-local" required min={new Date().toISOString().slice(0, 16)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" />
+        </label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Veterinario
+          <select name="vet_id" className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
+            <option value="">Sin asignar</option>
+            {vets.map(v => <option key={v.id} value={v.id}>{v.full_name}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Notas
+          <textarea name="notes" rows={2} maxLength={2000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" />
+        </label>
+        <div className="flex items-end"><button type="submit" className="h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand hover:opacity-90">Guardar cita</button></div>
+      </Form>
+    </details>
 
     <div className="grid gap-4 sm:grid-cols-3">
       <article className="rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Citas cargadas</p><p className="mt-2 text-3xl font-extrabold">{appointments.length}</p><p className="mt-1 text-xs text-ink-muted">Según permisos de tu usuario</p></article>
