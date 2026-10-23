@@ -12,12 +12,14 @@ type Props = {
   careTypes: { id: number; label: string }[];
   vets: { id: string; full_name: string }[];
   userRole: string;
+  patients: { id: string; name: string }[];
 };
 const statusLabel = (value: string) => value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const dateTime = (value: string) => new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 const dayValue = (value: string) => value ? new Date(value).toISOString().slice(0, 10) : "";
 
-export function CitasView({ appointments, filters, careTypes, vets, patients }: Props) {\n  const actionData = useActionData() as { ok?: boolean; message?: string } | undefined;
+export function CitasView({ appointments, filters, careTypes, vets, patients }: Props) {
+  const actionData = useActionData() as { ok?: boolean; message?: string } | undefined;
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState(filters.status || "todos");
