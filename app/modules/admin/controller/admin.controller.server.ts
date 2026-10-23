@@ -78,8 +78,21 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   ]);
 
   if (error) throw new Response(`No se pudo cargar el módulo de ${TITLES[item.key].toLowerCase()}.`, { status: 500, headers });
-  const safeRows = (rows ?? []) as Record<string, unknown>[];
-  const columns = safeRows.length ? Object.keys(safeRows[0]).filter((key) => !["id", "created_by", "updated_at"].includes(key)).slice(0, 8) : [];
+  let safeRows = (rows ?? []) as Record<string, unknown>[];
+  if (item.key === "historial") {
+    const { data: vaccineRows, error: vaccineHistoryError } = await supabase.from("vaccinations").select("*").limit(300);
+    if (vaccineHistoryError) throw new Response("No se pudo cargar el historial de vacunaciones.", { status: 500, headers });
+    safeRows = [
+      ...safeRows.map((row) => ({ ...row, record_type: "Consulta" })),
+      ...((vaccineRows ?? []) as Record<string, unknown>[]).map((row) => ({ ...row, record_type: "Vacunación" })),
+    ].sort((a, b) => {
+      const dateA = String(a.created_at ?? a.applied_at ?? a.administered_at ?? "");
+      const dateB = String(b.created_at ?? b.applied_at ?? b.administered_at ?? "");
+      return dateB.localeCompare(dateA);
+    });
+  }
+  const excluded = ["id", "created_by", "updated_at"];
+  const columns = [...new Set(safeRows.flatMap((row) => Object.keys(row)))].filter((key) => !excluded.includes(key)).slice(0, 9);
   return data({
     moduleKey: item.key, title: TITLES[item.key], rows: safeRows, metrics: [], columns,
     readOnly: item.key === "historial", message: null,
