@@ -137,6 +137,10 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
       ...safeRows.map((row) => ({ ...row, record_type: "Consulta" })),
       ...((vaccineRows ?? []) as Record<string, unknown>[]).map((row) => ({ ...row, record_type: "Vacunación" })),
     ].sort((a, b) => String(b.created_at ?? b.applied_at ?? "").localeCompare(String(a.created_at ?? a.applied_at ?? "")));
+
+    // Desde la ficha de un paciente, mostrar únicamente sus consultas y vacunas.
+    const patientId = new URL(request.url).searchParams.get("patient_id");
+    if (patientId) safeRows = safeRows.filter((row) => String(row.patient_id ?? "") === patientId);
   }
 
   const excluded = ["id", "created_by", "updated_at"];
