@@ -28,8 +28,8 @@ function moduleFor(request: Request) {
   // requests se confundan con una ruta de módulo inexistente.
   const url = new URL(request.url);
   const pathname = decodeURIComponent(url.pathname)
-    .replace(/\\.data$/, "")
-    .replace(/\\/+$/, "") || "/";
+    .replace(/\.data$/, "")
+    .replace(/\/+$/, "") || "/";
   const item = findNavItem(pathname);
 
   if (!item || !TITLES[item.key]) {
