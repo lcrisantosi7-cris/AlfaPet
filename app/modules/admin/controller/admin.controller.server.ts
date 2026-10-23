@@ -23,8 +23,22 @@ const CLINICAL_ROLES = ["admin", "veterinario"] as const;
 const INVENTORY_ROLES = ["admin", "recepcion"] as const;
 
 function moduleFor(request: Request) {
-  const item = findNavItem(new URL(request.url).pathname);
-  if (!item || !TITLES[item.key]) throw new Response("Módulo no encontrado", { status: 404 });
+  // React Router usa URLs terminadas en .data para solicitar loaders durante
+  // la navegación cliente. Resolver por pathname normalizado evita que esos
+  // requests se confundan con una ruta de módulo inexistente.
+  const url = new URL(request.url);
+  const pathname = decodeURIComponent(url.pathname)
+    .replace(/\\.data$/, "")
+    .replace(/\\/+$/, "") || "/";
+  const item = findNavItem(pathname);
+
+  if (!item || !TITLES[item.key]) {
+    throw new Response(
+      `Módulo no encontrado para la ruta: ${pathname}`,
+      { status: 404 },
+    );
+  }
+
   return item;
 }
 
