@@ -87,6 +87,41 @@ export async function citasAction({ request }: ActionFunctionArgs) {
   assertSameOrigin(request);
   const { supabase, headers, user } = await requireUser(request);
   const form = await request.formData();
+  const intent = String(form.get("intent") ?? "create");
+  const recordId = String(form.get("record_id") ?? "").trim();
+
+  if (intent === "delete") {
+    if (user.role === "veterinario") return data({ ok: false, message: "El veterinario no puede eliminar citas." }, { status: 403, headers });
+    if (!recordId) return data({ ok: false, message: "Selecciona una cita válida." }, { status: 400, headers });
+    const { error } = await supabase.from("appointments").delete().eq("id", recordId);
+    if (error) return data({ ok: false, message: "No se pudo eliminar la cita: " + error.message }, { status: 400, headers });
+    return data({ ok: true, message: "Cita eliminada correctamente." }, { headers });
+  }
+
+  if (intent === "take" || intent === "change-status") {
+    if (!recordId) return data({ ok: false, message: "Selecciona una cita válida." }, { status: 400, headers });
+    const { data: current, error: currentError } = await supabase.from("appointments").select("id,status,vet_id").eq("id", recordId).maybeSingle();
+    if (currentError || !current) return data({ ok: false, message: "No se encontró la cita." }, { status: 404, headers });
+    const update: Record<string, unknown> = {};
+    if (intent === "take") {
+      if (user.role !== "veterinario") return data({ ok: false, message: "Solo un veterinario puede tomar una cita pendiente." }, { status: 403, headers });
+      if (current.vet_id && current.vet_id !== user.id) return data({ ok: false, message: "Esta cita ya está asignada a otro veterinario." }, { status: 409, headers });
+      if (current.status !== "pendiente") return data({ ok: false, message: "Solo se pueden tomar citas pendientes." }, { status: 400, headers });
+      update.vet_id = user.id;
+      update.status = "confirmada";
+    } else {
+      const nextStatus = String(form.get("status") ?? "").trim();
+      if (!["pendiente", "confirmada", "cancelada", "atendida"].includes(nextStatus)) return data({ ok: false, message: "El estado seleccionado no es válido." }, { status: 400, headers });
+      if (user.role === "veterinario" && current.vet_id !== user.id) return data({ ok: false, message: "Solo puedes actualizar el estado de las citas asignadas a ti." }, { status: 403, headers });
+      update.status = nextStatus;
+    }
+    const { error } = await supabase.from("appointments").update(update).eq("id", recordId);
+    if (error) return data({ ok: false, message: "No se pudo actualizar la cita: " + error.message }, { status: 400, headers });
+    return data({ ok: true, message: intent === "take" ? "Cita asignada a tu agenda." : "Estado de la cita actualizado." }, { headers });
+  }
+
+  if (intent === "update" && user.role === "veterinario") return data({ ok: false, message: "La edición completa de citas corresponde a recepción." }, { status: 403, headers });
+
   const patientId = String(form.get("patient_id") ?? "").trim();
   const careTypeId = String(form.get("care_type_id") ?? "").trim();
   const startsAtRaw = String(form.get("starts_at") ?? "").trim();
@@ -100,6 +135,8 @@ export async function citasAction({ request }: ActionFunctionArgs) {
       { status: 400, headers },
     );
   }
+  if (startsAt.getTime() <= Date.now()) return data({ ok: false, message: "La cita debe programarse para una fecha y hora futuras." }, { status: 400, headers });
+
   // La columna appointments.notes limita el texto a 1000 caracteres según el esquema compartido.
   if (notes.length > 1000) {
     return data(
