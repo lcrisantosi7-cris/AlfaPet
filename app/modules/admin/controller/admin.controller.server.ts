@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js";
 import { data, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 import { findNavItem } from "~/core/config/navigation";
 import { assertSameOrigin } from "~/core/security/same-origin.server";
@@ -78,10 +79,22 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
       is_active: profile.is_active,
       created_at: profile.created_at,
     } : null;
+    let veterinarians: { id: string; full_name: string; job_title: string | null }[] = [];
+    if (user.role === "recepcion") {
+      const { data: staff, error: staffError } = await supabase
+        .from("profiles")
+        .select("id,full_name,job_title")
+        .eq("role", "veterinario")
+        .eq("is_active", true)
+        .order("full_name")
+        .limit(200);
+      if (staffError) throw new Response(`No se pudieron cargar los veterinarios: ${staffError.message}`, { status: 500, headers });
+      veterinarians = staff ?? [];
+    }
     return data({
       moduleKey: item.key, title: TITLES[item.key], rows: safeProfile ? [safeProfile] : [],
       metrics: [], columns: safeProfile ? Object.keys(safeProfile).filter((key) => key !== "id") : [],
-      readOnly: false, message: null, patients: [], appointments: [], vaccines: [],
+      readOnly: false, message: null, patients: [], appointments: [], vaccines: [], veterinarians,
     }, { headers });
   }
 
@@ -162,15 +175,56 @@ export async function adminModuleAction({ request }: ActionFunctionArgs) {
   try {
     if (item.key === "configuracion" && intent === "update-profile") {
       const fullName = textField(form, "full_name", 120);
-      const jobTitle = textField(form, "job_title", 80);
+      const password = String(form.get("password") ?? "");
       if (!fullName || fullName.length < 2) {
         return data({ ok: false, message: "Ingresa un nombre de al menos 2 caracteres." }, { status: 400, headers });
       }
+      if (password && password.length < 12) {
+        return data({ ok: false, message: "La nueva contraseña debe tener al menos 12 caracteres." }, { status: 400, headers });
+      }
+      if (password) {
+        const { error: passwordError } = await supabase.auth.updateUser({ password });
+        if (passwordError) return data({ ok: false, message: `No se pudo cambiar la contraseña: ${passwordError.message}` }, { status: 400, headers });
+      }
       const { error } = await supabase.from("profiles")
-        .update({ full_name: fullName, job_title: jobTitle })
+        .update({ full_name: fullName })
         .eq("id", user.id);
-      if (error) return data({ ok: false, message: `No se pudo actualizar el perfil: ${error.message}` }, { status: 400, headers });
-      return data({ ok: true, message: "Perfil actualizado correctamente." }, { headers });
+      if (error) return data({ ok: false, message: `No se pudo actualizar el nombre: ${error.message}` }, { status: 400, headers });
+      return data({ ok: true, message: password ? "Nombre y contraseña actualizados correctamente." : "Nombre actualizado correctamente." }, { headers });
+    }
+
+    if (item.key === "configuracion" && intent === "update-veterinarian") {
+      if (user.role !== "recepcion") {
+        return data({ ok: false, message: "Solo recepción puede actualizar el perfil de los veterinarios." }, { status: 403, headers });
+      }
+      const profileId = textField(form, "profile_id", 80);
+      const fullName = textField(form, "full_name", 120);
+      const password = String(form.get("password") ?? "");
+      if (!profileId || !fullName || fullName.length < 2) {
+        return data({ ok: false, message: "Selecciona un veterinario e ingresa un nombre válido." }, { status: 400, headers });
+      }
+      if (password && password.length < 12) {
+        return data({ ok: false, message: "La contraseña debe tener al menos 12 caracteres." }, { status: 400, headers });
+      }
+      const { data: target, error: targetError } = await supabase
+        .from("profiles").select("id,role").eq("id", profileId).maybeSingle();
+      if (targetError || !target || target.role !== "veterinario") {
+        return data({ ok: false, message: "Solo puedes modificar perfiles de veterinarios existentes." }, { status: 404, headers });
+      }
+      const { error: profileError } = await supabase.from("profiles")
+        .update({ full_name: fullName }).eq("id", profileId);
+      if (profileError) return data({ ok: false, message: `No se pudo actualizar el nombre: ${profileError.message}` }, { status: 400, headers });
+      if (password) {
+        const url = process.env.SUPABASE_URL;
+        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        if (!url || !serviceKey) {
+          return data({ ok: false, message: "Falta configurar SUPABASE_SERVICE_ROLE_KEY para cambiar contraseñas de otros usuarios." }, { status: 500, headers });
+        }
+        const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+        const { error: passwordError } = await admin.auth.admin.updateUserById(profileId, { password });
+        if (passwordError) return data({ ok: false, message: `El nombre se guardó, pero no se pudo cambiar la contraseña: ${passwordError.message}` }, { status: 400, headers });
+      }
+      return data({ ok: true, message: password ? "Perfil y contraseña del veterinario actualizados." : "Nombre del veterinario actualizado." }, { headers });
     }
 
     if (item.key === "consultas" && intent === "create") {
