@@ -14,7 +14,7 @@ export async function citasLoader({ request }: LoaderFunctionArgs) {
   let query = supabase
     .from("appointments")
     .select(
-      "id,starts_at,status,notes,patient:patients(id,name,species,owner:owners(full_name)),care_type:care_types(label),vet:profiles!appointments_vet_id_fkey(full_name)",
+      "id,starts_at,status,notes,vet_id,patient:patients(id,name,species,owner:owners(full_name)),care_type:care_types(label),vet:profiles!appointments_vet_id_fkey(full_name)",
     )
     .order("starts_at", { ascending: true })
     .limit(500);
@@ -69,6 +69,7 @@ export async function citasLoader({ request }: LoaderFunctionArgs) {
         startsAt: row.starts_at as string,
         status: String(row.status ?? ""),
         notes: row.notes as string | null,
+        vetId: row.vet_id as string | null,
         patientId: row.patient?.id as string | undefined,
         patientName: row.patient?.name as string | undefined,
         species: String(row.patient?.species ?? ""),
