@@ -1,87 +1,43 @@
-# Welcome to React Router!
+# AlfaPet — sistema de gestión veterinaria
 
-A modern, production-ready template for building full-stack React applications using React Router.
+Aplicación web para la gestión asistencial de la veterinaria AlfaPet, como parte del proyecto académico “Sistema de gestión asistencial veterinaria bajo estándares de calidad ISO 25010 para optimizar la estabilidad operativa, Sullana 2026”.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## Tecnologías
+- React y TypeScript
+- React Router
+- Tailwind CSS
+- Supabase Auth y PostgreSQL
 
-## Features
+## Estado actual
+- Autenticación y perfiles por rol.
+- Panel inicial conectado a una función RPC de resumen.
+- Formulario transaccional de registro de propietario y paciente.
+- Directorio de pacientes con búsqueda y filtros de especie/estado.
+- Los módulos de citas, consultas, historial clínico, vacunas, productos, reportes y configuración siguen pendientes de implementación funcional.
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+## Instalación local
+Requiere una versión de Node.js compatible con el campo `engines` de `package.json`.
 
-## Getting Started
+1. Clona el repositorio.
+2. Ejecuta `npm install`.
+3. Copia `.env.example` a `.env` y configura las variables del proyecto Supabase.
+4. En un proyecto Supabase de desarrollo, revisa y ejecuta `supabase/migrations/202610220001_patient_transactions.sql` después de comprobar el esquema y las políticas RLS existentes.
+5. Ejecuta `npm run dev`.
 
-### Installation
+## Comprobaciones
+- `npm run typecheck`
+- `npm run build`
 
-Install the dependencies:
+Estas comprobaciones deben ejecutarse localmente o en CI antes de considerar el cambio listo para producción. No se han documentado resultados de pruebas hasta que se ejecuten y registren.
 
-```bash
-npm install
-```
+## Calidad ISO/IEC 25010
+Consulta [el plan de calidad](docs/PLAN_CALIDAD_ISO_25010.md). El documento define verificaciones propuestas para adecuación funcional, desempeño, compatibilidad, capacidad de interacción, fiabilidad, seguridad, mantenibilidad, flexibilidad y seguridad operacional. Las métricas y conclusiones deben basarse en evidencia real.
 
-### Development
+## Seguridad
+- Nunca guardes `.env`, contraseñas, claves de servicio ni tokens reales en el repositorio.
+- La clave service-role de Supabase es exclusivamente para servidor y no debe llegar al navegador.
+- Mantén RLS habilitado y prueba el acceso con cada rol.
+- Si una credencial real fue publicada en Git, revócala/ rótala en el proveedor; borrar el valor del archivo actual no lo elimina del historial de Git.
 
-Start the development server with HMR:
-
-```bash
-npm run dev
-```
-
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
-
-```bash
-npm run build
-```
-
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+## Contribución
+Trabaja con migraciones revisables, validación de servidor y pruebas automatizadas. Antes de desplegar cambios de base de datos, prueba restauración, concurrencia y permisos en un entorno de desarrollo.
