@@ -25,14 +25,14 @@ export async function citasLoader({ request }: LoaderFunctionArgs) {
     supabase.from("profiles").select("id,full_name").eq("is_active", true).eq("role", "veterinario").order("full_name"),
   ]);
 
-  if (error) throw new Response("No se pudieron cargar las citas.", { status: 500, headers });
-  if (careError) throw new Response("No se pudieron cargar los tipos de atención desde Supabase. Revisa que care_types tenga las columnas id y label.", { status: 500, headers });
-  if (vetsError) throw new Response("No se pudieron cargar los veterinarios desde Supabase. Revisa los campos role e is_active de profiles.", { status: 500, headers });
+  if (error) throw new Response(`No se pudieron cargar las citas desde Supabase: ${error.message}`, { status: 500, headers });
+  if (careError) throw new Response(`No se pudieron cargar los tipos de atención: ${careError.message}`, { status: 500, headers });
+  if (vetsError) throw new Response(`No se pudieron cargar los veterinarios: ${vetsError.message}`, { status: 500, headers });
 
   return data({
     userRole: user.role,
     filters: { from: from ?? "", to: to ?? "", status: status ?? "todos" },
-    patients: (await supabase.from("patients").select("id,name").eq("is_active", true).order("name").limit(500)).data ?? [],
+    patients: await (async () => { const result = await supabase.from("patients").select("id,name").eq("is_active", true).order("name").limit(500); if (result.error) throw new Response(`No se pudieron cargar los pacientes: ${result.error.message}`, { status: 500, headers }); return result.data ?? []; })(),
     appointments: (rows ?? []).map((row: any) => ({
       id: row.id as string,
       startsAt: row.starts_at as string,
@@ -66,7 +66,7 @@ export async function citasAction({ request }: ActionFunctionArgs) {
   if (notes.length > 2000) return data({ ok: false, message: "Las notas superan el máximo de 2000 caracteres." }, { status: 400, headers });
   const { data: patient, error: patientError } = await supabase.from("patients").select("id").eq("id", patientId).eq("is_active", true).maybeSingle();
   if (patientError || !patient) return data({ ok: false, message: "El paciente seleccionado no existe o está inactivo." }, { status: 400, headers });
-  const { data: care, error: careError } = await supabase.from("care_types").select("id").eq("id", careTypeId).eq("is_active", true).maybeSingle();
+  const { data: care, error: careError } = await supabase.from("care_types").select("id").eq("id", careTypeId).maybeSingle();
   if (careError || !care) return data({ ok: false, message: "El tipo de atención seleccionado no está disponible." }, { status: 400, headers });
   const insert: Record<string, unknown> = {
     patient_id: patientId, care_type_id: careTypeId, starts_at: startsAt.toISOString(),
