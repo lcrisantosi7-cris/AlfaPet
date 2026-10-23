@@ -197,12 +197,21 @@ export async function citasAction({ request }: ActionFunctionArgs) {
     insert.vet_id = vetId;
   }
 
-  const { error: insertError } = await supabase.from("appointments").insert(insert);
+  if (intent === "update" && !recordId) return data({ ok: false, message: "No se recibió el identificador de la cita." }, { status: 400, headers });
+  const { error: insertError } = intent === "update"
+    ? await supabase.from("appointments").update({
+        patient_id: patientId,
+        care_type_id: careTypeId,
+        starts_at: startsAt.toISOString(),
+        notes: notes || null,
+        vet_id: vetId || null,
+      }).eq("id", recordId)
+    : await supabase.from("appointments").insert(insert);
   if (insertError) {
     return data(
-      { ok: false, message: `No se pudo guardar la cita: ${insertError.message}` },
+      { ok: false, message: "No se pudo guardar la cita: " + insertError.message },
       { status: 400, headers },
     );
   }
-  return data({ ok: true, message: "Cita creada correctamente." }, { headers });
+  return data({ ok: true, message: intent === "update" ? "Cita actualizada correctamente." : "Cita creada correctamente." }, { headers });
 }
