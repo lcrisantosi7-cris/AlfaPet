@@ -1,4 +1,5 @@
-import { data, type LoaderFunctionArgs } from "react-router";
+import { data, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
+import { assertSameOrigin } from "~/core/security/same-origin.server";
 import { requireUser } from "~/modules/auth/controller/session.controller.server";
 
 export async function citasLoader({ request }: LoaderFunctionArgs) {
@@ -30,6 +31,7 @@ export async function citasLoader({ request }: LoaderFunctionArgs) {
   return data({
     userRole: user.role,
     filters: { from: from ?? "", to: to ?? "", status: status ?? "todos" },
+    patients: (await supabase.from("patients").select("id,name").eq("is_active", true).order("name").limit(500)).data ?? [],
     appointments: (rows ?? []).map((row: any) => ({
       id: row.id as string,
       startsAt: row.starts_at as string,
@@ -45,4 +47,36 @@ export async function citasLoader({ request }: LoaderFunctionArgs) {
     careTypes: careTypes ?? [],
     vets: vets ?? [],
   }, { headers });
+}
+
+export async function citasAction({ request }: ActionFunctionArgs) {
+  assertSameOrigin(request);
+  const { supabase, headers, user } = await requireUser(request);
+  const form = await request.formData();
+  const patientId = String(form.get("patient_id") ?? "").trim();
+  const careTypeId = String(form.get("care_type_id") ?? "").trim();
+  const startsAtRaw = String(form.get("starts_at") ?? "").trim();
+  const vetId = String(form.get("vet_id") ?? "").trim();
+  const notes = String(form.get("notes") ?? "").trim();
+  const startsAt = new Date(startsAtRaw);
+  if (!patientId || !careTypeId || !startsAtRaw || Number.isNaN(startsAt.getTime())) {
+    return data({ ok: false, message: "Paciente, tipo de atención y fecha son obligatorios." }, { status: 400, headers });
+  }
+  if (notes.length > 2000) return data({ ok: false, message: "Las notas superan el máximo de 2000 caracteres." }, { status: 400, headers });
+  const { data: patient, error: patientError } = await supabase.from("patients").select("id").eq("id", patientId).eq("is_active", true).maybeSingle();
+  if (patientError || !patient) return data({ ok: false, message: "El paciente seleccionado no existe o está inactivo." }, { status: 400, headers });
+  const { data: care, error: careError } = await supabase.from("care_types").select("id").eq("id", careTypeId).eq("is_active", true).maybeSingle();
+  if (careError || !care) return data({ ok: false, message: "El tipo de atención seleccionado no está disponible." }, { status: 400, headers });
+  const insert: Record<string, unknown> = {
+    patient_id: patientId, care_type_id: careTypeId, starts_at: startsAt.toISOString(),
+    status: "pendiente", notes: notes || null, created_by: user.id,
+  };
+  if (vetId) {
+    const { data: vet } = await supabase.from("profiles").select("id").eq("id", vetId).eq("role", "veterinario").eq("is_active", true).maybeSingle();
+    if (!vet) return data({ ok: false, message: "El veterinario seleccionado no está disponible." }, { status: 400, headers });
+    insert.vet_id = vetId;
+  }
+  const { error } = await supabase.from("appointments").insert(insert);
+  if (error) return data({ ok: false, message: "No se pudo guardar la cita. Verifica los campos y las políticas de Supabase." }, { status: 400, headers });
+  return data({ ok: true, message: "Cita creada correctamente." }, { headers });
 }
