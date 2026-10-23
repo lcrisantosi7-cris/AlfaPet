@@ -58,7 +58,79 @@ export function CitasView({ appointments, filters }: Props) {
         <button onClick={applyFilters} className="h-11 rounded-xl bg-brand px-4 text-sm font-semibold text-on-brand hover:opacity-90"><SlidersHorizontal className="mr-2 inline size-4" />Aplicar</button>
         <button onClick={reset} className="h-11 rounded-xl border border-line px-4 text-sm font-semibold hover:bg-surface-muted">Limpiar</button>
       </div>
-      {filtered.length === 0 ? <div className="flex flex-col items-center px-6 py-16 text-center"><span className="flex size-14 items-center justify-center rounded-2xl bg-brand-soft text-brand-text"><CalendarDays className="size-7" /></span><h2 className="mt-4 text-lg font-bold">No hay citas para mostrar</h2><p className="mt-1 max-w-md text-sm text-ink-muted">Prueba cambiando el rango de fechas o los filtros de búsqueda.</p></div> : <div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left text-sm"><thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted"><tr><th className="px-5 py-4">Fecha y hora</th><th className="px-5 py-4">Paciente</th><th className="px-5 py-4">Atención</th><th className="px-5 py-4">Veterinario</th><th className="px-5 py-4">Estado</th></tr></thead><tbody className="divide-y divide-line">{filtered.map(a=><tr key={a.id} className="transition-colors hover:bg-surface-muted/70"><td className="px-5 py-4"><span className="flex items-center gap-2 font-semibold"><Clock3 className="size-4 text-ink-muted" />{dateTime(a.startsAt)}</span></td><td className="px-5 py-4"><div className="flex items-center gap-3"><span className="flex size-10 items-center justify-center rounded-xl bg-brand-soft text-brand-text"><PawPrint className="size-5" /></span><div><p className="font-bold">{a.patientName || "Paciente no disponible"}</p><p className="mt-0.5 text-xs text-ink-muted">{a.ownerName || "Propietario no disponible"} · {a.species}</p></div></div></td><td className="px-5 py-4"><p className="font-medium">{a.careType || "Atención general"}</p>{a.notes && <p className="mt-1 max-w-xs truncate text-xs text-ink-muted">{a.notes}</p>}</td><td className="px-5 py-4"><span className="inline-flex items-center gap-2"><UserRound className="size-4 text-ink-muted" />{a.vetName || "Sin asignar"}</span></td><td className="px-5 py-4"><span className={a.status==="pendiente"?"rounded-full bg-tone-amber-soft px-2.5 py-1 text-xs font-semibold text-tone-amber-fg":"rounded-full bg-surface-muted px-2.5 py-1 text-xs font-semibold text-ink-muted"}>{statusLabel(a.status)}</span></td></tr>)}</tbody></table></div>}
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center px-6 py-16 text-center">
+          <span className="flex size-14 items-center justify-center rounded-2xl bg-brand-soft text-brand-text">
+            <CalendarDays className="size-7" />
+          </span>
+          <h2 className="mt-4 text-lg font-bold">No hay citas para mostrar</h2>
+          <p className="mt-1 max-w-md text-sm text-ink-muted">
+            Prueba cambiando el rango de fechas o los filtros de búsqueda.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[800px] text-left text-sm">
+            <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted">
+              <tr>
+                <th className="px-5 py-4">Fecha y hora</th>
+                <th className="px-5 py-4">Paciente</th>
+                <th className="px-5 py-4">Atención</th>
+                <th className="px-5 py-4">Veterinario</th>
+                <th className="px-5 py-4">Estado</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {filtered.map((appointment) => (
+                <tr key={appointment.id} className="transition-colors hover:bg-surface-muted/70">
+                  <td className="px-5 py-4">
+                    <span className="flex items-center gap-2 font-semibold">
+                      <Clock3 className="size-4 text-ink-muted" />
+                      {dateTime(appointment.startsAt)}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-10 items-center justify-center rounded-xl bg-brand-soft text-brand-text">
+                        <PawPrint className="size-5" />
+                      </span>
+                      <div>
+                        <p className="font-bold">{appointment.patientName || "Paciente no disponible"}</p>
+                        <p className="mt-0.5 text-xs text-ink-muted">
+                          {appointment.ownerName || "Propietario no disponible"} · {appointment.species}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-4">
+                    <p className="font-medium">{appointment.careType || "Atención general"}</p>
+                    {appointment.notes ? (
+                      <p className="mt-1 max-w-xs truncate text-xs text-ink-muted">{appointment.notes}</p>
+                    ) : null}
+                  </td>
+                  <td className="px-5 py-4">
+                    <span className="inline-flex items-center gap-2">
+                      <UserRound className="size-4 text-ink-muted" />
+                      {appointment.vetName || "Sin asignar"}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4">
+                    <span
+                      className={
+                        appointment.status === "pendiente"
+                          ? "rounded-full bg-tone-amber-soft px-2.5 py-1 text-xs font-semibold text-tone-amber-fg"
+                          : "rounded-full bg-surface-muted px-2.5 py-1 text-xs font-semibold text-ink-muted"
+                      }
+                    >
+                      {statusLabel(appointment.status)}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <footer className="flex flex-col gap-2 border-t border-line px-5 py-3 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between"><span>Mostrando {filtered.length} registros de los resultados cargados</span><span>Máximo 500 citas por consulta.</span></footer>
     </div>
   </section>;
