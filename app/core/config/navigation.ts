@@ -38,5 +38,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
 export const navItemsForRole = (role: Role) =>
   NAV_ITEMS.filter((item) => item.roles.includes(role));
 
-export const findNavItem = (pathname: string) =>
-  NAV_ITEMS.find((item) => item.path === pathname);
+export const findNavItem = (pathname: string) => {
+  // React Router puede solicitar loaders como /consultas.data; normalizamos la URL.
+  const normalizedPath = pathname.replace(/\\.data$/, "").replace(/\\/+$/, "") || "/";
+  return NAV_ITEMS.find((item) => item.path === normalizedPath);
+};
