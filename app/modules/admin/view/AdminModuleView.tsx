@@ -80,6 +80,16 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
 
     {actionData?.message ? <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p> : null}
 
+    {moduleKey === "configuracion" ? <Form method="post" className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+      <input type="hidden" name="intent" value="update-profile" />
+      <h2 className="font-bold">Datos del perfil</h2>
+      <p className="mt-1 text-sm text-ink-muted">Puedes actualizar tu nombre visible. El rol y los permisos se administran de forma separada.</p>
+      <div className="mt-4 flex flex-col gap-3 sm:max-w-xl sm:flex-row sm:items-end">
+        <Field name="full_name" title="Nombre completo" required />
+        <button type="submit" className="h-11 shrink-0 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand hover:opacity-90">Guardar perfil</button>
+      </div>
+    </Form> : null}
+
     {canCreate ? <details className="rounded-2xl border border-line bg-surface shadow-card" open={false}>
       <summary className="cursor-pointer list-none px-5 py-4 font-bold">{moduleKey === "consultas" ? "Registrar consulta clínica" : moduleKey === "vacunas" ? "Registrar vacunación" : "Registrar producto"} <span className="ml-2 text-xs font-normal text-ink-muted">Abrir formulario</span></summary>
       <Form method="post" className="grid gap-4 border-t border-line p-5 sm:grid-cols-2 xl:grid-cols-3">
