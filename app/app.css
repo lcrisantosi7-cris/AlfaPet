@@ -35,6 +35,10 @@
   --tone-purple-soft: #f6eeff;
   --tone-purple-icon: #e8d5ff;
   --tone-purple-fg: #7436c8;
+  --tone-red-soft: #fff0ef;
+  --tone-red-fg: #b42318;
+  --tone-amber-soft: #fff5dc;
+  --tone-amber-fg: #8a5a00;
 
   --chart-1: #f78a1f;
   --chart-2: #4a2a17;
@@ -73,6 +77,10 @@
   --tone-purple-soft: #241a30;
   --tone-purple-icon: #3d2a5a;
   --tone-purple-fg: #c7a0ff;
+  --tone-red-soft: #351b1a;
+  --tone-red-fg: #ffaaa4;
+  --tone-amber-soft: #332817;
+  --tone-amber-fg: #ffd17d;
 
   --chart-2: #d1a678;
   --chart-3: #c9742b;
@@ -112,6 +120,10 @@
   --color-tone-purple-soft: var(--tone-purple-soft);
   --color-tone-purple-icon: var(--tone-purple-icon);
   --color-tone-purple-fg: var(--tone-purple-fg);
+  --color-tone-red-soft: var(--tone-red-soft);
+  --color-tone-red-fg: var(--tone-red-fg);
+  --color-tone-amber-soft: var(--tone-amber-soft);
+  --color-tone-amber-fg: var(--tone-amber-fg);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
