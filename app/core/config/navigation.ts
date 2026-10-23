@@ -9,7 +9,8 @@ export type NavIconName =
   | "vaccines"
   | "products"
   | "reports"
-  | "settings";
+  | "settings"
+  | "users";
 
 export interface NavItem {
   key: string;
@@ -32,6 +33,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: "vacunas", label: "Vacunas", path: "/vacunas", icon: "vaccines", roles: CLINICAL },
   { key: "productos", label: "Productos", path: "/productos", icon: "products", roles: ["admin", "recepcion"] },
   { key: "reportes", label: "Reportes", path: "/reportes", icon: "reports", roles: ["admin"] },
+  { key: "personal", label: "Gestión de personal", path: "/personal", icon: "users", roles: ["admin"] },
   { key: "configuracion", label: "Mi perfil", path: "/configuracion", icon: "settings", roles: ALL },
 ];
 
