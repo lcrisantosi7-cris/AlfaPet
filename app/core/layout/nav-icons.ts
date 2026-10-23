@@ -5,6 +5,7 @@ import {
   Package,
   PawPrint,
   Settings,
+  UsersRound,
   Stethoscope,
   Syringe,
   ChartColumn,
@@ -22,4 +23,5 @@ export const NAV_ICONS: Record<NavIconName, LucideIcon> = {
   products: Package,
   reports: ChartColumn,
   settings: Settings,
+  users: UsersRound,
 };
