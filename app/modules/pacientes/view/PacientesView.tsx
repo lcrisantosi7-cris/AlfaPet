@@ -1,0 +1,120 @@
+import { useMemo, useState } from "react";
+import { Search, PawPrint, SlidersHorizontal, UserRound, CalendarDays, Weight } from "lucide-react";
+import { NewPatientDialog } from "./NewPatientDialog";
+import type { PatientOptions } from "../model/patient.types";
+
+type PatientRow = {
+  id: string; name: string; species: string; breed: string | null; sex: string | null;
+  birthDate: string | null; weightKg: number | null; microchip: string | null;
+  isActive: boolean; createdAt: string; ownerName?: string; ownerPhone?: string;
+};
+
+const speciesLabel = (value: string) => value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const dateLabel = (value: string | null) => value ? new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(value + "T00:00:00Z")) : "No registrada";
+
+export function PacientesView({ patients, options }: { patients: PatientRow[]; options: PatientOptions; userRole: string }) {
+  const [query, setQuery] = useState("");
+  const [species, setSpecies] = useState("todos");
+  const [status, setStatus] = useState("activos");
+  const filtered = useMemo(() => {
+    const q = query.trim().toLocaleLowerCase("es");
+    return patients.filter((p) => {
+      const matchesQuery = !q || [p.name, p.ownerName, p.ownerPhone, p.microchip, p.breed].some((v) => v?.toLocaleLowerCase("es").includes(q));
+      const matchesSpecies = species === "todos" || p.species === species;
+      const matchesStatus = status === "todos" || (status === "activos" ? p.isActive : !p.isActive);
+      return matchesQuery && matchesSpecies && matchesStatus;
+    });
+  }, [patients, query, species, status]);
+
+  return (
+    <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
+      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-sm font-semibold text-brand-text">GESTIÓN ASISTENCIAL</p>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight">Pacientes</h1>
+          <p className="mt-2 max-w-2xl text-sm text-ink-muted">Administra las fichas de los pacientes y encuentra rápidamente sus datos y propietarios.</p>
+        </div>
+        <NewPatientDialog options={options} />
+      </header>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <article className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+          <p className="text-sm text-ink-muted">Pacientes registrados</p>
+          <p className="mt-2 text-3xl font-extrabold">{patients.length}</p>
+          <p className="mt-1 text-xs text-ink-muted">Registros accesibles según tus permisos</p>
+        </article>
+        <article className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+          <p className="text-sm text-ink-muted">Pacientes activos</p>
+          <p className="mt-2 text-3xl font-extrabold">{patients.filter(p => p.isActive).length}</p>
+          <p className="mt-1 text-xs text-ink-muted">Disponibles para la atención</p>
+        </article>
+        <article className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+          <p className="text-sm text-ink-muted">Resultados filtrados</p>
+          <p className="mt-2 text-3xl font-extrabold">{filtered.length}</p>
+          <p className="mt-1 text-xs text-ink-muted">Coincidencias de tu búsqueda</p>
+        </article>
+      </div>
+
+      <div className="rounded-2xl border border-line bg-surface shadow-card">
+        <div className="flex flex-col gap-3 border-b border-line p-4 lg:flex-row lg:items-center">
+          <label className="relative min-w-0 flex-1">
+            <Search aria-hidden className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-muted" />
+            <span className="sr-only">Buscar paciente, propietario, teléfono o microchip</span>
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar por paciente, propietario, teléfono o microchip..." className="h-11 w-full rounded-xl border border-line bg-bg pl-10 pr-3 text-sm outline-none focus:border-brand" />
+          </label>
+          <label className="flex h-11 items-center gap-2 rounded-xl border border-line px-3 text-sm">
+            <SlidersHorizontal aria-hidden className="size-4 text-ink-muted" />
+            <span className="sr-only">Filtrar por especie</span>
+            <select value={species} onChange={e => setSpecies(e.target.value)} className="max-w-40 bg-transparent outline-none">
+              <option value="todos">Todas las especies</option>
+              {options.species.map(item => <option key={item} value={item}>{speciesLabel(item)}</option>)}
+            </select>
+          </label>
+          <label className="flex h-11 items-center rounded-xl border border-line px-3 text-sm">
+            <span className="sr-only">Filtrar por estado</span>
+            <select value={status} onChange={e => setStatus(e.target.value)} className="bg-transparent outline-none">
+              <option value="activos">Solo activos</option>
+              <option value="inactivos">Solo inactivos</option>
+              <option value="todos">Todos los estados</option>
+            </select>
+          </label>
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center px-6 py-16 text-center">
+            <span className="flex size-14 items-center justify-center rounded-2xl bg-brand-soft text-brand-text"><PawPrint className="size-7" /></span>
+            <h2 className="mt-4 text-lg font-bold">{patients.length === 0 ? "Todavía no hay pacientes" : "No encontramos coincidencias"}</h2>
+            <p className="mt-1 max-w-md text-sm text-ink-muted">{patients.length === 0 ? "Registra el primer paciente para comenzar a construir el padrón de la veterinaria." : "Prueba con otro nombre, teléfono, microchip o filtro."}</p>
+            {query && <button onClick={() => { setQuery(""); setSpecies("todos"); setStatus("activos"); }} className="mt-4 rounded-lg border border-line px-4 py-2 text-sm font-semibold hover:bg-surface-muted">Limpiar filtros</button>}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] text-left text-sm">
+              <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted">
+                <tr><th className="px-5 py-4 font-semibold">Paciente</th><th className="px-5 py-4 font-semibold">Propietario</th><th className="px-5 py-4 font-semibold">Ficha</th><th className="px-5 py-4 font-semibold">Registro</th><th className="px-5 py-4 font-semibold">Estado</th></tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {filtered.map(p => <tr key={p.id} className="transition-colors hover:bg-surface-muted/70">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-text"><PawPrint className="size-5" /></span>
+                      <div><p className="font-bold">{p.name}</p><p className="mt-0.5 text-xs text-ink-muted">{speciesLabel(p.species)}{p.breed ? " · " + p.breed : ""}</p></div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-4"><div className="flex items-start gap-2"><UserRound className="mt-0.5 size-4 text-ink-muted" /><div><p className="font-medium">{p.ownerName || "Propietario no disponible"}</p><p className="mt-0.5 text-xs text-ink-muted">{p.ownerPhone || "Sin teléfono"}</p></div></div></td>
+                  <td className="px-5 py-4"><div className="flex flex-col gap-1 text-xs text-ink-muted"><span className="inline-flex items-center gap-1"><CalendarDays className="size-3.5" />{dateLabel(p.birthDate)}</span><span className="inline-flex items-center gap-1"><Weight className="size-3.5" />{p.weightKg ? p.weightKg + " kg" : "Peso pendiente"}</span>{p.microchip && <span>Microchip: {p.microchip}</span>}</div></td>
+                  <td className="px-5 py-4 text-ink-muted">{dateLabel(p.createdAt.slice(0,10))}</td>
+                  <td className="px-5 py-4"><span className={p.isActive ? "rounded-full bg-tone-green-soft px-2.5 py-1 text-xs font-semibold text-tone-green-fg" : "rounded-full bg-surface-muted px-2.5 py-1 text-xs font-semibold text-ink-muted"}>{p.isActive ? "Activo" : "Inactivo"}</span></td>
+                </tr>)}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <footer className="flex flex-col gap-2 border-t border-line px-5 py-3 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between">
+          <span>Mostrando {filtered.length} de {patients.length} registros cargados</span>
+          <span>La lista está limitada a los 500 registros más recientes.</span>
+        </footer>
+      </div>
+    </section>
+  );
+}
