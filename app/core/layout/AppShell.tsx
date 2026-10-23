@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import type { NavItem } from "~/core/config/navigation";
 import { cn } from "~/core/lib/cn";
 import type { SessionUser } from "~/modules/auth/model/user.types";
+import type { AppNotification } from "~/routes/app-layout";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 
@@ -9,10 +10,11 @@ interface AppShellProps {
   user: SessionUser;
   navItems: readonly NavItem[];
   unreadNotifications: number;
+  notifications: AppNotification[];
   children: ReactNode;
 }
 
-export function AppShell({ user, navItems, unreadNotifications, children }: AppShellProps) {
+export function AppShell({ user, navItems, unreadNotifications, notifications, children }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export function AppShell({ user, navItems, unreadNotifications, children }: AppS
         <Topbar
           user={user}
           unreadNotifications={unreadNotifications}
+          notifications={notifications}
           onOpenMenu={() => setMenuOpen(true)}
         />
         <main id="contenido" className="px-4 pt-2 pb-8 lg:px-6">
