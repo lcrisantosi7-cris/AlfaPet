@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Form, useActionData } from "react-router";
 import { Activity, ClipboardList, FileBarChart, Package, Settings2, Syringe } from "lucide-react";
 
@@ -64,6 +65,23 @@ function SelectField({ name, title, options, required = false, placeholder = "Se
 export function AdminModuleView({ moduleKey, title, rows, metrics, columns, readOnly, patients, appointments, vaccines }: Props) {
   const Icon = ICONS[moduleKey] ?? Activity;
   const actionData = useActionData() as ActionResult | undefined;
+  const [search, setSearch] = useState("");
+  const filteredRows = useMemo(() => {
+    const query = search.trim().toLocaleLowerCase("es");
+    if (!query) return rows;
+    return rows.filter((row) => Object.values(row).some((value) => pretty(value).toLocaleLowerCase("es").includes(query)));
+  }, [rows, search]);
+  const exportCsv = () => {
+    const csvRows = [columns, ...filteredRows.map((row) => columns.map((column) => pretty(row[column])))];
+    const csv = csvRows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\\r\\n");
+    const blob = new Blob(["\\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `alfapet-${moduleKey}-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
   const canCreate = ["consultas", "vacunas", "productos"].includes(moduleKey);
   return <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
     <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -132,16 +150,17 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
     <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
       <div className="flex flex-col gap-1 border-b border-line px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="font-bold">{moduleKey === "configuracion" ? "Perfil de la sesión" : moduleKey === "historial" ? "Registros clínicos" : "Registros"}</h2>
-        <span className="text-xs text-ink-muted">{rows.length} registros mostrados{rows.length === 300 ? " · límite de 300" : ""}</span>
+        <div className="flex flex-wrap items-center gap-2"><span className="text-xs text-ink-muted">{filteredRows.length} registros mostrados{rows.length === 300 ? " · límite de 300" : ""}</span>{rows.length > 0 ? <button type="button" onClick={exportCsv} className="rounded-lg border border-line px-3 py-2 text-xs font-semibold hover:bg-surface-muted">Exportar CSV</button> : null}</div>
       </div>
-      {rows.length === 0 ? <div className="flex flex-col items-center px-6 py-14 text-center">
+      {rows.length > 0 ? <div className="border-b border-line p-4"><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar en los registros..." className="h-10 w-full max-w-md rounded-xl border border-line bg-bg px-3 text-sm" aria-label="Buscar en los registros" /></div> : null}
+      {filteredRows.length === 0 ? <div className="flex flex-col items-center px-6 py-14 text-center">
         <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-soft text-brand-text"><Icon className="size-6" /></span>
         <h3 className="mt-4 font-bold">No hay registros para mostrar</h3>
         <p className="mt-1 max-w-md text-sm text-ink-muted">No se encontraron datos visibles. Comprueba las políticas RLS y que existan registros en Supabase.</p>
       </div> : <div className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted"><tr>{columns.map((column) => <th key={column} className="px-5 py-4">{label(column)}</th>)}</tr></thead>
-          <tbody className="divide-y divide-line">{rows.map((row, index) => <tr key={String(row.id ?? index)} className="hover:bg-surface-muted/60">
+          <tbody className="divide-y divide-line">{filteredRows.map((row, index) => <tr key={String(row.id ?? index)} className="hover:bg-surface-muted/60">
             {columns.map((column) => <td key={column} className="max-w-sm px-5 py-4 align-top"><span className={column === "diagnosis" || column === "name" || column === "full_name" ? "font-semibold" : ""}>{pretty(row[column])}</span></td>)}
           </tr>)}</tbody>
         </table>
