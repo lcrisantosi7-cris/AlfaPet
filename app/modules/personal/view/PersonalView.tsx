@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Form, useActionData } from "react-router";
 import { ShieldCheck, Stethoscope, UserRound, UsersRound } from "lucide-react";
-import type { Route } from "./+types/personal.route";
 
 type Profile = { id: string; full_name: string; job_title: string | null; role: "admin" | "veterinario" | "recepcion"; is_active: boolean; created_at: string };
 type ActionResult = { ok?: boolean; message?: string };
@@ -56,6 +55,3 @@ export function PersonalView({ profiles }: { profiles: Profile[] }) {
   </section>;
 }
 
-export default function PersonalRoute({ loaderData }: Route.ComponentProps) {
-  return <PersonalView profiles={loaderData.profiles} />;
-}
