@@ -77,11 +77,11 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
       : Promise.resolve({ data: [] as { id: string; name: string }[] }),
   ]);
 
-  if (error) throw new Response(`No se pudo cargar el módulo de ${TITLES[item.key].toLowerCase()}.`, { status: 500, headers });
+  if (error) throw new Response(`No se pudo cargar ${TITLES[item.key].toLowerCase()} desde Supabase: ${error.message}`, { status: 500, headers });
   let safeRows = (rows ?? []) as Record<string, unknown>[];
   if (item.key === "historial") {
     const { data: vaccineRows, error: vaccineHistoryError } = await supabase.from("vaccinations").select("*").limit(300);
-    if (vaccineHistoryError) throw new Response("No se pudo cargar el historial de vacunaciones.", { status: 500, headers });
+    if (vaccineHistoryError) throw new Response(`No se pudo cargar el historial de vacunaciones: ${vaccineHistoryError.message}`, { status: 500, headers });
     safeRows = [
       ...safeRows.map((row) => ({ ...row, record_type: "Consulta" })),
       ...((vaccineRows ?? []) as Record<string, unknown>[]).map((row) => ({ ...row, record_type: "Vacunación" })),
