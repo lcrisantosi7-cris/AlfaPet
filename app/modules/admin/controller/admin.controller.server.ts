@@ -98,6 +98,14 @@ export async function adminModuleAction({ request }: ActionFunctionArgs) {
   const intent = String(form.get("intent") ?? "");
 
   try {
+    if (item.key === "configuracion" && intent === "update-profile") {
+      const fullName = textField(form, "full_name", 160);
+      if (!fullName || fullName.length < 2) return data({ ok: false, message: "Ingresa un nombre de al menos 2 caracteres." }, { status: 400, headers });
+      const { error } = await supabase.from("profiles").update({ full_name: fullName }).eq("id", user.id);
+      if (error) return data({ ok: false, message: "No se pudo actualizar el perfil. Verifica las políticas RLS." }, { status: 400, headers });
+      return data({ ok: true, message: "Perfil actualizado correctamente." }, { headers });
+    }
+
     if (item.key === "consultas" && intent === "create") {
       const patientId = textField(form, "patient_id", 80);
       const diagnosis = textField(form, "diagnosis", 4000);
