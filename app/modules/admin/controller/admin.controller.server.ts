@@ -49,7 +49,7 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   const { supabase, headers, user } = await requireUser(request, item.roles);
 
   if (item.key === "configuracion") {
-    const { data: profile, error } = await supabase.from("profiles").select("id,full_name,role,is_active,created_at").eq("id", user.id).maybeSingle();
+    const { data: profile, error } = await supabase.from("profiles").select("id,full_name,role,is_active").eq("id", user.id).maybeSingle();
     if (error) throw new Response("No se pudo cargar la configuración del perfil.", { status: 500, headers });
     return data({ moduleKey: item.key, title: TITLES[item.key], rows: profile ? [profile] : [], metrics: [], columns: profile ? Object.keys(profile).filter((key) => key !== "id") : [], readOnly: true, message: null, patients: [], appointments: [], vaccines: [] }, { headers });
   }
