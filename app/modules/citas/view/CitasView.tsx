@@ -23,6 +23,7 @@ export function CitasView({ appointments, filters }: Props) {
   const [status, setStatus] = useState(filters.status || "todos");
   const [from, setFrom] = useState(filters.from);
   const [to, setTo] = useState(filters.to);
+  const availableStatuses = useMemo(() => [...new Set(appointments.map(a => a.status).filter(Boolean))].sort(), [appointments]);
   const filtered = useMemo(() => {
     const q = search.trim().toLocaleLowerCase("es");
     return appointments.filter(a => !q || [a.patientName, a.ownerName, a.vetName, a.careType, a.notes].some(v => v?.toLocaleLowerCase("es").includes(q)));
@@ -45,14 +46,14 @@ export function CitasView({ appointments, filters }: Props) {
     <div className="grid gap-4 sm:grid-cols-3">
       <article className="rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Citas cargadas</p><p className="mt-2 text-3xl font-extrabold">{appointments.length}</p><p className="mt-1 text-xs text-ink-muted">Según permisos de tu usuario</p></article>
       <article className="rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Pendientes</p><p className="mt-2 text-3xl font-extrabold">{appointments.filter(a => a.status === "pendiente").length}</p><p className="mt-1 text-xs text-ink-muted">Requieren seguimiento</p></article>
-      <article className="rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Atendidas</p><p className="mt-2 text-3xl font-extrabold">{appointments.filter(a => ["atendida","completada","completado"].includes(a.status)).length}</p><p className="mt-1 text-xs text-ink-muted">Atenciones finalizadas</p></article>
+      <article className="rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Otros estados</p><p className="mt-2 text-3xl font-extrabold">{appointments.filter(a => a.status !== "pendiente").length}</p><p className="mt-1 text-xs text-ink-muted">Estados distintos de pendiente</p></article>
     </div>
 
     <div className="rounded-2xl border border-line bg-surface shadow-card">
       <div className="grid gap-3 border-b border-line p-4 md:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_1.3fr_auto_auto] xl:items-end">
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Desde<input type="date" value={from} onChange={e=>setFrom(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Hasta<input type="date" value={to} min={from || undefined} onChange={e=>setTo(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Estado<select value={status} onChange={e=>setStatus(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="todos">Todos los estados</option><option value="pendiente">Pendiente</option><option value="confirmada">Confirmada</option><option value="atendida">Atendida</option><option value="cancelada">Cancelada</option></select></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Estado<select value={status} onChange={e=>setStatus(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="todos">Todos los estados</option>{availableStatuses.map(value => <option key={value} value={value}>{statusLabel(value)}</option>})</select></label>
         <label className="relative flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Buscar cita<span className="relative"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2" /><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Paciente, dueño o veterinario" className="h-11 w-full rounded-xl border border-line bg-bg pl-9 pr-3 text-sm font-normal text-ink" /></span></label>
         <button onClick={applyFilters} className="h-11 rounded-xl bg-brand px-4 text-sm font-semibold text-on-brand hover:opacity-90"><SlidersHorizontal className="mr-2 inline size-4" />Aplicar</button>
         <button onClick={reset} className="h-11 rounded-xl border border-line px-4 text-sm font-semibold hover:bg-surface-muted">Limpiar</button>
