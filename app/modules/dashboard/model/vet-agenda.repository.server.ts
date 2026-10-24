@@ -55,9 +55,9 @@ export class SupabaseVetAgendaRepository {
 
         return {
             assigned: ((assignedResult.data ?? []) as unknown as RawVetAgendaAppointment[])
-                .map(SupabaseDashboardRepository.toVetAgendaAppointment),
+                .map(SupabaseVetAgendaRepository.toVetAgendaAppointment),
             unassigned: ((unassignedResult.data ?? []) as unknown as RawVetAgendaAppointment[])
-                .map(SupabaseDashboardRepository.toVetAgendaAppointment),
+                .map(SupabaseVetAgendaRepository.toVetAgendaAppointment),
         };
     }
 
