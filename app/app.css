@@ -158,3 +158,208 @@
     }
   }
 }
+
+
+/* ============================================================
+   INTERACCIONES COMPARTIDAS
+   Feedback discreto, consistente y compatible con movimiento reducido.
+   ============================================================ */
+@layer components {
+  .ui-card {
+    transition:
+      transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .ui-card:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--brand) 22%, var(--line));
+    box-shadow: 0 14px 32px -22px rgb(74 39 17 / 0.42);
+  }
+
+  .ui-card:focus-within {
+    border-color: color-mix(in srgb, var(--brand) 48%, var(--line));
+  }
+
+  .ui-stat-card {
+    transition:
+      transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .ui-stat-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--brand) 30%, var(--line));
+    box-shadow: 0 16px 34px -22px rgb(74 39 17 / 0.5);
+  }
+
+  .ui-stat-chevron {
+    transition: transform 180ms ease;
+  }
+
+  .ui-stat-card:hover .ui-stat-chevron {
+    transform: translateX(3px);
+  }
+
+  .ui-button,
+  .ui-icon-button {
+    transition:
+      transform 150ms ease,
+      color 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease,
+      box-shadow 150ms ease,
+      opacity 150ms ease;
+  }
+
+  .ui-button:hover:not(:disabled),
+  .ui-icon-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .ui-button:active:not(:disabled),
+  .ui-icon-button:active:not(:disabled) {
+    transform: translateY(0) scale(0.985);
+  }
+
+  .ui-button:disabled,
+  .ui-icon-button:disabled {
+    cursor: not-allowed;
+  }
+
+  .ui-text-link {
+    transition: color 160ms ease;
+  }
+
+  .ui-text-link > svg,
+  .ui-text-link > span[aria-hidden="true"] {
+    transition: transform 160ms ease;
+  }
+
+  .ui-text-link:hover > svg,
+  .ui-text-link:hover > span[aria-hidden="true"] {
+    transform: translateX(3px);
+  }
+
+  .ui-nav-link {
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      transform 180ms ease;
+  }
+
+  .ui-nav-link:not([aria-current="page"]):hover {
+    transform: translateX(2px);
+  }
+
+  .ui-nav-icon {
+    transition: transform 180ms ease;
+  }
+
+  .ui-nav-link:hover .ui-nav-icon {
+    transform: scale(1.06);
+  }
+
+  .ui-field {
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .ui-field:hover:not(:disabled):not(:focus) {
+    border-color: color-mix(in srgb, var(--brand) 35%, var(--line));
+  }
+
+  .ui-field:focus {
+    border-color: var(--brand);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 17%, transparent);
+  }
+
+  .vet-appointment-row {
+    transition:
+      transform 170ms ease,
+      border-color 170ms ease,
+      background-color 170ms ease,
+      box-shadow 170ms ease;
+  }
+
+  .vet-appointment-row:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--brand) 28%, var(--line));
+    box-shadow: 0 9px 20px -18px rgb(74 39 17 / 0.65);
+  }
+
+  .vet-appointment-row:focus-within {
+    border-color: color-mix(in srgb, var(--brand) 50%, var(--line));
+  }
+
+  .dashboard-enter {
+    animation: dashboard-enter 360ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  }
+
+  dialog.ui-dialog[open] {
+    animation: dialog-enter 180ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  }
+
+  dialog.ui-dialog::backdrop {
+    animation: dialog-backdrop-enter 180ms ease both;
+  }
+}
+
+@keyframes dashboard-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dialog-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dialog-backdrop-enter {
+  from {
+    background-color: rgb(0 0 0 / 0);
+  }
+  to {
+    background-color: rgb(0 0 0 / 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-card,
+  .ui-stat-card,
+  .ui-button,
+  .ui-icon-button,
+  .ui-text-link,
+  .ui-nav-link,
+  .ui-nav-icon,
+  .ui-field,
+  .vet-appointment-row {
+    transition: none !important;
+  }
+
+  .ui-card:hover,
+  .ui-stat-card:hover,
+  .ui-button:hover:not(:disabled),
+  .ui-icon-button:hover:not(:disabled),
+  .ui-nav-link:not([aria-current="page"]):hover,
+  .vet-appointment-row:hover {
+    transform: none !important;
+  }
+}
