@@ -98,21 +98,49 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   }
 
   if (item.key === "reportes") {
-    const tables = [
-      { table: "patients", label: "Pacientes" },
-      { table: "appointments", label: "Citas" },
-      { table: "consultations", label: "Consultas clínicas" },
-      { table: "vaccinations", label: "Vacunaciones" },
-      { table: "products", label: "Productos" },
-      { table: "owners", label: "Propietarios" },
+    const url = new URL(request.url);
+    const from = url.searchParams.get("desde") ?? "";
+    const to = url.searchParams.get("hasta") ?? "";
+    const validDate = (value: string) => /^\\d{4}-\\d{2}-\\d{2}$/.test(value);
+    const applyRange = (query: any, column: string) => {
+      if (validDate(from)) query = query.gte(column, from);
+      if (validDate(to)) query = query.lt(column, to + "T23:59:59.999");
+      return query;
+    };
+    const countQuery = async (tableName: string, column?: string, value?: string, dateColumn?: string) => {
+      let query = supabase.from(tableName).select("*", { count: "exact", head: true });
+      if (column && value !== undefined) query = query.eq(column, value);
+      if (dateColumn) query = applyRange(query, dateColumn);
+      const { count, error } = await query;
+      return { count: error ? null : count, unavailable: Boolean(error) };
+    };
+    const definitions = [
+      { label: "Pacientes activos", table: "patients", column: "is_active", value: "true" },
+      { label: "Pacientes inactivos", table: "patients", column: "is_active", value: "false" },
+      { label: "Propietarios", table: "owners" },
+      { label: "Citas pendientes", table: "appointments", column: "status", value: "pendiente", dateColumn: "starts_at" },
+      { label: "Citas confirmadas", table: "appointments", column: "status", value: "confirmada", dateColumn: "starts_at" },
+      { label: "Citas atendidas", table: "appointments", column: "status", value: "completada", dateColumn: "starts_at" },
+      { label: "Citas canceladas", table: "appointments", column: "status", value: "cancelada", dateColumn: "starts_at" },
+      { label: "Consultas clínicas", table: "consultations", dateColumn: "created_at" },
+      { label: "Vacunaciones registradas", table: "vaccinations", dateColumn: "applied_at" },
+      { label: "Productos en inventario", table: "products" },
+      { label: "Productos con stock bajo", table: "products", lowStock: true },
     ];
-    const results = await Promise.all(tables.map(async ({ table, label }) => {
-      const { count, error } = await supabase.from(table).select("*", { count: "exact", head: true });
-      return { label, value: error ? null : count, unavailable: Boolean(error) };
+    const results = await Promise.all(definitions.map(async (definition) => {
+      if (definition.lowStock) {
+        let query = supabase.from("products").select("id,stock,min_stock").eq("is_active", true);
+        const { data: products, error } = await query.limit(1000);
+        const low = (products ?? []).filter((product: any) => Number(product.stock ?? 0) <= Number(product.min_stock ?? 0));
+        return { label: definition.label, value: error ? null : low.length, unavailable: Boolean(error) };
+      }
+      const result = await countQuery(definition.table, definition.column, definition.value, definition.dateColumn);
+      return { label: definition.label, value: result.count, unavailable: result.unavailable };
     }));
     return data({
       moduleKey: item.key, title: TITLES[item.key], rows: [], metrics: results,
       columns: [], readOnly: true, message: null, patients: [], appointments: [], vaccines: [],
+      reportFilters: { from, to },
     }, { headers });
   }
 
