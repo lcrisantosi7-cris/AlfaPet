@@ -4,13 +4,14 @@ import { Activity, ClipboardList, FileBarChart, Package, Settings2, Syringe } fr
 
 type Row = Record<string, unknown>;
 type Metric = { label: string; value: number | null; unavailable: boolean };
+type ReportFilters = { from: string; to: string };
 type Option = { id: string | number; name: string };
 type AppointmentOption = { id: string; starts_at: string; patient?: { name?: string } | null };
 type ActionResult = { ok?: boolean; message?: string };
 type Props = {
   moduleKey: string; title: string; rows: Row[]; metrics: Metric[]; columns: string[];
   readOnly: boolean; message?: string | null; patients: Option[];
-  appointments: AppointmentOption[]; vaccines: Option[]; categories?: Option[]; veterinarians?: { id: string; full_name: string; job_title: string | null }[];
+  appointments: AppointmentOption[]; vaccines: Option[]; reportFilters?: ReportFilters; categories?: Option[]; veterinarians?: { id: string; full_name: string; job_title: string | null }[];
 };
 
 const ICONS: Record<string, typeof Activity> = {
@@ -63,7 +64,7 @@ function SelectField({ name, title, options, required = false, placeholder = "Se
   </label>;
 }
 
-export function AdminModuleView({ moduleKey, title, rows, metrics, columns, readOnly, patients, appointments, vaccines, categories = [], veterinarians = [] }: Props) {
+export function AdminModuleView({ moduleKey, title, rows, metrics, columns, readOnly, patients, appointments, vaccines, reportFilters, categories = [], veterinarians = [] }: Props) {
   const Icon = ICONS[moduleKey] ?? Activity;
   const actionData = useActionData() as ActionResult | undefined;
   const [search, setSearch] = useState("");
@@ -164,11 +165,19 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
       <article className="rounded-2xl border border-tone-green-soft bg-tone-green-soft/40 p-5"><p className="text-sm font-medium text-tone-green-fg">Stock normal</p><p className="mt-2 text-3xl font-extrabold">{rows.filter(row => Number(row.stock ?? 0) > 20).length}</p><p className="mt-1 text-xs text-tone-green-fg">Más de 20 unidades</p></article>
     </div> : null}
 
+    {moduleKey === "reportes" ? <Form method="get" className="grid gap-3 rounded-2xl border border-line bg-surface p-4 shadow-card sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end">
+      <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Desde<input name="desde" type="date" defaultValue={reportFilters?.from ?? ""} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+      <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Hasta<input name="hasta" type="date" min={reportFilters?.from || undefined} defaultValue={reportFilters?.to ?? ""} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+      <button type="submit" className="h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand">Aplicar período</button>
+      <a href="/reportes" className="flex h-11 items-center justify-center rounded-xl border border-line px-4 text-sm font-semibold hover:bg-surface-muted">Limpiar</a>
+      <p className="text-xs text-ink-muted sm:col-span-4">El período filtra citas, consultas clínicas y vacunaciones por sus fechas correspondientes. Los totales de pacientes, propietarios e inventario representan el estado actual.</p>
+    </Form> : null}
+
     {metrics.length > 0 ? <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {metrics.map((metric) => <article key={metric.label} className="rounded-2xl border border-line bg-surface p-5 shadow-card">
         <p className="text-sm text-ink-muted">{metric.label}</p>
         <p className="mt-2 text-3xl font-extrabold">{metric.unavailable ? "—" : metric.value ?? 0}</p>
-        <p className="mt-1 text-xs text-ink-muted">{metric.unavailable ? "No disponible por permisos o configuración" : "Registros en Supabase"}</p>
+        <p className="mt-1 text-xs text-ink-muted">{metric.unavailable ? "No disponible por permisos o configuración" : moduleKey === "reportes" ? "Según el período y los permisos actuales" : "Registros en Supabase"}</p>
       </article>)}
     </div> : null}
 
