@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Search, PawPrint, SlidersHorizontal, UserRound, CalendarDays, Weight, ClipboardList } from "lucide-react";
 import { Form, Link, useActionData } from "react-router";
 import { NewPatientDialog } from "./NewPatientDialog";
+import { PageHeader } from "~/core/ui/PageHeader";
 import type { PatientOptions } from "../model/patient.types";
 
 type PatientRow = {
@@ -32,14 +33,14 @@ export function PacientesView({ patients, options, userRole }: { patients: Patie
 
   return (
     <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm font-semibold text-brand-text">{isVeterinarian ? "ATENCIÓN CLÍNICA" : "GESTIÓN ASISTENCIAL"}</p>
-          <h1 className="mt-1 text-3xl font-extrabold tracking-tight">Pacientes</h1>
-          <p className="mt-2 max-w-2xl text-sm text-ink-muted">{isVeterinarian ? "Consulta las fichas de tus pacientes y accede a su información clínica." : "Administra las fichas de los pacientes y encuentra rápidamente sus datos y propietarios."}</p>
-        </div>
-        {canCreate && <NewPatientDialog options={options} />}
-      </header>
+      <PageHeader
+        eyebrow={isVeterinarian ? "Atención clínica" : "Gestión asistencial"}
+        title="Pacientes"
+        description={isVeterinarian
+          ? "Consulta las fichas de tus pacientes y accede a su información clínica."
+          : "Administra las fichas de los pacientes y encuentra rápidamente sus datos y propietarios."}
+        action={canCreate ? <NewPatientDialog options={options} /> : null}
+      />eader>
 
       {actionData?.message && <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p>}
 
