@@ -125,15 +125,28 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
       <p className="text-xs text-ink-muted sm:col-span-4">El período filtra citas, consultas clínicas y vacunaciones por sus fechas correspondientes. Los totales de pacientes, propietarios e inventario representan el estado actual.</p>
     </Form> : null}
 
-    {moduleKey === "reportes" ? <section className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card">
-      <div><h2 className="font-bold">Distribución de citas</h2><p className="mt-1 text-sm text-ink-muted">Comparación de los estados registrados para el período seleccionado.</p></div>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+    {moduleKey === "reportes" ? <section className="ui-card overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
+      <div className="flex flex-col gap-4 border-b border-line bg-gradient-to-br from-brand-soft/70 via-surface to-surface p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div><p className="text-xs font-bold uppercase tracking-[.14em] text-brand-text">Resumen operativo</p><h2 className="ui-section-heading mt-1 text-lg font-extrabold">Distribución de citas</h2><p className="mt-1 max-w-xl text-sm text-ink-muted">Estados de las citas dentro del período elegido. Las barras permiten comparar el volumen sin perder de vista los valores reales.</p></div>
+        <div className="min-w-28 rounded-2xl border border-line bg-surface/90 px-4 py-3">
+          <p className="text-xs font-medium text-ink-muted">Citas contabilizadas</p>
+          <p className="mt-1 text-2xl font-extrabold tabular-nums">{metrics.filter(metric => metric.label.startsWith("Citas ") && !metric.unavailable).reduce((sum, metric) => sum + (metric.value ?? 0), 0)}</p>
+        </div>
+      </div>
+      <div className="grid gap-5 p-5 sm:grid-cols-2">
         {metrics.filter(metric => metric.label.startsWith("Citas ")).map(metric => {
-          const maxValue = Math.max(1, ...metrics.filter(item => item.label.startsWith("Citas ")).map(item => item.value ?? 0));
+          const citationMetrics = metrics.filter(item => item.label.startsWith("Citas "));
+          const maxValue = Math.max(1, ...citationMetrics.map(item => item.value ?? 0));
           const width = Math.max(0, Math.min(100, ((metric.value ?? 0) / maxValue) * 100));
-          return <div key={metric.label}>
-            <div className="mb-2 flex items-center justify-between gap-3 text-sm"><span className="font-medium">{metric.label.replace("Citas ", "")}</span><span className="font-bold tabular-nums">{metric.unavailable ? "—" : metric.value ?? 0}</span></div>
-            <div className="h-2.5 overflow-hidden rounded-full bg-surface-muted"><div className="h-full rounded-full bg-brand transition-all duration-500" style={{ width: metric.unavailable ? "0%" : width + "%" }} /></div>
+          const label = metric.label.replace("Citas ", "");
+          const normalized = label.toLowerCase();
+          const tone = normalized.includes("complet") ? "var(--tone-green-fg)" : normalized.includes("cancel") ? "var(--tone-red-fg)" : normalized.includes("pend") ? "var(--tone-amber-fg)" : "var(--tone-blue-fg)";
+          return <div key={metric.label} className="rounded-xl border border-line/80 bg-bg/60 p-4">
+            <div className="mb-3 flex items-center justify-between gap-3"><span className="flex min-w-0 items-center gap-2 text-sm font-semibold"><span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: tone }} />{label}</span><span className="text-lg font-extrabold tabular-nums">{metric.unavailable ? "—" : metric.value ?? 0}</span></div>
+            <div className="h-2.5 overflow-hidden rounded-full bg-surface-muted" role="img" aria-label={metric.unavailable ? label + ": dato no disponible" : label + ": " + (metric.value ?? 0) + " citas"}>
+              <div className="h-full rounded-full transition-[width] duration-700 ease-out" style={{ width: metric.unavailable ? "0%" : width + "%", backgroundColor: tone }} />
+            </div>
+            <p className="mt-2 text-xs text-ink-muted">{metric.unavailable ? "Dato no disponible" : width === 0 ? "Sin registros en este estado" : Math.round(((metric.value ?? 0) / maxValue) * 100) + "% del estado con mayor volumen"}</p>
           </div>;
         })}
       </div>
