@@ -114,7 +114,7 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
       const { count, error } = await query;
       return { count: error ? null : count, unavailable: Boolean(error) };
     };
-    const definitions = [
+    const definitions: { label: string; table: string; column?: string; value?: string; dateColumn?: string; lowStock?: boolean }[] = [
       { label: "Pacientes activos", table: "patients", column: "is_active", value: "true" },
       { label: "Pacientes inactivos", table: "patients", column: "is_active", value: "false" },
       { label: "Propietarios", table: "owners" },
