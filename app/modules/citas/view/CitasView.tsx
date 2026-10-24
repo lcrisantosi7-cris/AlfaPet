@@ -26,7 +26,7 @@ export function CitasView({ appointments, filters, careTypes, vets, patients, us
   const [status, setStatus] = useState(filters.status || "todos");
   const [from, setFrom] = useState(filters.from);
   const [to, setTo] = useState(filters.to);
-  const availableStatuses = useMemo(() => [...new Set(appointments.map(a => a.status).filter(Boolean))].sort(), [appointments]);
+  const availableStatuses = ["pendiente", "confirmada", "completada", "cancelada"];
   const availableVets = useMemo(() => [...new Set(appointments.map(a => a.vetName).filter((v): v is string => Boolean(v)))].sort((a,b) => a.localeCompare(b, "es")), [appointments]);
   const availableSpecies = useMemo(() => [...new Set(appointments.map(a => a.species).filter(Boolean))].sort(), [appointments]);
   const filtered = useMemo(() => {
