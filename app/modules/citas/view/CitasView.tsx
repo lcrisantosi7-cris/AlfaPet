@@ -43,7 +43,7 @@ export function CitasView({ appointments, filters, careTypes, vets, patients, us
   };
   const reset = () => { setFrom(""); setTo(""); setStatus("todos"); setSearch(""); setVetFilter("todos"); setSpeciesFilter("todos"); setSearchParams({}); };
 
-  return <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
+  return <section className="mx-auto flex max-w-[1500px] flex-col gap-5">
     <PageHeader
       eyebrow="Gestión asistencial"
       title="Citas y agenda"
@@ -88,14 +88,14 @@ export function CitasView({ appointments, filters, careTypes, vets, patients, us
       </Form>
     </details> : <div className="rounded-2xl border border-brand/15 bg-brand-soft/50 p-4 text-sm">Puedes tomar una cita pendiente sin asignar o actualizar el estado de una cita asignada a ti.</div>}
 
-    <div className="grid gap-4 sm:grid-cols-3">
-      <article className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Citas cargadas</p><p className="mt-2 text-3xl font-extrabold">{appointments.length}</p><p className="mt-1 text-xs text-ink-muted">Según permisos de tu usuario</p></article>
+    <div className="grid gap-3 sm:grid-cols-3">
+      <article className="ui-metric"><p className="text-sm text-ink-muted">Citas cargadas</p><p className="mt-2 text-3xl font-extrabold">{appointments.length}</p><p className="mt-1 text-xs text-ink-muted">Según permisos de tu usuario</p></article>
       <article className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Pendientes</p><p className="mt-2 text-3xl font-extrabold">{appointments.filter(a => a.status === "pendiente").length}</p><p className="mt-1 text-xs text-ink-muted">Requieren seguimiento</p></article>
       <article className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Otros estados</p><p className="mt-2 text-3xl font-extrabold">{appointments.filter(a => a.status !== "pendiente").length}</p><p className="mt-1 text-xs text-ink-muted">Estados distintos de pendiente</p></article>
     </div>
 
-    <div className="ui-card rounded-2xl border border-line bg-surface shadow-card">
-      <div className="grid gap-3 border-b border-line p-4 md:grid-cols-2 xl:grid-cols-[repeat(3,minmax(120px,1fr))_repeat(2,minmax(130px,1fr))_minmax(220px,1.5fr)_auto_auto] xl:items-end">
+    <div className="ui-card overflow-hidden border border-line bg-surface">
+      <div className="ui-filter-panel md:grid-cols-2 xl:grid-cols-[repeat(3,minmax(120px,1fr))_repeat(2,minmax(130px,1fr))_minmax(220px,1.5fr)_auto_auto] xl:items-end">
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Desde<input type="date" value={from} onChange={e => setFrom(e.target.value)} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Hasta<input type="date" value={to} min={from || undefined} onChange={e => setTo(e.target.value)} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">
@@ -130,7 +130,7 @@ export function CitasView({ appointments, filters, careTypes, vets, patients, us
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="ui-table-wrap">
           <table className="w-full min-w-[800px] text-left text-sm">
             <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted">
               <tr>

@@ -25,7 +25,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
   const Icon = ICONS[moduleKey] ?? Activity;
   const actionData = useActionData() as ActionResult | undefined;
   const canCreate = ["consultas", "vacunas", "productos"].includes(moduleKey);
-  return <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
+  return <section className="mx-auto flex max-w-[1500px] flex-col gap-5">
     <PageHeader
       eyebrow={moduleKey === "reportes" ? "Análisis y seguimiento" : moduleKey === "configuracion" ? "Cuenta y preferencias" : "Administración · AlfaPet"}
       title={title}
@@ -38,7 +38,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
         configuracion: "Mantén tus datos de acceso actualizados y seguros.",
       }[moduleKey] ?? "Información de la clínica organizada para una gestión más clara."}
       action={
-        <div className="hidden items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 sm:flex">
+        <div className="hidden items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2.5 sm:flex">
           <span className="flex size-10 items-center justify-center rounded-xl bg-brand-soft text-brand-text">
             <Icon className="size-5" aria-hidden />
           </span>

@@ -16,7 +16,7 @@ export function PatientForm({ options, errors, formError, submitting, onCancel }
 
     return (
         <>
-            <fieldset className="grid gap-4 rounded-2xl border border-line bg-surface p-4 sm:grid-cols-2 sm:p-5">
+            <fieldset className="ui-form-section grid gap-4 sm:grid-cols-2">
                 <legend className="px-2 text-sm font-bold text-ink">Datos del dueño</legend>
                 <TextField label="Nombre completo" name="ownerName" required maxLength={120} autoComplete="off" error={first("ownerName")} className="sm:col-span-2" />
                 <TextField
@@ -54,7 +54,7 @@ export function PatientForm({ options, errors, formError, submitting, onCancel }
                 <TextField label="Dirección" name="ownerAddress" maxLength={200} error={first("ownerAddress")} />
             </fieldset>
 
-            <fieldset className="mt-5 grid gap-4 rounded-2xl border border-line bg-surface p-4 sm:grid-cols-2 sm:p-5">
+            <fieldset className="ui-form-section mt-4 grid gap-4 sm:grid-cols-2">
                 <legend className="px-2 text-sm font-bold text-ink">Datos del paciente</legend>
                 <TextField label="Nombre" name="name" required maxLength={80} autoComplete="off" error={first("name")} />
                 <SelectField label="Especie" name="species" required options={options.species} error={first("species")} />
