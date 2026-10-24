@@ -23,6 +23,7 @@ interface FieldProps {
 function Field({ label, error, hint, required, className, children }: FieldProps) {
     const id = useId();
     const errorId = `${id}-error`;
+    const hintId = `${id}-hint`;
 
     return (
         <div className={cn("flex flex-col gap-1.5", className)}>
@@ -34,8 +35,8 @@ function Field({ label, error, hint, required, className, children }: FieldProps
                     </span>
                 )}
             </label>
-            {children({ id, "aria-invalid": Boolean(error), "aria-describedby": error ? errorId : undefined })}
-            {hint && !error && <p className="text-xs text-ink-muted">{hint}</p>}
+            {children({ id, "aria-invalid": Boolean(error), "aria-describedby": error ? errorId : hint ? hintId : undefined })}
+            {hint && !error && <p id={hintId} className="text-xs text-ink-muted">{hint}</p>}
             {error && (
                 <p id={errorId} className="text-xs text-tone-orange-fg">
                     {error}
