@@ -16,8 +16,8 @@ export function PatientForm({ options, errors, formError, submitting, onCancel }
 
     return (
         <>
-            <fieldset className="grid gap-4 sm:grid-cols-2">
-                <legend className="mb-3 text-sm font-bold text-brand-text">Datos del dueño</legend>
+            <fieldset className="grid gap-4 rounded-2xl border border-line bg-surface p-4 sm:grid-cols-2 sm:p-5">
+                <legend className="px-2 text-sm font-bold text-ink">Datos del dueño</legend>
                 <TextField label="Nombre completo" name="ownerName" required maxLength={120} autoComplete="off" error={first("ownerName")} className="sm:col-span-2" />
                 <TextField
                     label="Teléfono"
@@ -52,8 +52,8 @@ export function PatientForm({ options, errors, formError, submitting, onCancel }
                 <TextField label="Dirección" name="ownerAddress" maxLength={200} error={first("ownerAddress")} />
             </fieldset>
 
-            <fieldset className="mt-6 grid gap-4 sm:grid-cols-2">
-                <legend className="mb-3 text-sm font-bold text-brand-text">Datos del paciente</legend>
+            <fieldset className="mt-5 grid gap-4 rounded-2xl border border-line bg-surface p-4 sm:grid-cols-2 sm:p-5">
+                <legend className="px-2 text-sm font-bold text-ink">Datos del paciente</legend>
                 <TextField label="Nombre" name="name" required maxLength={80} autoComplete="off" error={first("name")} />
                 <SelectField label="Especie" name="species" required options={options.species} error={first("species")} />
                 <TextField label="Raza" name="breed" maxLength={80} error={first("breed")} />
@@ -69,11 +69,11 @@ export function PatientForm({ options, errors, formError, submitting, onCancel }
                 </p>
             )}
 
-            <div className="mt-6 flex justify-end gap-3">
-                <button type="button" onClick={onCancel} className="h-11 rounded-xl border border-line px-5 text-sm font-semibold">
+            <div className="mt-6 flex flex-col-reverse justify-end gap-3 sm:flex-row">
+                <button type="button" onClick={onCancel} className="ui-button h-11 rounded-xl border border-line px-5 text-sm font-semibold hover:bg-surface-muted">
                     Cancelar
                 </button>
-                <button type="submit" disabled={submitting} className="h-11 rounded-xl bg-brand px-5 text-sm font-semibold text-on-brand disabled:opacity-60">
+                <button type="submit" disabled={submitting} className="ui-button h-11 rounded-xl bg-brand px-5 text-sm font-semibold text-on-brand disabled:opacity-60">
                     {submitting ? "Guardando…" : "Guardar paciente"}
                 </button>
             </div>
