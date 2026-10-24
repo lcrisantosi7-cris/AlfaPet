@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Form, useActionData } from "react-router";
 import { Activity, ClipboardList, FileBarChart, Package, Settings2, Syringe } from "lucide-react";
+import { PageHeader } from "~/core/ui/PageHeader";
 
 type Row = Record<string, unknown>;
 type Metric = { label: string; value: number | null; unavailable: boolean };
@@ -86,17 +87,22 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
   };
   const canCreate = ["consultas", "vacunas", "productos"].includes(moduleKey);
   return <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
-    <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-      <div>
-        <p className="text-sm font-semibold uppercase tracking-wide text-brand-text">AlfaPet · Gestión</p>
-        <h1 className="mt-1 text-3xl font-extrabold tracking-tight">{title}</h1>
-        <p className="mt-2 max-w-2xl text-sm text-ink-muted">Información consultada desde Supabase y sujeta a los permisos de tu sesión.</p>
-      </div>
-      <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3">
-        <span className="flex size-11 items-center justify-center rounded-xl bg-brand-soft text-brand-text"><Icon className="size-5" /></span>
-        <div><p className="text-xs text-ink-muted">Datos de la clínica</p><p className="font-semibold">Conexión Supabase</p></div>
-      </div>
-    </header>
+    <PageHeader
+      eyebrow="AlfaPet · Gestión"
+      title={title}
+      description="Información consultada desde Supabase y sujeta a los permisos de tu sesión."
+      action={
+        <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3">
+          <span className="flex size-11 items-center justify-center rounded-xl bg-brand-soft text-brand-text">
+            <Icon className="size-5" aria-hidden />
+          </span>
+          <div>
+            <p className="text-xs text-ink-muted">Datos de la clínica</p>
+            <p className="font-semibold">Conexión Supabase</p>
+          </div>
+        </div>
+      }
+    />der>
 
     {actionData?.message ? <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p> : null}
 
