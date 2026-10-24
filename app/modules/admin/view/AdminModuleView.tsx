@@ -81,6 +81,7 @@ function displayValue(column: string, value: unknown): string {
 }
 
 function statusTone(value: unknown): string {
+  if (typeof value === "boolean") return value ? "bg-tone-green-soft text-tone-green-fg" : "bg-tone-red-soft text-tone-red-fg";
   switch (String(value ?? "").toLowerCase()) {
     case "completada":
     case "activo":
@@ -153,7 +154,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
         <div className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted"><span>Rol</span><div className="flex h-11 items-center rounded-xl border border-line bg-surface-muted px-3 text-sm font-normal text-ink">{pretty(rows[0]?.role)}</div></div>
         <div className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted"><span>Estado de la cuenta</span><div className="flex h-11 items-center rounded-xl border border-line bg-surface-muted px-3 text-sm font-normal text-ink">{rows[0]?.is_active ? "Activa" : "Inactiva"}</div></div>
       </div>
-      <button type="submit" className="mt-4 h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand transition hover:-translate-y-0.5 hover:shadow-lg">Guardar cambios</button>
+      <button type="submit" className="ui-button mt-4 h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand hover:shadow-card">Guardar cambios</button>
     </Form> : null}
 
     {moduleKey === "configuracion" && rows[0]?.role === "recepcion" ? <section className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card">
@@ -166,7 +167,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
           <Field name="full_name" title="Nombre completo" required defaultValue={vet.full_name} />
           <Field name="password" title="Nueva contraseña (opcional)" type="password" min="12" />
           <p className="text-xs text-ink-muted sm:col-span-2">Deja la contraseña vacía si solo deseas cambiar el nombre. Si la cambias, utiliza al menos 12 caracteres y comunícasela al veterinario de forma segura.</p>
-          <div className="sm:col-span-2"><button type="submit" className="h-10 rounded-xl border border-line px-4 text-sm font-semibold transition hover:border-brand hover:text-brand-text">Guardar perfil de veterinario</button></div>
+          <div className="sm:col-span-2"><button type="submit" className="ui-button h-10 rounded-xl border border-line px-4 text-sm font-semibold hover:border-brand hover:text-brand-text">Guardar perfil de veterinario</button></div>
         </Form>)}
       </div>}
     </section> : null}
@@ -211,7 +212,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
     {moduleKey === "reportes" ? <Form method="get" className="grid gap-3 rounded-2xl border border-line bg-surface p-4 shadow-card sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end">
       <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Desde<input name="desde" type="date" defaultValue={reportFilters?.from ?? ""} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
       <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Hasta<input name="hasta" type="date" min={reportFilters?.from || undefined} defaultValue={reportFilters?.to ?? ""} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-      <button type="submit" className="h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand">Aplicar período</button>
+      <button type="submit" className="ui-button h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand">Aplicar período</button>
       <a href="/reportes" className="flex h-11 items-center justify-center rounded-xl border border-line px-4 text-sm font-semibold hover:bg-surface-muted">Limpiar</a>
       <p className="text-xs text-ink-muted sm:col-span-4">El período filtra citas, consultas clínicas y vacunaciones por sus fechas correspondientes. Los totales de pacientes, propietarios e inventario representan el estado actual.</p>
     </Form> : null}
