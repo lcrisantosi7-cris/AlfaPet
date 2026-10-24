@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Form } from "react-router";
-import { Activity, ClipboardList, FileBarChart, Package, Settings2, Syringe } from "lucide-react";
+import { Activity, ClipboardList, FileBarChart, Package, Search, Settings2, Syringe } from "lucide-react";
 import { AdminField as Field, AdminSelectField as SelectField } from "./AdminFormFields";
 import { displayValue, label, pretty, statusTone } from "./admin-format";
 
@@ -49,7 +49,7 @@ export function AdminDataTable({ moduleKey, rows, columns, readOnly, categories 
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {rows.length > 0 ? <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-line bg-bg px-3 focus-within:border-brand sm:w-64">
-            <Activity className="size-4 shrink-0 text-ink-muted" aria-hidden />
+            <Search className="size-4 shrink-0 text-ink-muted" aria-hidden />
             <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar registros…" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink-muted" aria-label="Buscar en los registros" />
           </label> : null}
           <span className="whitespace-nowrap text-xs text-ink-muted">{filteredRows.length} de {rows.length}</span>
