@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, Search, SlidersHorizontal, Clock3, UserRound, PawPrint } from "lucide-react";
 import { Form, useActionData, useSearchParams } from "react-router";
+import { PageHeader } from "~/core/ui/PageHeader";
 
 type Appointment = {
   id: string; startsAt: string; status: string; notes: string | null; patientId?: string; vetId?: string | null;
@@ -43,10 +44,17 @@ export function CitasView({ appointments, filters, careTypes, vets, patients, us
   const reset = () => { setFrom(""); setTo(""); setStatus("todos"); setSearch(""); setVetFilter("todos"); setSpeciesFilter("todos"); setSearchParams({}); };
 
   return <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
-    <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-      <div><p className="text-sm font-semibold text-brand-text">GESTIÓN ASISTENCIAL</p><h1 className="mt-1 text-3xl font-extrabold tracking-tight">Citas y agenda</h1><p className="mt-2 max-w-2xl text-sm text-ink-muted">Consulta las atenciones programadas y filtra la agenda por fechas, estado o paciente.</p></div>
-      <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-4 py-3 text-sm font-semibold"><CalendarDays className="size-5 text-brand-text" />{appointments.length} citas en resultados</div>
-    </header>
+    <PageHeader
+      eyebrow="Gestión asistencial"
+      title="Citas y agenda"
+      description="Consulta las atenciones programadas y filtra la agenda por fechas, estado o paciente."
+      action={
+        <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-4 py-3 text-sm font-semibold">
+          <CalendarDays className="size-5 text-brand-text" aria-hidden />
+          {appointments.length} citas en resultados
+        </div>
+      }
+    />der>
 
     {actionData?.message ? <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p> : null}
     {userRole !== "veterinario" ? <details className="ui-card rounded-2xl border border-line bg-surface shadow-card">
