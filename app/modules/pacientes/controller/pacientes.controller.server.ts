@@ -80,14 +80,14 @@ export async function pacientesAction({ request }: ActionFunctionArgs) {
   if (name.length < 1 || name.length > 80 || !species || ownerName.length < 2 || ownerName.length > 120) {
     return data({ ok: false, message: "Revisa el nombre del paciente, la especie y el nombre del propietario." }, { status: 400, headers });
   }
-  if (birthDate && (!/^\\d{4}-\\d{2}-\\d{2}$/.test(birthDate) || birthDate > new Date().toISOString().slice(0, 10))) {
+  if (birthDate && (!new RegExp("^[0-9]{4}-[0-9]{2}-[0-9]{2}$").test(birthDate) || birthDate > new Date().toISOString().slice(0, 10))) {
     return data({ ok: false, message: "La fecha de nacimiento no es válida." }, { status: 400, headers });
   }
   const weight = weightRaw ? Number(weightRaw) : null;
   if (weightRaw && (!Number.isFinite(weight) || Number(weight) <= 0 || Number(weight) > 5000)) {
     return data({ ok: false, message: "El peso debe ser un número mayor que 0 y menor o igual a 5000 kg." }, { status: 400, headers });
   }
-  if (ownerEmail && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(ownerEmail)) {
+  if (ownerEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ownerEmail)) {
     return data({ ok: false, message: "El correo del propietario no tiene un formato válido." }, { status: 400, headers });
   }
 
