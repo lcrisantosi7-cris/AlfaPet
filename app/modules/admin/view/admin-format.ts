@@ -10,6 +10,8 @@ const LABELS: Record<string, string> = {
   due_date: "Próxima dosis", administered_by: "Administrado por", appointment_id: "Cita",
   category: "Categoría", sku: "SKU", starts_at: "Fecha de cita", job_title: "Cargo",
   avatar_url: "URL de avatar", record_type: "Tipo de registro",
+  patient_name: "Paciente", appointment_label: "Cita relacionada", vet_name: "Veterinario",
+  vaccine_name: "Vacuna", administered_by_name: "Registrado por",
 };
 export function pretty(value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
