@@ -101,7 +101,7 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
     const url = new URL(request.url);
     const from = url.searchParams.get("desde") ?? "";
     const to = url.searchParams.get("hasta") ?? "";
-    const validDate = (value: string) => /^\\d{4}-\\d{2}-\\d{2}$/.test(value);
+    const validDate = (value: string) => new RegExp("^[0-9]{4}-[0-9]{2}-[0-9]{2}$").test(value);
     const applyRange = (query: any, column: string) => {
       if (validDate(from)) query = query.gte(column, from);
       if (validDate(to)) query = query.lt(column, to + "T23:59:59.999");
@@ -129,10 +129,36 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
     ];
     const results = await Promise.all(definitions.map(async (definition) => {
       if (definition.lowStock) {
-        let query = supabase.from("products").select("id,stock,min_stock").eq("is_active", true);
-        const { data: products, error } = await query.limit(1000);
-        const low = (products ?? []).filter((product: any) => Number(product.stock ?? 0) <= Number(product.min_stock ?? 0));
-        return { label: definition.label, value: error ? null : low.length, unavailable: Boolean(error) };
+        let offset = 0;
+        let lowStockCount = 0;
+        let unavailable = false;
+
+        while (true) {
+          const { data: products, error } = await supabase
+            .from("products")
+            .select("id,stock,min_stock")
+            .eq("is_active", true)
+            .range(offset, offset + 999);
+
+          if (error) {
+            unavailable = true;
+            break;
+          }
+
+          const page = products ?? [];
+          lowStockCount += page.filter(
+            (product) => Number(product.stock ?? 0) <= Number(product.min_stock ?? 0),
+          ).length;
+
+          if (page.length < 1000) break;
+          offset += 1000;
+        }
+
+        return {
+          label: definition.label,
+          value: unavailable ? null : lowStockCount,
+          unavailable,
+        };
       }
       const result = await countQuery(definition.table, definition.column, definition.value, definition.dateColumn);
       return { label: definition.label, value: result.count, unavailable: result.unavailable };
