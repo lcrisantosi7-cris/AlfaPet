@@ -22,7 +22,7 @@ export function VeterinarianDashboardView({
   const relevantStats = snapshot.stats.filter((stat) => stat.kind !== "productsInStock");
 
   return (
-    <div className="flex min-w-0 flex-col gap-6">
+    <div className="mx-auto flex min-w-0 max-w-[1500px] flex-col gap-6">
       <section className="dashboard-enter relative isolate overflow-hidden rounded-3xl border border-line bg-gradient-to-br from-brand-soft via-surface to-surface px-5 py-6 shadow-card sm:px-8 sm:py-7">
         <div aria-hidden className="absolute -right-12 -top-16 -z-10 size-64 rounded-full bg-brand/10 blur-3xl" />
         <div className="absolute right-6 top-6 hidden size-12 items-center justify-center rounded-2xl border border-brand/15 bg-surface/80 text-brand-text sm:flex">
@@ -75,7 +75,7 @@ export function VeterinarianDashboardView({
         />
       </div>
 
-      <StatsGrid stats={relevantStats} />
+      <StatsGrid stats={relevantStats} columns={3} />
 
       <div className="grid gap-5 lg:grid-cols-2">
         <WeeklyAppointmentsCard data={snapshot.weekly} />
