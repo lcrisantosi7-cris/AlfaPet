@@ -11,9 +11,8 @@
   }
 
   .ui-card:hover {
-    transform: translateY(-1px);
     border-color: color-mix(in srgb, var(--brand) 22%, var(--line));
-    box-shadow: 0 14px 32px -22px rgb(74 39 17 / 0.42);
+    box-shadow: 0 14px 32px -22px rgb(74 39 17 / 0.28);
   }
 
   .ui-card:focus-within {
@@ -192,7 +191,6 @@
     transition: none !important;
   }
 
-  .ui-card:hover,
   .ui-stat-card:hover,
   .ui-button:hover:not(:disabled),
   .ui-icon-button:hover:not(:disabled),
