@@ -5,14 +5,26 @@ interface AdminFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   title: string;
 }
 
-export function AdminField({ name, title, className, ...input }: AdminFieldProps) {
+function FieldTitle({ title, required }: { title: string; required?: boolean }) {
   return (
-    <label className={"flex min-w-0 flex-col gap-1.5 text-xs font-semibold text-ink-muted " + (className ?? "")}>
-      {title}
+    <span className="flex min-h-4 items-center gap-1.5">
+      <span>{title}</span>
+      {required ? <span className="font-bold text-tone-red-fg" aria-hidden="true">*</span> : null}
+      {required ? <span className="sr-only">, obligatorio</span> : null}
+    </span>
+  );
+}
+
+export function AdminField({ name, title, className, required, ...input }: AdminFieldProps) {
+  return (
+    <label className={"group flex min-w-0 flex-col gap-1.5 text-xs font-semibold text-ink-muted " + (className ?? "")}>
+      <FieldTitle title={title} required={required} />
       <input
         name={name}
+        required={required}
+        aria-required={required || undefined}
         {...input}
-        className="ui-field h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-normal text-ink"
+        className="ui-field h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-normal text-ink placeholder:text-ink-muted/75"
       />
     </label>
   );
@@ -37,15 +49,16 @@ export function AdminSelectField({
   title,
   options,
   required = false,
-  placeholder = "Selecciona...",
+  placeholder = "Selecciona una opción…",
   defaultValue = "",
 }: AdminSelectFieldProps) {
   return (
-    <label className="flex min-w-0 flex-col gap-1.5 text-xs font-semibold text-ink-muted">
-      {title}
+    <label className="group flex min-w-0 flex-col gap-1.5 text-xs font-semibold text-ink-muted">
+      <FieldTitle title={title} required={required} />
       <select
         name={name}
         required={required}
+        aria-required={required || undefined}
         defaultValue={defaultValue}
         className="ui-field h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm font-normal text-ink"
       >
