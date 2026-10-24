@@ -170,7 +170,7 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   return data({
     moduleKey: item.key, title: TITLES[item.key], rows: safeRows, metrics: [], columns,
     readOnly: item.key === "historial", message: null,
-    patients: patients ?? [], appointments: appointments ?? [], vaccines: vaccines ?? [],
+    patients: patients ?? [], appointments: appointments ?? [], vaccines: vaccines ?? [], categories,
   }, { headers });
 }
 
