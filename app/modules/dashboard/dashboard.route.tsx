@@ -1,4 +1,5 @@
 import type { Route } from "./+types/dashboard.route";
+import { ConfirmForm } from "~/core/feedback/ConfirmForm";
 import { dashboardLoader } from "./controller/dashboard.controller.server";
 import { DashboardView } from "./view/DashboardView";
 

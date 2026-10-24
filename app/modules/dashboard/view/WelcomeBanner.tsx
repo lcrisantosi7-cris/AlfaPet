@@ -1,4 +1,5 @@
 import { ArrowRight, CalendarDays, PawPrint, ShieldCheck, Sparkles } from "lucide-react";
+import { ConfirmForm } from "~/core/feedback/ConfirmForm";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { SmartImage } from "~/core/ui/SmartImage";
@@ -30,7 +31,7 @@ export function WelcomeBanner({ firstName, appointmentsToday, action }: WelcomeB
           Panel de gestión veterinaria
         </div>
         <h1 id="bienvenida" className="text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl">
-          ¡Hola, <span className="text-brand">{firstName}</span>!
+          ¡Hola, <span className="text-brand">{firstName}</span>! <span className="ui-wave" aria-hidden>👋</span>
         </h1>
         <p className="mt-3 max-w-lg text-sm leading-6 text-ink-muted sm:text-base">{todaySummary(appointmentsToday)}</p>
         <div className="mt-6 flex flex-wrap items-center gap-3">

@@ -1,12 +1,13 @@
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "~/core/lib/cn";
+import { CountUp } from "./CountUp";
 
 const TONES = {
-  orange: { icon: "bg-tone-orange-icon text-tone-orange-fg" },
-  blue: { icon: "bg-tone-blue-icon text-tone-blue-fg" },
-  green: { icon: "bg-tone-green-icon text-tone-green-fg" },
-  purple: { icon: "bg-tone-purple-icon text-tone-purple-fg" },
+  orange: { icon: "bg-tone-orange-icon text-tone-orange-fg", card: "from-tone-orange-soft" },
+  blue: { icon: "bg-tone-blue-icon text-tone-blue-fg", card: "from-tone-blue-soft" },
+  green: { icon: "bg-tone-green-icon text-tone-green-fg", card: "from-tone-green-soft" },
+  purple: { icon: "bg-tone-purple-icon text-tone-purple-fg", card: "from-tone-purple-soft" },
 } as const;
 
 export type StatTone = keyof typeof TONES;
@@ -26,16 +27,17 @@ export function StatCard({ label, value, to, tone, icon: Icon }: StatCardProps) 
     <Link
       to={to}
       className={cn(
-        "ui-stat-card group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-line bg-surface p-4 shadow-[0_1px_2px_rgb(59_29_14_/_0.025)] transition duration-200 hover:-translate-y-0.5 hover:border-brand/35 hover:shadow-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:p-5",
+        "ui-stat-card group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-line bg-gradient-to-br to-surface p-4 sm:p-5",
+        styles.card,
       )}
     >
-      <span className={cn("flex size-10 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105 sm:size-11", styles.icon)}>
-        <Icon className="size-5" aria-hidden />
+      <span className={cn("ui-wiggle flex size-11 items-center justify-center rounded-2xl shadow-sm sm:size-12", styles.icon)}>
+        <Icon className="size-6" aria-hidden />
       </span>
-      <span className="text-3xl font-extrabold leading-none tracking-tight text-ink">{value}</span>
-      <span className="flex items-center justify-between gap-2 text-sm font-medium text-ink-muted">
+      <CountUp value={value} className="text-4xl font-extrabold leading-none tracking-tight tabular-nums text-ink" />
+      <span className="flex items-center justify-between gap-2 text-sm font-semibold text-ink-muted">
         {label}
-        <ChevronRight className="ui-stat-chevron size-4 shrink-0 text-ink-muted/70 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-brand" aria-hidden />
+        <ChevronRight className="ui-stat-chevron size-4 shrink-0 text-ink-muted/70 group-hover:text-brand" aria-hidden />
       </span>
     </Link>
   );

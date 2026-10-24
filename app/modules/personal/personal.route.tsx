@@ -1,4 +1,5 @@
 import type { Route } from "./+types/personal.route";
+import { useActionToast } from "~/core/feedback/use-action-toast";
 import { personalAction, personalLoader } from "./controller/personal.controller.server";
 import { PersonalView } from "./view/PersonalView";
 

@@ -1,4 +1,5 @@
 import { Activity } from "lucide-react";
+import { ConfirmForm } from "~/core/feedback/ConfirmForm";
 import type { NavIconName } from "~/core/config/navigation";
 import { NAV_ICONS } from "~/core/layout/nav-icons";
 

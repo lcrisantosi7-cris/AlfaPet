@@ -1,8 +1,10 @@
 import { CalendarDays, CheckCircle2, Clock3, PawPrint } from "lucide-react";
+import { ConfirmForm } from "~/core/feedback/ConfirmForm";
 import { useFetcher, Link } from "react-router";
 import { EmptyState } from "~/core/ui/EmptyState";
 import { SectionCard } from "~/core/ui/SectionCard";
 import type { VetAgendaAppointment } from "../model/dashboard.types";
+import { useActionToast } from "~/core/feedback/use-action-toast";
 
 interface AppointmentActionResult {
   ok: boolean;
@@ -48,6 +50,7 @@ export function VetAppointmentList({
   mode,
 }: VetAppointmentListProps) {
   const fetcher = useFetcher<AppointmentActionResult>();
+  useActionToast(fetcher.data);
   const submittingId = String(fetcher.formData?.get("record_id") ?? "");
   const isUnassigned = mode === "unassigned";
 
@@ -65,20 +68,6 @@ export function VetAppointmentList({
     >
       <p className="mb-4 text-sm leading-6 text-ink-muted">{description}</p>
 
-      {fetcher.data?.message && (
-        <p
-          className={
-            "mb-4 rounded-xl border px-3.5 py-3 text-sm font-medium " +
-            (fetcher.data.ok
-              ? "border-tone-green-fg/20 bg-tone-green-soft text-tone-green-fg"
-              : "border-tone-red-fg/20 bg-tone-red-soft text-tone-red-fg")
-          }
-          role={fetcher.data.ok ? "status" : "alert"}
-          aria-live="polite"
-        >
-          {fetcher.data.message}
-        </p>
-      )}
 
       {items.length === 0 ? (
         <EmptyState

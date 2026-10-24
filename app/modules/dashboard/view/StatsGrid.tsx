@@ -1,4 +1,5 @@
 import { CalendarDays, PawPrint, Package, Syringe, type LucideIcon } from "lucide-react";
+import { ConfirmForm } from "~/core/feedback/ConfirmForm";
 import { StatCard, type StatTone } from "~/core/ui/StatCard";
 import { cn } from "~/core/lib/cn";
 import type { DashboardStat, StatKind } from "../model/dashboard.types";
@@ -19,7 +20,7 @@ const STAT_VIEW: Record<StatKind, StatView> = {
 
 export function StatsGrid({ stats, columns = 4 }: { stats: readonly DashboardStat[]; columns?: 3 | 4 }) {
   return (
-    <ul className={cn("grid grid-cols-2 gap-3 sm:gap-4", columns === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4")}>
+    <ul className={cn("stagger grid grid-cols-2 gap-3 sm:gap-4", columns === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4")}>
       {stats.map((stat) => (
         <li key={stat.kind}>
           <StatCard value={stat.value} {...STAT_VIEW[stat.kind]} />

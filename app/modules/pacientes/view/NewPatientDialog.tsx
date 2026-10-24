@@ -1,4 +1,7 @@
 import { Plus } from "lucide-react";
+import { useActionToast } from "~/core/feedback/use-action-toast";
+import { ConfirmForm } from "~/core/feedback/ConfirmForm";
+import { toast } from "~/core/feedback/toast-store";
 import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import { Modal } from "~/core/ui/Modal";
@@ -18,6 +21,7 @@ export function NewPatientDialog({ options }: { options: PatientOptions }) {
         if (fetcher.state === "idle" && result?.ok) {
             setOpen(false);
             setSaved(true);
+            toast.success("Paciente registrado", "La ficha ya está disponible en el padrón.");
             setFormKey((key) => key + 1); // limpia el formulario
         }
     }, [fetcher.state, result]);

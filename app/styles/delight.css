@@ -1,0 +1,54 @@
+@layer components {
+  .toast-enter { animation: toast-in 380ms cubic-bezier(.2, 1.15, .3, 1) both; }
+  .toast-leave { animation: toast-out 180ms ease-in both; }
+  .toast-bar {
+    transform-origin: left;
+    animation-name: toast-progress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+
+  .ui-pop { animation: pop 420ms cubic-bezier(.2, 1.5, .4, 1) both; }
+  .ui-float { animation: float 3.2s ease-in-out infinite; }
+  .ui-wave { display: inline-block; transform-origin: 70% 70%; animation: wave 2s ease-in-out 500ms 2; }
+  .group:hover .ui-wiggle { animation: wiggle 560ms ease-in-out; }
+
+  .ui-dot-pulse { position: relative; }
+  .ui-dot-pulse::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: currentColor;
+    animation: dot-pulse 1.6s ease-out infinite;
+  }
+
+  .ui-skeleton {
+    border-radius: .75rem;
+    background: linear-gradient(90deg, var(--surface-muted) 25%, var(--line) 50%, var(--surface-muted) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+
+  .stagger > * { animation: dashboard-enter 420ms cubic-bezier(.2, .75, .25, 1) both; }
+  .stagger > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger > *:nth-child(6) { animation-delay: 300ms; }
+}
+
+@keyframes toast-in { from { opacity: 0; transform: translateY(18px) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes toast-out { to { opacity: 0; transform: translateX(24px) scale(.96); } }
+@keyframes toast-progress { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@keyframes pop { 0% { transform: scale(.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes wave { 0%, 60%, 100% { transform: rotate(0); } 10%, 30% { transform: rotate(16deg); } 20%, 40% { transform: rotate(-10deg); } 50% { transform: rotate(8deg); } }
+@keyframes wiggle { 0%, 100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-9deg) scale(1.08); } 75% { transform: rotate(9deg) scale(1.08); } }
+@keyframes dot-pulse { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-enter, .toast-leave, .toast-bar, .ui-pop, .ui-float, .ui-wave, .ui-dot-pulse::after,
+  .ui-skeleton, .stagger > *, .group:hover .ui-wiggle { animation: none !important; }
+}

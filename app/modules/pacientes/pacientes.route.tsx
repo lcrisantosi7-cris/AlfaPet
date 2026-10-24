@@ -1,4 +1,6 @@
 import type { Route } from "./+types/pacientes.route";
+import { ConfirmForm } from "~/core/feedback/ConfirmForm";
+import { useActionToast } from "~/core/feedback/use-action-toast";
 import { pacientesAction, pacientesLoader } from "./controller/pacientes.controller.server";
 import { PacientesView } from "./view/PacientesView";
 

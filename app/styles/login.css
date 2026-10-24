@@ -1,0 +1,57 @@
+@layer components {
+  /* ---------- Mascota ---------- */
+  .dog-eye { transform-box: fill-box; transform-origin: center; animation: dog-blink 5.2s infinite; }
+  .dog-pupil { transform: translate(var(--px, 0px), var(--py, 0px)); transition: transform 110ms ease-out; }
+  .dog-paw { transform: translateY(70px); transition: transform 420ms cubic-bezier(.3, 1.45, .5, 1); }
+  .dog[data-mood="cover"] .dog-paw,
+  .dog[data-mood="peek"] .dog-paw-left { transform: translateY(0); }
+  .dog-ear { transform-box: fill-box; transition: transform 320ms cubic-bezier(.3, 1.4, .5, 1); }
+  .dog-ear-left { transform-origin: 85% 15%; }
+  .dog-ear-right { transform-origin: 15% 15%; }
+  .dog[data-mood="error"] .dog-ear-left { transform: rotate(14deg); }
+  .dog[data-mood="error"] .dog-ear-right { transform: rotate(-14deg); }
+  .dog[data-mood="error"] .dog-head { animation: dog-shake 520ms ease-in-out; }
+  .dog[data-mood="loading"] .dog-head { animation: dog-bob 800ms ease-in-out infinite; }
+  .dog-tongue { opacity: 0; transform-box: fill-box; transform-origin: top; }
+  .dog[data-mood="loading"] .dog-tongue { opacity: 1; animation: dog-pant 360ms ease-in-out infinite alternate; }
+
+  /* ---------- Panel izquierdo ---------- */
+  .login-chip { animation: login-chip-in 480ms cubic-bezier(.2, 1.2, .3, 1) both; }
+  .login-float { animation: login-float 6s ease-in-out infinite; }
+  .login-paw-step { opacity: 0; animation: login-paw-step 3.6s ease-in-out infinite; }
+  .login-paw-step:nth-child(2) { animation-delay: .5s; }
+  .login-paw-step:nth-child(3) { animation-delay: 1s; }
+  .login-paw-step:nth-child(4) { animation-delay: 1.5s; }
+  .login-paw-step:nth-child(5) { animation-delay: 2s; }
+
+  /* ---------- Formulario ---------- */
+  .login-shake { animation: login-shake 420ms ease-in-out; }
+  .login-submit { position: relative; overflow: hidden; }
+  .login-submit::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-130%) skewX(-20deg);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / .3), transparent);
+  }
+  .login-submit:hover:not(:disabled)::after {
+    transform: translateX(130%) skewX(-20deg);
+    transition: transform 700ms ease;
+  }
+}
+
+@keyframes dog-blink { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+@keyframes dog-shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+@keyframes dog-bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(-2deg); } }
+@keyframes dog-pant { from { transform: scaleY(.8); } to { transform: scaleY(1.15); } }
+@keyframes login-chip-in { from { opacity: 0; transform: translateY(-14px) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes login-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes login-paw-step { 0%, 100% { opacity: 0; } 20%, 60% { opacity: .55; } }
+@keyframes login-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dog-eye, .dog[data-mood] .dog-head, .dog-tongue, .login-chip, .login-float,
+  .login-paw-step, .login-shake { animation: none !important; }
+  .login-paw-step { opacity: .4; }
+  .login-submit::after { display: none; }
+}

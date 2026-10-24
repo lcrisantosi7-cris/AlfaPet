@@ -1,4 +1,5 @@
 import type { Route } from "./+types/placeholder.route";
+import { ConfirmForm } from "~/core/feedback/ConfirmForm";
 import { ModulePlaceholder } from "./ModulePlaceholder";
 import { placeholderLoader } from "./placeholder.controller.server";
 

@@ -1,4 +1,6 @@
 import { Form, useActionData } from "react-router";
+import { ConfirmForm } from "~/core/feedback/ConfirmForm";
+import { useActionToast } from "~/core/feedback/use-action-toast";
 import { Activity, ClipboardList, FileBarChart, Package, Settings2, Syringe } from "lucide-react";
 import { PageHeader } from "~/core/ui/PageHeader";
 import { AdminField as Field, AdminSelectField as SelectField } from "./AdminFormFields";
@@ -24,6 +26,7 @@ const ICONS: Record<string, typeof Activity> = {
 export function AdminModuleView({ moduleKey, title, rows, metrics, columns, readOnly, patients, appointments, vaccines, reportFilters, categories = [], veterinarians = [] }: Props) {
   const Icon = ICONS[moduleKey] ?? Activity;
   const actionData = useActionData() as ActionResult | undefined;
+  useActionToast(actionData);
   const canCreate = ["consultas", "vacunas", "productos"].includes(moduleKey);
   return <section className="mx-auto flex max-w-[1500px] flex-col gap-5">
     <PageHeader

@@ -1,11 +1,15 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { useLocation, useNavigation } from "react-router";
+import { useFetchers, useLocation, useNavigation } from "react-router";
+import { ToastViewport } from "~/core/feedback/ToastViewport";
 import type { NavItem } from "~/core/config/navigation";
 import { cn } from "~/core/lib/cn";
+import { PageSkeleton, SlowNotice, useDelayedFlag } from "~/core/ui/Loading";
 import type { SessionUser } from "~/modules/auth/model/user.types";
 import type { AppNotification } from "~/routes/app-layout";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
+
+const SIDEBAR_KEY = "alfapet:sidebar-collapsed";
 
 interface AppShellProps {
   user: SessionUser;
@@ -19,22 +23,47 @@ export function AppShell({ user, navItems, unreadNotifications, notifications, c
   const [menuOpen, setMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigation = useNavigation();
+  const fetchers = useFetchers();
   const location = useLocation();
+
   const isNavigating = navigation.state !== "idle";
+  const busy = isNavigating || fetchers.some((fetcher) => fetcher.state !== "idle");
+  const isPageLoad = navigation.state === "loading" && !navigation.formData;
+  const showSkeleton = useDelayedFlag(isPageLoad, 400);
+  const showSlow = useDelayedFlag(busy, 3000);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(SIDEBAR_KEY) === "1") setSidebarCollapsed(true);
+    } catch { }
+  }, []);
+
+  const toggleSidebar = () => {
+    const next = !sidebarCollapsed;
+    setSidebarCollapsed(next);
+    try {
+      localStorage.setItem(SIDEBAR_KEY, next ? "1" : "0");
+    } catch { }
+  };
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (!menuOpen) return;
     const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && setMenuOpen(false);
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+    };
   }, [menuOpen]);
 
   useEffect(() => {
-    if (isNavigating) {
-      document.documentElement.dataset.navigation = "loading";
-    } else {
-      delete document.documentElement.dataset.navigation;
-    }
+    if (isNavigating) document.documentElement.dataset.navigation = "loading";
+    else delete document.documentElement.dataset.navigation;
     return () => {
       delete document.documentElement.dataset.navigation;
     };
@@ -59,29 +88,34 @@ export function AppShell({ user, navItems, unreadNotifications, notifications, c
       </a>
 
       {/* Escritorio */}
-      <aside className={cn("fixed inset-y-0 left-0 z-40 hidden transition-[width] duration-200 lg:block", sidebarCollapsed ? "w-[5.25rem]" : "w-64")}>
-        <Sidebar items={navItems} collapsed={sidebarCollapsed} onToggleCollapse={() => setSidebarCollapsed((value) => !value)} />
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 hidden transition-[width] duration-300 ease-[cubic-bezier(.2,.8,.2,1)] lg:block",
+          sidebarCollapsed ? "w-[5.25rem]" : "w-64",
+        )}
+      >
+        <Sidebar items={navItems} collapsed={sidebarCollapsed} onToggleCollapse={toggleSidebar} />
       </aside>
 
       {/* Móvil */}
       <div
         onClick={() => setMenuOpen(false)}
         className={cn(
-          "fixed inset-0 z-40 bg-black/50 transition-opacity lg:hidden",
+          "fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
           menuOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       />
       <aside
         inert={!menuOpen}
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 transition-transform lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-64 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(.2,.8,.2,1)] lg:hidden",
           menuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <Sidebar items={navItems} onNavigate={() => setMenuOpen(false)} />
       </aside>
 
-      <div className={cn("transition-[padding] duration-200", sidebarCollapsed ? "lg:pl-[5.25rem]" : "lg:pl-64")}>
+      <div className={cn("transition-[padding] duration-300 ease-[cubic-bezier(.2,.8,.2,1)]", sidebarCollapsed ? "lg:pl-[5.25rem]" : "lg:pl-64")}>
         <Topbar
           user={user}
           unreadNotifications={unreadNotifications}
@@ -90,10 +124,17 @@ export function AppShell({ user, navItems, unreadNotifications, notifications, c
         />
         <main id="contenido" aria-busy={isNavigating} className="px-4 pt-2 pb-8 lg:px-6">
           <div key={location.pathname} className="route-content-enter">
-            {children}
+            {showSkeleton ? (
+              <PageSkeleton variant={navigation.location?.pathname === "/" ? "dashboard" : "table"} />
+            ) : (
+              children
+            )}
           </div>
         </main>
       </div>
+
+      <SlowNotice visible={showSlow} />
+      <ToastViewport />
     </div>
   );
 }

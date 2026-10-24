@@ -1,4 +1,5 @@
 import { NewPatientDialog } from "~/modules/pacientes/view/NewPatientDialog";
+import { ConfirmForm } from "~/core/feedback/ConfirmForm";
 import type { PatientOptions } from "~/modules/pacientes/model/patient.types";
 import type { Role } from "~/modules/auth/model/user.types";
 import type { DashboardSnapshot, VetAgenda } from "../model/dashboard.types";
