@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Form, useActionData } from "react-router";
 import { ShieldCheck, Stethoscope, UserRound, UsersRound } from "lucide-react";
+import { PageHeader } from "~/core/ui/PageHeader";
 
 type Profile = { id: string; full_name: string; job_title: string | null; role: "admin" | "veterinario" | "recepcion"; is_active: boolean; created_at: string };
 type ActionResult = { ok?: boolean; message?: string };
@@ -19,11 +20,11 @@ export function PersonalView({ profiles }: { profiles: Profile[] }) {
     return profiles.filter(p => !q || [p.full_name, p.job_title, p.role].some(v => v?.toLocaleLowerCase("es").includes(q)));
   }, [profiles, query]);
   return <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
-    <header>
-      <p className="text-sm font-semibold uppercase tracking-wide text-brand-text">AlfaPet · Administración</p>
-      <h1 className="mt-1 text-3xl font-extrabold tracking-tight">Gestión de personal</h1>
-      <p className="mt-2 max-w-3xl text-sm text-ink-muted">Crea cuentas para veterinarios y recepción, asigna responsabilidades y desactiva accesos cuando una persona deje de trabajar en la clínica.</p>
-    </header>
+    <PageHeader
+      eyebrow="AlfaPet · Administración"
+      title="Gestión de personal"
+      description="Crea cuentas para veterinarios y recepción, asigna responsabilidades y desactiva accesos cuando una persona deje de trabajar en la clínica."
+    />
     {actionData?.message && <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p>}
     <div className="grid gap-4 md:grid-cols-3">
       {(["admin", "veterinario", "recepcion"] as const).map(role => {
