@@ -112,7 +112,7 @@ export async function citasAction({ request }: ActionFunctionArgs) {
       update.status = "confirmada";
     } else {
       const nextStatus = String(form.get("status") ?? "").trim();
-      if (!["pendiente", "confirmada", "cancelada", "atendida"].includes(nextStatus)) return data({ ok: false, message: "El estado seleccionado no es válido." }, { status: 400, headers });
+      if (!["pendiente", "confirmada", "cancelada", "completada"].includes(nextStatus)) return data({ ok: false, message: "El estado seleccionado no es válido." }, { status: 400, headers });
       if (user.role === "veterinario" && current.vet_id !== user.id) return data({ ok: false, message: "Solo puedes actualizar el estado de las citas asignadas a ti." }, { status: 403, headers });
       update.status = nextStatus;
     }
