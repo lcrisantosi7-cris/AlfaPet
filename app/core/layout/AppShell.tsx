@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { useLocation, useNavigation } from "react-router";
 import type { NavItem } from "~/core/config/navigation";
 import { cn } from "~/core/lib/cn";
 import type { SessionUser } from "~/modules/auth/model/user.types";
@@ -16,6 +17,9 @@ interface AppShellProps {
 
 export function AppShell({ user, navItems, unreadNotifications, notifications, children }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigation = useNavigation();
+  const location = useLocation();
+  const isNavigating = navigation.state !== "idle";
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -24,8 +28,28 @@ export function AppShell({ user, navItems, unreadNotifications, notifications, c
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [menuOpen]);
 
+  useEffect(() => {
+    if (isNavigating) {
+      document.documentElement.dataset.navigation = "loading";
+    } else {
+      delete document.documentElement.dataset.navigation;
+    }
+    return () => {
+      delete document.documentElement.dataset.navigation;
+    };
+  }, [isNavigating]);
+
   return (
     <div className="min-h-dvh">
+      <div
+        className={cn("app-navigation-progress", isNavigating && "is-active")}
+        role="progressbar"
+        aria-label="Cargando página"
+        aria-valuetext={isNavigating ? "Cargando contenido" : "Carga finalizada"}
+        aria-hidden={!isNavigating}
+      >
+        <span />
+      </div>
       <a
         href="#contenido"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-brand focus:px-4 focus:py-2 focus:text-on-brand"
@@ -63,8 +87,10 @@ export function AppShell({ user, navItems, unreadNotifications, notifications, c
           notifications={notifications}
           onOpenMenu={() => setMenuOpen(true)}
         />
-        <main id="contenido" className="px-4 pt-2 pb-8 lg:px-6">
-          {children}
+        <main id="contenido" aria-busy={isNavigating} className="px-4 pt-2 pb-8 lg:px-6">
+          <div key={location.pathname} className="route-content-enter">
+            {children}
+          </div>
         </main>
       </div>
     </div>
