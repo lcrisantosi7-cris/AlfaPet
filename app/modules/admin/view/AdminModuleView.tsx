@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Form, useActionData } from "react-router";
 import { Activity, ClipboardList, FileBarChart, Package, Settings2, Syringe } from "lucide-react";
 import { PageHeader } from "~/core/ui/PageHeader";
+import { AdminField as Field, AdminSelectField as SelectField } from "./AdminFormFields";
 
 type Row = Record<string, unknown>;
 type Metric = { label: string; value: number | null; unavailable: boolean };
@@ -44,27 +45,6 @@ function pretty(value: unknown): string {
 function label(value: string) {
   return LABELS[value] ?? value.replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase());
 }
-function Field({ name, title, type = "text", required = false, step, min, max, defaultValue }: {
-  name: string; title: string; type?: string; required?: boolean; step?: string; min?: string; max?: string; defaultValue?: string;
-}) {
-  return <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">
-    {title}
-    <input name={name} type={type} required={required} step={step} min={min} max={max} defaultValue={defaultValue}
-      className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" />
-  </label>;
-}
-function SelectField({ name, title, options, required = false, placeholder = "Selecciona...", defaultValue = "" }: {
-  name: string; title: string; options: { id: string | number; name: string }[]; required?: boolean; placeholder?: string; defaultValue?: string;
-}) {
-  return <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">
-    {title}
-    <select name={name} required={required} defaultValue={defaultValue} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
-      <option value="">{placeholder}</option>
-      {options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
-    </select>
-  </label>;
-}
-
 export function AdminModuleView({ moduleKey, title, rows, metrics, columns, readOnly, patients, appointments, vaccines, reportFilters, categories = [], veterinarians = [] }: Props) {
   const Icon = ICONS[moduleKey] ?? Activity;
   const actionData = useActionData() as ActionResult | undefined;
