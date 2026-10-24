@@ -4,7 +4,7 @@ import { Link, type LinkProps } from "react-router";
 export function ActionLink({ children, ...props }: LinkProps) {
   return (
     <Link
-      className="inline-flex items-center gap-1 text-sm font-semibold text-brand-text hover:underline"
+      className="ui-text-link inline-flex items-center gap-1 text-sm font-semibold text-brand-text hover:underline"
       {...props}
     >
       {children}
