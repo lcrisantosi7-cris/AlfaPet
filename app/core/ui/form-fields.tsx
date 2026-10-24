@@ -3,7 +3,7 @@ import { cn } from "~/core/lib/cn";
 import { capitalize } from "~/core/lib/format";
 
 const CONTROL =
-    "h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm placeholder:text-ink-muted aria-[invalid=true]:border-tone-orange-fg";
+    "ui-field h-11 w-full rounded-xl border border-line bg-surface px-3 text-sm placeholder:text-ink-muted aria-[invalid=true]:border-tone-orange-fg";
 
 interface A11yProps {
     id: string;
