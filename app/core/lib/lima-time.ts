@@ -21,6 +21,23 @@ export class LimaTime {
         return dayKeyFormat.format(date);
     }
 
+    /** Devuelve los límites ISO del día actual en Lima. Perú usa UTC−05:00 sin horario estacional. */
+    static dayBounds(date = new Date()): { startAt: string; endAt: string } {
+        const key = LimaTime.dayKey(date);
+        const [year, month, day] = key.split("-").map(Number);
+        const next = new Date(Date.UTC(year, month - 1, day + 1));
+        const nextKey = [
+            next.getUTCFullYear(),
+            String(next.getUTCMonth() + 1).padStart(2, "0"),
+            String(next.getUTCDate()).padStart(2, "0"),
+        ].join("-");
+
+        return {
+            startAt: new Date(key + "T00:00:00-05:00").toISOString(),
+            endAt: new Date(nextKey + "T00:00:00-05:00").toISOString(),
+        };
+    }
+
     /** "Hoy - 09:30 a.m." | "Mañana - 02:00 p.m." | "25/10 - 10:00 a.m." */
     static scheduleLabel(startsAt: string, now = new Date()): string {
         const date = new Date(startsAt);
