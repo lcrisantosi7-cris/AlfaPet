@@ -26,7 +26,7 @@ export function StatCard({ label, value, to, tone, icon: Icon }: StatCardProps) 
     <Link
       to={to}
       className={cn(
-        "flex flex-col gap-3 rounded-2xl border border-line p-4 transition-shadow hover:shadow-card",
+        "ui-stat-card flex flex-col gap-3 rounded-2xl border border-line p-4 hover:shadow-card",
         styles.card,
       )}
     >
@@ -36,7 +36,7 @@ export function StatCard({ label, value, to, tone, icon: Icon }: StatCardProps) 
       <span className="text-3xl font-extrabold leading-none">{value}</span>
       <span className="flex items-center justify-between gap-2 text-sm text-ink-muted">
         {label}
-        <ChevronRight className="size-4 shrink-0" aria-hidden />
+        <ChevronRight className="ui-stat-chevron size-4 shrink-0" aria-hidden />
       </span>
     </Link>
   );
