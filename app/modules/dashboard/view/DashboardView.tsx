@@ -1,21 +1,41 @@
 import { NewPatientDialog } from "~/modules/pacientes/view/NewPatientDialog";
 import type { PatientOptions } from "~/modules/pacientes/model/patient.types";
-import type { DashboardSnapshot } from "../model/dashboard.types";
+import type { Role } from "~/modules/auth/model/user.types";
+import type { DashboardSnapshot, VetAgenda } from "../model/dashboard.types";
 import { CareTypesCard } from "./CareTypesCard";
 import { RecentPatientsCard } from "./RecentPatientsCard";
 import { StatsGrid } from "./StatsGrid";
 import { UpcomingAppointmentsCard } from "./UpcomingAppointmentsCard";
 import { WeeklyAppointmentsCard } from "./WeeklyAppointmentsCard";
 import { WelcomeBanner } from "./WelcomeBanner";
+import { VeterinarianDashboardView } from "./VeterinarianDashboardView";
 
 interface DashboardViewProps {
   snapshot: DashboardSnapshot;
-  patientOptions: PatientOptions;
+  patientOptions: PatientOptions | null;
+  vetAgenda: VetAgenda | null;
+  userRole: Role;
   firstName: string;
 }
 
-export function DashboardView({ snapshot, patientOptions, firstName }: DashboardViewProps) {
-  const appointmentsToday = snapshot.stats.find((s) => s.kind === "appointmentsToday")?.value ?? 0;
+export function DashboardView({
+  snapshot,
+  patientOptions,
+  vetAgenda,
+  userRole,
+  firstName,
+}: DashboardViewProps) {
+  const appointmentsToday = snapshot.stats.find((stat) => stat.kind === "appointmentsToday")?.value ?? 0;
+
+  if (userRole === "veterinario") {
+    return (
+      <VeterinarianDashboardView
+        firstName={firstName}
+        snapshot={snapshot}
+        agenda={vetAgenda ?? { assigned: [], unassigned: [] }}
+      />
+    );
+  }
 
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
@@ -23,7 +43,7 @@ export function DashboardView({ snapshot, patientOptions, firstName }: Dashboard
         <WelcomeBanner
           firstName={firstName}
           appointmentsToday={appointmentsToday}
-          action={<NewPatientDialog options={patientOptions} />}
+          action={patientOptions ? <NewPatientDialog options={patientOptions} /> : null}
         />
         <StatsGrid stats={snapshot.stats} />
         <div className="grid gap-6 lg:grid-cols-2">
