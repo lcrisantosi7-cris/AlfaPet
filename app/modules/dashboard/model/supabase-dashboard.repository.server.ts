@@ -73,6 +73,7 @@ export class SupabaseDashboardRepository implements DashboardRepository {
                 .gte("starts_at", startAt)
                 .lt("starts_at", endAt)
                 .neq("status", "cancelada")
+                .neq("status", "completada")
                 .order("starts_at", { ascending: true })
                 .limit(100),
             this.supabase
@@ -80,8 +81,7 @@ export class SupabaseDashboardRepository implements DashboardRepository {
                 .select(select)
                 .is("vet_id", null)
                 .eq("status", "pendiente")
-                .gte("starts_at", startAt)
-                .lt("starts_at", endAt)
+                .gte("starts_at", new Date().toISOString())
                 .order("starts_at", { ascending: true })
                 .limit(100),
         ]);
