@@ -49,7 +49,7 @@ function Field({ name, title, type = "text", required = false, step, min, max, d
   return <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">
     {title}
     <input name={name} type={type} required={required} step={step} min={min} max={max} defaultValue={defaultValue}
-      className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" />
+      className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" />
   </label>;
 }
 function SelectField({ name, title, options, required = false, placeholder = "Selecciona...", defaultValue = "" }: {
@@ -57,7 +57,7 @@ function SelectField({ name, title, options, required = false, placeholder = "Se
 }) {
   return <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">
     {title}
-    <select name={name} required={required} defaultValue={defaultValue} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
+    <select name={name} required={required} defaultValue={defaultValue} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
       <option value="">{placeholder}</option>
       {options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
     </select>
@@ -100,7 +100,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
 
     {actionData?.message ? <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p> : null}
 
-    {moduleKey === "configuracion" ? <Form method="post" className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+    {moduleKey === "configuracion" ? <Form method="post" className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card">
       <input type="hidden" name="intent" value="update-profile" />
       <h2 className="font-bold">Mi perfil</h2>
       <p className="mt-1 text-sm text-ink-muted">Puedes cambiar tu nombre y, si lo necesitas, establecer una contraseña nueva. El rol y los permisos solo los administra el administrador.</p>
@@ -113,10 +113,10 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
       <button type="submit" className="mt-4 h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand transition hover:-translate-y-0.5 hover:shadow-lg">Guardar cambios</button>
     </Form> : null}
 
-    {moduleKey === "configuracion" && rows[0]?.role === "recepcion" ? <section className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+    {moduleKey === "configuracion" && rows[0]?.role === "recepcion" ? <section className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card">
       <div><h2 className="font-bold">Perfiles de veterinarios</h2><p className="mt-1 text-sm text-ink-muted">Recepción puede corregir el nombre y establecer una nueva contraseña para un veterinario. Los perfiles de administración no aparecen aquí.</p></div>
       {veterinarians.length === 0 ? <p className="mt-4 rounded-xl bg-surface-muted p-4 text-sm text-ink-muted">No hay veterinarios activos registrados.</p> : <div className="mt-4 grid gap-4 xl:grid-cols-2">
-        {veterinarians.map(vet => <Form key={vet.id} method="post" className="grid gap-3 rounded-2xl border border-line p-4 sm:grid-cols-2">
+        {veterinarians.map(vet => <Form key={vet.id} method="post" className="ui-card grid gap-3 rounded-2xl border border-line p-4 sm:grid-cols-2">
           <input type="hidden" name="intent" value="update-veterinarian" />
           <input type="hidden" name="profile_id" value={vet.id} />
           <div className="sm:col-span-2"><p className="font-semibold">{vet.full_name}</p><p className="text-xs text-ink-muted">{vet.job_title || "Veterinario"}</p></div>
@@ -128,7 +128,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
       </div>}
     </section> : null}
 
-    {canCreate ? <details className="rounded-2xl border border-line bg-surface shadow-card">
+    {canCreate ? <details className="ui-card rounded-2xl border border-line bg-surface shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4 font-bold">{moduleKey === "consultas" ? "Registrar consulta clínica" : moduleKey === "vacunas" ? "Registrar vacunación" : "Registrar producto"} <span className="ml-2 text-xs font-normal text-ink-muted">Abrir formulario</span></summary>
       <Form method="post" className="grid gap-4 border-t border-line p-5 sm:grid-cols-2 xl:grid-cols-3">
         <input type="hidden" name="intent" value="create" />
@@ -137,16 +137,16 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
           <SelectField name="appointment_id" title="Cita relacionada" options={appointments.map(a => ({ id: a.id, name: `${new Date(a.starts_at).toLocaleString("es-PE")} · ${a.patient?.name ?? "Paciente"}` }))} placeholder="Sin cita relacionada" />
           <Field name="weight_kg" title="Peso (kg)" type="number" step="0.01" min="0.01" max="5000" />
           <Field name="temperature_c" title="Temperatura (°C)" type="number" step="0.1" min="30" max="45" />
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Síntomas<textarea name="symptoms" rows={2} maxLength={2000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Diagnóstico *<textarea name="diagnosis" required rows={2} maxLength={2000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Tratamiento<textarea name="treatment" rows={2} maxLength={2000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Notas<textarea name="notes" rows={2} maxLength={2000} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Síntomas<textarea name="symptoms" rows={2} maxLength={2000} className="ui-field rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Diagnóstico *<textarea name="diagnosis" required rows={2} maxLength={2000} className="ui-field rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Tratamiento<textarea name="treatment" rows={2} maxLength={2000} className="ui-field rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Notas<textarea name="notes" rows={2} maxLength={2000} className="ui-field rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
         </> : moduleKey === "vacunas" ? <>
           <SelectField name="patient_id" title="Paciente" options={patients} required />
           <SelectField name="vaccine_id" title="Vacuna" options={vaccines} required />
           <Field name="applied_at" title="Fecha de aplicación" type="date" />
           <Field name="due_date" title="Próxima dosis (obligatoria)" type="date" required />
-          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Notas (máx. 500 caracteres)<textarea name="notes" rows={2} maxLength={500} className="rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
+          <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Notas (máx. 500 caracteres)<textarea name="notes" rows={2} maxLength={500} className="ui-field rounded-xl border border-line bg-bg p-3 text-sm font-normal text-ink" /></label>
         </> : <>
           <Field name="name" title="Nombre del producto" required />
           <Field name="sku" title="Código SKU" required />
@@ -166,14 +166,14 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
     </div> : null}
 
     {moduleKey === "reportes" ? <Form method="get" className="grid gap-3 rounded-2xl border border-line bg-surface p-4 shadow-card sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end">
-      <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Desde<input name="desde" type="date" defaultValue={reportFilters?.from ?? ""} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-      <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Hasta<input name="hasta" type="date" min={reportFilters?.from || undefined} defaultValue={reportFilters?.to ?? ""} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+      <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Desde<input name="desde" type="date" defaultValue={reportFilters?.from ?? ""} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+      <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Hasta<input name="hasta" type="date" min={reportFilters?.from || undefined} defaultValue={reportFilters?.to ?? ""} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
       <button type="submit" className="h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand">Aplicar período</button>
       <a href="/reportes" className="flex h-11 items-center justify-center rounded-xl border border-line px-4 text-sm font-semibold hover:bg-surface-muted">Limpiar</a>
       <p className="text-xs text-ink-muted sm:col-span-4">El período filtra citas, consultas clínicas y vacunaciones por sus fechas correspondientes. Los totales de pacientes, propietarios e inventario representan el estado actual.</p>
     </Form> : null}
 
-    {moduleKey === "reportes" ? <section className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+    {moduleKey === "reportes" ? <section className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card">
       <div><h2 className="font-bold">Distribución de citas</h2><p className="mt-1 text-sm text-ink-muted">Comparación de los estados registrados para el período seleccionado.</p></div>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         {metrics.filter(metric => metric.label.startsWith("Citas ")).map(metric => {
@@ -188,7 +188,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
     </section> : null}
 
     {metrics.length > 0 ? <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {metrics.map((metric) => <article key={metric.label} className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+      {metrics.map((metric) => <article key={metric.label} className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card">
         <p className="text-sm text-ink-muted">{metric.label}</p>
         <p className="mt-2 text-3xl font-extrabold">{metric.unavailable ? "—" : metric.value ?? 0}</p>
         <p className="mt-1 text-xs text-ink-muted">{metric.unavailable ? "No disponible por permisos o configuración" : moduleKey === "reportes" ? "Según el período y los permisos actuales" : "Registros en Supabase"}</p>
