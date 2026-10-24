@@ -91,8 +91,14 @@ export async function pacientesAction({ request }: ActionFunctionArgs) {
     return data({ ok: false, message: "El correo del propietario no tiene un formato válido." }, { status: 400, headers });
   }
 
+  const { data: speciesRow, error: speciesError } = await supabase
+    .from("species_catalog").select("id,code").eq("code", species.toLowerCase()).eq("is_active", true).maybeSingle();
+  if (speciesError || !speciesRow) {
+    return data({ ok: false, message: "La especie seleccionada no está disponible en el catálogo." }, { status: 400, headers });
+  }
+
   const { error: patientError } = await supabase.from("patients").update({
-    name, species, breed: breed || null, sex: sex || null,
+    name, species, species_id: speciesRow.id, breed: breed || null, sex: sex || null,
     birth_date: birthDate || null, weight_kg: weight, microchip: microchip || null,
   }).eq("id", patientId);
   if (patientError) return data({ ok: false, message: "No se pudo actualizar la ficha: " + patientError.message }, { status: 400, headers });
