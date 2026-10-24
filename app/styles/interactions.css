@@ -52,12 +52,12 @@
   }
 
   .ui-button:hover:not(:disabled),
-  .ui-icon-button:hover:not(:disabled) {
+  .ui-icon-button:hover:not(:disabled):not(.cursor-default) {
     transform: translateY(-1px);
   }
 
   .ui-button:active:not(:disabled),
-  .ui-icon-button:active:not(:disabled) {
+  .ui-icon-button:active:not(:disabled):not(.cursor-default) {
     transform: translateY(0) scale(0.985);
   }
 
@@ -262,11 +262,11 @@
       box-shadow 150ms ease;
   }
 
-  button:hover:not(:disabled) {
+  button:hover:not(:disabled):not(.cursor-default) {
     transform: translateY(-1px);
   }
 
-  button:active:not(:disabled) {
+  button:active:not(:disabled):not(.cursor-default) {
     transform: translateY(0) scale(0.985);
   }
 
@@ -303,7 +303,7 @@
     }
 
     button:hover:not(:disabled),
-    button:active:not(:disabled) {
+    button:active:not(:disabled):not(.cursor-default) {
       transform: none !important;
     }
   }
