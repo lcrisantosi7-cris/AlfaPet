@@ -19,6 +19,12 @@ const ICONS: Record<string, typeof Activity> = {
   productos: Package, reportes: FileBarChart, configuracion: Settings2,
 };
 
+function csvCell(value: unknown): string {
+  const text = pretty(value);
+  const safe = /^[=+\-@]/.test(text) ? "'" + text : text;
+  return '"' + safe.replaceAll('"', '""') + '"';
+}
+
 export function AdminDataTable({ moduleKey, rows, columns, readOnly, categories }: AdminDataTableProps) {
   const Icon = ICONS[moduleKey] ?? Activity;
   const [search, setSearch] = useState("");
@@ -30,7 +36,7 @@ export function AdminDataTable({ moduleKey, rows, columns, readOnly, categories 
 
   const exportCsv = () => {
     const csvRows = [columns, ...filteredRows.map((row) => columns.map((column) => pretty(row[column])))];
-    const csv = csvRows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\r\n");
+    const csv = csvRows.map((row) => row.map(csvCell).join(",")).join("\r\n");
     const blob = new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
