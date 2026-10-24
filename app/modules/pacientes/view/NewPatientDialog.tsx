@@ -32,7 +32,7 @@ export function NewPatientDialog({ options }: { options: PatientOptions }) {
             <button
                 type="button"
                 onClick={openDialog}
-                className="inline-flex h-12 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-semibold text-on-brand shadow-md shadow-brand/30 hover:opacity-90"
+                className="ui-button inline-flex h-12 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-semibold text-on-brand shadow-md shadow-brand/30 hover:opacity-90"
             >
                 <Plus className="size-5" aria-hidden />
                 Registrar paciente
