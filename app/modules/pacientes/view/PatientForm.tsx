@@ -19,9 +19,36 @@ export function PatientForm({ options, errors, formError, submitting, onCancel }
             <fieldset className="grid gap-4 sm:grid-cols-2">
                 <legend className="mb-3 text-sm font-bold text-brand-text">Datos del dueño</legend>
                 <TextField label="Nombre completo" name="ownerName" required maxLength={120} autoComplete="off" error={first("ownerName")} className="sm:col-span-2" />
-                <TextField label="Teléfono" name="ownerPhone" type="tel" maxLength={30} error={first("ownerPhone")} />
+                <TextField
+                    label="Teléfono"
+                    name="ownerPhone"
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    maxLength={9}
+                    pattern="[0-9]{9}"
+                    title="Ingresa exactamente 9 dígitos."
+                    placeholder="987654321"
+                    onChange={(event) => {
+                        event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 9);
+                    }}
+                    error={first("ownerPhone")}
+                />
                 <TextField label="Correo" name="ownerEmail" type="email" maxLength={160} error={first("ownerEmail")} />
-                <TextField label="Documento (DNI)" name="ownerDocument" maxLength={20} error={first("ownerDocument")} />
+                <TextField
+                    label="DNI"
+                    name="ownerDocument"
+                    inputMode="numeric"
+                    autoComplete="off"
+                    maxLength={8}
+                    pattern="[0-9]{8}"
+                    title="Ingresa exactamente 8 dígitos."
+                    placeholder="12345678"
+                    onChange={(event) => {
+                        event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 8);
+                    }}
+                    error={first("ownerDocument")}
+                />
                 <TextField label="Dirección" name="ownerAddress" maxLength={200} error={first("ownerAddress")} />
             </fieldset>
 
