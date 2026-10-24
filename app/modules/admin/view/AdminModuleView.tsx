@@ -173,6 +173,20 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
       <p className="text-xs text-ink-muted sm:col-span-4">El período filtra citas, consultas clínicas y vacunaciones por sus fechas correspondientes. Los totales de pacientes, propietarios e inventario representan el estado actual.</p>
     </Form> : null}
 
+    {moduleKey === "reportes" ? <section className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+      <div><h2 className="font-bold">Distribución de citas</h2><p className="mt-1 text-sm text-ink-muted">Comparación de los estados registrados para el período seleccionado.</p></div>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        {metrics.filter(metric => metric.label.startsWith("Citas ")).map(metric => {
+          const maxValue = Math.max(1, ...metrics.filter(item => item.label.startsWith("Citas ")).map(item => item.value ?? 0));
+          const width = Math.max(0, Math.min(100, ((metric.value ?? 0) / maxValue) * 100));
+          return <div key={metric.label}>
+            <div className="mb-2 flex items-center justify-between gap-3 text-sm"><span className="font-medium">{metric.label.replace("Citas ", "")}</span><span className="font-bold tabular-nums">{metric.unavailable ? "—" : metric.value ?? 0}</span></div>
+            <div className="h-2.5 overflow-hidden rounded-full bg-surface-muted"><div className="h-full rounded-full bg-brand transition-all duration-500" style={{ width: metric.unavailable ? "0%" : width + "%" }} /></div>
+          </div>;
+        })}
+      </div>
+    </section> : null}
+
     {metrics.length > 0 ? <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {metrics.map((metric) => <article key={metric.label} className="rounded-2xl border border-line bg-surface p-5 shadow-card">
         <p className="text-sm text-ink-muted">{metric.label}</p>
