@@ -231,14 +231,12 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   const vaccineNames = new Map<string, string>();
 
   if (patientIds.length) {
-    const { data: refs, error: refsError } = await supabase.from("patients").select("id,name").in("id", patientIds);
-    if (refsError) throw new Response("No se pudieron resolver los nombres de pacientes.", { status: 500, headers });
+    const { data: refs } = await supabase.from("patients").select("id,name").in("id", patientIds);
     for (const ref of refs ?? []) patientNames.set(ref.id, ref.name);
   }
   if (appointmentIds.length) {
-    const { data: refs, error: refsError } = await supabase
+    const { data: refs } = await supabase
       .from("appointments").select("id,starts_at,patient:patients(name)").in("id", appointmentIds);
-    if (refsError) throw new Response("No se pudieron resolver las citas relacionadas.", { status: 500, headers });
     for (const ref of (refs ?? []) as any[]) {
       const relation = Array.isArray(ref.patient) ? ref.patient[0] : ref.patient;
       const when = new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(ref.starts_at));
@@ -246,13 +244,11 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
     }
   }
   if (profileIds.length) {
-    const { data: refs, error: refsError } = await supabase.from("profiles").select("id,full_name").in("id", profileIds);
-    if (refsError) throw new Response("No se pudieron resolver los nombres del personal.", { status: 500, headers });
+    const { data: refs } = await supabase.from("profiles").select("id,full_name").in("id", profileIds);
     for (const ref of refs ?? []) profileNames.set(ref.id, ref.full_name);
   }
   if (vaccineIds.length) {
-    const { data: refs, error: refsError } = await supabase.from("vaccines").select("id,name").in("id", vaccineIds);
-    if (refsError) throw new Response("No se pudieron resolver los nombres de vacunas.", { status: 500, headers });
+    const { data: refs } = await supabase.from("vaccines").select("id,name").in("id", vaccineIds);
     for (const ref of refs ?? []) vaccineNames.set(String(ref.id), ref.name);
   }
 
