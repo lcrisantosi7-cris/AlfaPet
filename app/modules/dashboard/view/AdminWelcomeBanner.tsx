@@ -19,9 +19,9 @@ export function AdminWelcomeBanner({
     <section className="dashboard-enter rounded-2xl border border-line bg-surface px-5 py-5 shadow-card sm:px-7 sm:py-6">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-semibold tracking-wide text-ink-muted">{todayLabel}</p>
+          <p className="text-xs font-semibold tracking-wide text-ink-muted">{todayLabel.charAt(0).toLocaleUpperCase("es") + todayLabel.slice(1)}</p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-            Buenos días, <span className="text-brand-text">{firstName}</span>
+            Hola, <span className="text-brand-text">{firstName}</span>
           </h1>
           <p className="mt-2 max-w-xl text-sm leading-6 text-ink-muted">
             Este es el resumen operativo de la clínica. Revisa la agenda, el inventario y la actividad reciente.
