@@ -28,7 +28,7 @@ export function PersonalView({ profiles }: { profiles: Profile[] }) {
     <div className="grid gap-4 md:grid-cols-3">
       {(["admin", "veterinario", "recepcion"] as const).map(role => {
         const Icon = role === "admin" ? ShieldCheck : role === "veterinario" ? Stethoscope : UserRound;
-        return <article key={role} className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+        return <article key={role} className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card">
           <span className="flex size-11 items-center justify-center rounded-xl bg-brand-soft text-brand-text"><Icon className="size-5" /></span>
           <h2 className="mt-3 font-bold">{ROLE_LABEL[role]}</h2>
           <p className="mt-1 text-sm text-ink-muted">{ROLE_DESC[role]}</p>
@@ -36,15 +36,15 @@ export function PersonalView({ profiles }: { profiles: Profile[] }) {
         </article>;
       })}
     </div>
-    <details className="rounded-2xl border border-line bg-surface shadow-card" open>
+    <details className="ui-card rounded-2xl border border-line bg-surface shadow-card" open>
       <summary className="cursor-pointer list-none px-5 py-4 font-bold"><UsersRound className="mr-2 inline size-5 align-[-4px]" /> Crear cuenta de personal</summary>
       <Form method="post" className="grid gap-4 border-t border-line p-5 sm:grid-cols-2 xl:grid-cols-3">
         <input type="hidden" name="intent" value="create" />
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Nombre completo<input name="full_name" required minLength={2} maxLength={120} autoComplete="name" className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Correo de acceso<input name="email" type="email" required maxLength={254} autoComplete="email" className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Cargo<input name="job_title" required maxLength={100} placeholder="Ej. Médico veterinario" className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Rol<select name="role" required defaultValue="veterinario" className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="veterinario">Veterinario</option><option value="recepcion">Recepcionista</option><option value="admin">Administrador</option></select></label>
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Contraseña inicial (mínimo 12 caracteres)<input name="password" type="password" required minLength={12} autoComplete="new-password" className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /><span className="font-normal">Entrega la contraseña de forma segura y recomienda cambiarla después del primer acceso.</span></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Nombre completo<input name="full_name" required minLength={2} maxLength={120} autoComplete="name" className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Correo de acceso<input name="email" type="email" required maxLength={254} autoComplete="email" className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Cargo<input name="job_title" required maxLength={100} placeholder="Ej. Médico veterinario" className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Rol<select name="role" required defaultValue="veterinario" className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="veterinario">Veterinario</option><option value="recepcion">Recepcionista</option><option value="admin">Administrador</option></select></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted sm:col-span-2">Contraseña inicial (mínimo 12 caracteres)<input name="password" type="password" required minLength={12} autoComplete="new-password" className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /><span className="font-normal">Entrega la contraseña de forma segura y recomienda cambiarla después del primer acceso.</span></label>
         <div className="flex items-end"><button type="submit" className="h-11 rounded-xl bg-brand px-5 text-sm font-bold text-on-brand hover:opacity-90">Crear cuenta</button></div>
       </Form>
     </details>
