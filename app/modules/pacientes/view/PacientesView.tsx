@@ -40,7 +40,7 @@ export function PacientesView({ patients, options, userRole }: { patients: Patie
           ? "Consulta las fichas de tus pacientes y accede a su información clínica."
           : "Administra las fichas de los pacientes y encuentra rápidamente sus datos y propietarios."}
         action={canCreate ? <NewPatientDialog options={options} /> : null}
-      />eader>
+      />
 
       {actionData?.message && <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p>}
 
