@@ -1,19 +1,20 @@
 import { useMemo, useState } from "react";
 import { Search, PawPrint, SlidersHorizontal, UserRound, CalendarDays, Weight, ClipboardList } from "lucide-react";
-import { Link } from "react-router";
+import { Form, Link, useActionData } from "react-router";
 import { NewPatientDialog } from "./NewPatientDialog";
 import type { PatientOptions } from "../model/patient.types";
 
 type PatientRow = {
   id: string; name: string; species: string; breed: string | null; sex: string | null;
   birthDate: string | null; weightKg: number | null; microchip: string | null;
-  isActive: boolean; createdAt: string; ownerName?: string; ownerPhone?: string;
+  isActive: boolean; createdAt: string; ownerId?: string; ownerName?: string; ownerPhone?: string; ownerEmail?: string; ownerDocument?: string; ownerAddress?: string;
 };
 
 const speciesLabel = (value: string) => value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const dateLabel = (value: string | null) => value ? new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(value + "T00:00:00Z")) : "No registrada";
 
 export function PacientesView({ patients, options, userRole }: { patients: PatientRow[]; options: PatientOptions; userRole: string }) {
+  const actionData = useActionData() as { ok?: boolean; message?: string } | undefined;
   const [query, setQuery] = useState("");
   const [species, setSpecies] = useState("todos");
   const [status, setStatus] = useState("activos");
@@ -39,6 +40,8 @@ export function PacientesView({ patients, options, userRole }: { patients: Patie
         </div>
         {canCreate && <NewPatientDialog options={options} />}
       </header>
+
+      {actionData?.message && <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p>}
 
       {isVeterinarian && <div className="flex items-start gap-3 rounded-2xl border border-brand/15 bg-brand-soft/60 p-4 text-sm"><ClipboardList className="mt-0.5 size-5 shrink-0 text-brand-text" /><p>Modo de solo lectura para los datos generales. Para registrar hallazgos y tratamientos, utiliza Consultas.</p></div>}
 
@@ -83,7 +86,7 @@ export function PacientesView({ patients, options, userRole }: { patients: Patie
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted"><tr><th className="px-5 py-4 font-semibold">Paciente</th><th className="px-5 py-4 font-semibold">Propietario</th><th className="px-5 py-4 font-semibold">Ficha</th><th className="px-5 py-4 font-semibold">Registro</th><th className="px-5 py-4 font-semibold">Estado</th>{isVeterinarian && <th className="px-5 py-4 font-semibold">Acceso clínico</th>}</tr></thead>
+              <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted"><tr><th className="px-5 py-4 font-semibold">Paciente</th><th className="px-5 py-4 font-semibold">Propietario</th><th className="px-5 py-4 font-semibold">Ficha</th><th className="px-5 py-4 font-semibold">Registro</th><th className="px-5 py-4 font-semibold">Estado</th>{canCreate && <th className="px-5 py-4 font-semibold">Acciones</th>}{isVeterinarian && <th className="px-5 py-4 font-semibold">Acceso clínico</th>}</tr></thead>
               <tbody className="divide-y divide-line">
                 {filtered.map(p => <tr key={p.id} className="transition-colors hover:bg-surface-muted/70">
                   <td className="px-5 py-4"><div className="flex items-center gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-text"><PawPrint className="size-5" /></span><div><p className="font-bold">{p.name}</p><p className="mt-0.5 text-xs text-ink-muted">{speciesLabel(p.species)}{p.breed ? " · " + p.breed : ""}</p></div></div></td>
@@ -91,6 +94,35 @@ export function PacientesView({ patients, options, userRole }: { patients: Patie
                   <td className="px-5 py-4"><div className="flex flex-col gap-1 text-xs text-ink-muted"><span className="inline-flex items-center gap-1"><CalendarDays className="size-3.5" />{dateLabel(p.birthDate)}</span><span className="inline-flex items-center gap-1"><Weight className="size-3.5" />{p.weightKg ? p.weightKg + " kg" : "Peso pendiente"}</span>{p.microchip && <span>Microchip: {p.microchip}</span>}</div></td>
                   <td className="px-5 py-4 text-ink-muted">{dateLabel(p.createdAt.slice(0,10))}</td>
                   <td className="px-5 py-4"><span className={p.isActive ? "rounded-full bg-tone-green-soft px-2.5 py-1 text-xs font-semibold text-tone-green-fg" : "rounded-full bg-surface-muted px-2.5 py-1 text-xs font-semibold text-ink-muted"}>{p.isActive ? "Activo" : "Inactivo"}</span></td>
+                  {canCreate && <td className="px-5 py-4 align-top">
+                    <details className="min-w-40">
+                      <summary className="cursor-pointer rounded-lg border border-line px-3 py-2 text-center text-xs font-semibold hover:border-brand hover:text-brand-text">Editar ficha</summary>
+                      <div className="mt-2 min-w-[280px] max-w-xl rounded-xl border border-line bg-surface p-4">
+                        <Form method="post" className="grid gap-3 sm:grid-cols-2">
+                          <input type="hidden" name="intent" value="update" /><input type="hidden" name="patient_id" value={p.id} />
+                          <p className="font-bold sm:col-span-2">Datos del paciente</p>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Nombre *<input name="name" required maxLength={80} defaultValue={p.name} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Especie *<select name="species" required defaultValue={p.species} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink">{options.species.map(s => <option key={s} value={s}>{speciesLabel(s)}</option>)}</select></label>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Raza<input name="breed" maxLength={80} defaultValue={p.breed ?? ""} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Sexo<select name="sex" defaultValue={p.sex ?? ""} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="">Sin especificar</option>{options.sex.map(s => <option key={s} value={s}>{speciesLabel(s)}</option>)}</select></label>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Nacimiento<input name="birth_date" type="date" max={new Date().toISOString().slice(0,10)} defaultValue={p.birthDate ?? ""} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Peso (kg)<input name="weight_kg" type="number" min="0.01" max="5000" step="0.01" defaultValue={p.weightKg ?? ""} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted sm:col-span-2">Microchip<input name="microchip" maxLength={30} defaultValue={p.microchip ?? ""} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+                          <p className="font-bold sm:col-span-2">Datos del propietario</p>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted sm:col-span-2">Nombre completo *<input name="owner_name" required minLength={2} maxLength={120} defaultValue={p.ownerName ?? ""} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Teléfono<input name="owner_phone" maxLength={30} defaultValue={p.ownerPhone ?? ""} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">DNI/documento<input name="owner_document" maxLength={20} defaultValue={p.ownerDocument ?? ""} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted sm:col-span-2">Correo<input name="owner_email" type="email" maxLength={160} defaultValue={p.ownerEmail ?? ""} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted sm:col-span-2">Dirección<input name="owner_address" maxLength={200} defaultValue={p.ownerAddress ?? ""} className="h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+                          <button type="submit" className="h-10 rounded-lg bg-brand px-4 text-sm font-bold text-on-brand sm:col-span-2">Guardar cambios</button>
+                        </Form>
+                        <Form method="post" className="mt-3" onSubmit={event => { if (!window.confirm(p.isActive ? "¿Desactivar este paciente? Se conservará su historial clínico." : "¿Reactivar este paciente?")) event.preventDefault(); }}>
+                          <input type="hidden" name="intent" value="toggle-active" /><input type="hidden" name="patient_id" value={p.id} /><input type="hidden" name="is_active" value={String(p.isActive)} />
+                          <button type="submit" className={p.isActive ? "w-full rounded-lg border border-tone-red-soft px-3 py-2 text-xs font-semibold text-tone-red-fg hover:bg-tone-red-soft" : "w-full rounded-lg border border-line px-3 py-2 text-xs font-semibold hover:border-brand"}>{p.isActive ? "Desactivar paciente" : "Reactivar paciente"}</button>
+                        </Form>
+                      </div>
+                    </details>
+                  </td>}
                   {isVeterinarian && <td className="px-5 py-4"><Link to={`/historial-clinico?patient_id=${encodeURIComponent(p.id)}`} className="inline-flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-xs font-semibold transition hover:border-brand hover:text-brand-text"><ClipboardList className="size-4" /> Ver historial</Link></td>}
                 </tr>)}
               </tbody>
