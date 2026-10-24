@@ -17,6 +17,7 @@ interface AppShellProps {
 
 export function AppShell({ user, navItems, unreadNotifications, notifications, children }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const navigation = useNavigation();
   const location = useLocation();
   const isNavigating = navigation.state !== "idle";
@@ -58,8 +59,8 @@ export function AppShell({ user, navItems, unreadNotifications, notifications, c
       </a>
 
       {/* Escritorio */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 lg:block">
-        <Sidebar items={navItems} />
+      <aside className={cn("fixed inset-y-0 left-0 z-40 hidden transition-[width] duration-200 lg:block", sidebarCollapsed ? "w-[5.25rem]" : "w-64")}>
+        <Sidebar items={navItems} collapsed={sidebarCollapsed} onToggleCollapse={() => setSidebarCollapsed((value) => !value)} />
       </aside>
 
       {/* Móvil */}
@@ -80,7 +81,7 @@ export function AppShell({ user, navItems, unreadNotifications, notifications, c
         <Sidebar items={navItems} onNavigate={() => setMenuOpen(false)} />
       </aside>
 
-      <div className="lg:pl-64">
+      <div className={cn("transition-[padding] duration-200", sidebarCollapsed ? "lg:pl-[5.25rem]" : "lg:pl-64")}>
         <Topbar
           user={user}
           unreadNotifications={unreadNotifications}
