@@ -218,9 +218,66 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
     categories = categoryRows ?? [];
   }
 
+  const patientIds = [...new Set(safeRows.map((row) => String(row.patient_id ?? "")).filter(Boolean))];
+  const appointmentIds = [...new Set(safeRows.map((row) => String(row.appointment_id ?? "")).filter(Boolean))];
+  const profileIds = [...new Set(
+    safeRows.flatMap((row) => [String(row.vet_id ?? ""), String(row.administered_by ?? "")]).filter(Boolean),
+  )];
+  const vaccineIds = [...new Set(safeRows.map((row) => Number(row.vaccine_id)).filter((id) => Number.isSafeInteger(id) && id > 0))];
+
+  const patientNames = new Map<string, string>();
+  const appointmentLabels = new Map<string, string>();
+  const profileNames = new Map<string, string>();
+  const vaccineNames = new Map<string, string>();
+
+  if (patientIds.length) {
+    const { data: refs, error: refsError } = await supabase.from("patients").select("id,name").in("id", patientIds);
+    if (refsError) throw new Response("No se pudieron resolver los nombres de pacientes.", { status: 500, headers });
+    for (const ref of refs ?? []) patientNames.set(ref.id, ref.name);
+  }
+  if (appointmentIds.length) {
+    const { data: refs, error: refsError } = await supabase
+      .from("appointments").select("id,starts_at,patient:patients(name)").in("id", appointmentIds);
+    if (refsError) throw new Response("No se pudieron resolver las citas relacionadas.", { status: 500, headers });
+    for (const ref of (refs ?? []) as any[]) {
+      const relation = Array.isArray(ref.patient) ? ref.patient[0] : ref.patient;
+      const when = new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(ref.starts_at));
+      appointmentLabels.set(ref.id, when + (relation?.name ? " · " + relation.name : ""));
+    }
+  }
+  if (profileIds.length) {
+    const { data: refs, error: refsError } = await supabase.from("profiles").select("id,full_name").in("id", profileIds);
+    if (refsError) throw new Response("No se pudieron resolver los nombres del personal.", { status: 500, headers });
+    for (const ref of refs ?? []) profileNames.set(ref.id, ref.full_name);
+  }
+  if (vaccineIds.length) {
+    const { data: refs, error: refsError } = await supabase.from("vaccines").select("id,name").in("id", vaccineIds);
+    if (refsError) throw new Response("No se pudieron resolver los nombres de vacunas.", { status: 500, headers });
+    for (const ref of refs ?? []) vaccineNames.set(String(ref.id), ref.name);
+  }
+
+  safeRows = safeRows.map((row) => ({
+    ...row,
+    patient_name: row.patient_id ? patientNames.get(String(row.patient_id)) : undefined,
+    appointment_label: row.appointment_id ? appointmentLabels.get(String(row.appointment_id)) : undefined,
+    vet_name: row.vet_id ? profileNames.get(String(row.vet_id)) : undefined,
+    administered_by_name: row.administered_by ? profileNames.get(String(row.administered_by)) : undefined,
+    vaccine_name: row.vaccine_id ? vaccineNames.get(String(row.vaccine_id)) : undefined,
+  }));
+
+  const replacements: Record<string, string> = {
+    patient_id: "patient_name",
+    appointment_id: "appointment_label",
+    vet_id: "vet_name",
+    administered_by: "administered_by_name",
+    vaccine_id: "vaccine_name",
+  };
   const excluded = ["id", "created_by", "updated_at"];
-  const columns = [...new Set(safeRows.flatMap((row) => Object.keys(row)))]
-    .filter((key) => !excluded.includes(key)).slice(0, 10);
+  const rawColumns = [...new Set(safeRows.flatMap((row) => Object.keys(row)))];
+  const columns = [...new Set(rawColumns
+    .map((key) => replacements[key] && safeRows.some((row) => row[replacements[key]] != null) ? replacements[key] : key)
+    .filter((key) => !excluded.includes(key) && !key.endsWith("_id")))]
+    .slice(0, 10);
   return data({
     moduleKey: item.key, title: TITLES[item.key], rows: safeRows, metrics: [], columns,
     readOnly: item.key === "historial", message: null,
