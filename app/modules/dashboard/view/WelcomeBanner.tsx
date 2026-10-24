@@ -18,7 +18,7 @@ function todaySummary(count: number) {
 
 export function WelcomeBanner({ firstName, appointmentsToday, action }: WelcomeBannerProps) {
   return (
-    <section aria-labelledby="bienvenida" className="relative isolate overflow-hidden rounded-[1.75rem] border border-line bg-gradient-to-br from-brand-soft via-surface to-surface px-6 py-7 shadow-card sm:px-9 sm:py-9">
+    <section aria-labelledby="bienvenida" className="dashboard-enter relative isolate overflow-hidden rounded-[1.75rem] border border-line bg-gradient-to-br from-brand-soft via-surface to-surface px-6 py-7 shadow-card sm:px-9 sm:py-9">
       <div aria-hidden className="absolute -right-12 -top-16 -z-10 size-64 rounded-full bg-brand/10 blur-2xl" />
       <div aria-hidden className="absolute right-1/4 -bottom-24 -z-10 size-56 rounded-full bg-brand/10 blur-2xl" />
       <PawPrint aria-hidden className="absolute right-[42%] top-8 size-5 -rotate-12 text-brand/40" />
