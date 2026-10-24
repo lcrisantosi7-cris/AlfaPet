@@ -58,7 +58,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
       <p className="mt-1 text-sm text-ink-muted">Puedes cambiar tu nombre y, si lo necesitas, establecer una contraseña nueva. El rol y los permisos solo los administra el administrador.</p>
       <div className="mt-4 grid gap-3 sm:max-w-3xl sm:grid-cols-2">
         <Field name="full_name" title="Nombre completo" required defaultValue={String(rows[0]?.full_name ?? "")} />
-        <Field name="password" title="Nueva contraseña (opcional, mínimo 12 caracteres)" type="password" min="12" />
+        <Field name="password" title="Nueva contraseña (opcional, mínimo 12 caracteres)" type="password" minLength={12} />
         <div className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted"><span>Rol</span><div className="flex h-11 items-center rounded-xl border border-line bg-surface-muted px-3 text-sm font-normal text-ink">{pretty(rows[0]?.role)}</div></div>
         <div className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted"><span>Estado de la cuenta</span><div className="flex h-11 items-center rounded-xl border border-line bg-surface-muted px-3 text-sm font-normal text-ink">{rows[0]?.is_active ? "Activa" : "Inactiva"}</div></div>
       </div>
@@ -73,7 +73,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
           <input type="hidden" name="profile_id" value={vet.id} />
           <div className="sm:col-span-2"><p className="font-semibold">{vet.full_name}</p><p className="text-xs text-ink-muted">{vet.job_title || "Veterinario"}</p></div>
           <Field name="full_name" title="Nombre completo" required defaultValue={vet.full_name} />
-          <Field name="password" title="Nueva contraseña (opcional)" type="password" min="12" />
+          <Field name="password" title="Nueva contraseña (opcional)" type="password" minLength={12} />
           <p className="text-xs text-ink-muted sm:col-span-2">Deja la contraseña vacía si solo deseas cambiar el nombre. Si la cambias, utiliza al menos 12 caracteres y comunícasela al veterinario de forma segura.</p>
           <div className="sm:col-span-2"><button type="submit" className="ui-button h-10 rounded-xl border border-line px-4 text-sm font-semibold hover:border-brand hover:text-brand-text">Guardar perfil de veterinario</button></div>
         </Form>)}
