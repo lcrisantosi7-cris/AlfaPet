@@ -14,7 +14,7 @@ type Props = {
   userRole: string;
   patients: { id: string; name: string }[];
 };
-const statusLabel = (value: string) => value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const statusLabel = (value: string) => value === "completada" ? "Atendida" : value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const dateTime = (value: string) => new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
 
 export function CitasView({ appointments, filters, careTypes, vets, patients, userRole }: Props) {
@@ -164,7 +164,7 @@ export function CitasView({ appointments, filters, careTypes, vets, patients, us
                   <td className="px-5 py-4"><span className={appointment.status === "pendiente" ? "rounded-full bg-tone-amber-soft px-2.5 py-1 text-xs font-semibold text-tone-amber-fg" : appointment.status === "cancelada" ? "rounded-full bg-tone-red-soft px-2.5 py-1 text-xs font-semibold text-tone-red-fg" : "rounded-full bg-tone-green-soft px-2.5 py-1 text-xs font-semibold text-tone-green-fg"}>{statusLabel(appointment.status)}</span></td>
                   <td className="px-5 py-4"><div className="flex min-w-40 flex-col gap-2">
                     {userRole === "veterinario" && appointment.status === "pendiente" && !appointment.vetId ? <Form method="post"><input type="hidden" name="intent" value="take" /><input type="hidden" name="record_id" value={appointment.id} /><button type="submit" className="rounded-lg bg-brand px-3 py-2 text-xs font-bold text-on-brand">Tomar cita</button></Form> : null}
-                    {(userRole === "admin" || userRole === "recepcion" || (userRole === "veterinario" && appointment.vetId)) ? <Form method="post" className="flex gap-2"><input type="hidden" name="intent" value="change-status" /><input type="hidden" name="record_id" value={appointment.id} /><select name="status" defaultValue={appointment.status} className="h-9 min-w-28 rounded-lg border border-line bg-bg px-2 text-xs">{["pendiente","confirmada","atendida","cancelada"].map(s => <option key={s} value={s}>{statusLabel(s)}</option>)}</select><button type="submit" className="rounded-lg border border-line px-2 py-1 text-xs font-semibold">Guardar</button></Form> : null}
+                    {(userRole === "admin" || userRole === "recepcion" || (userRole === "veterinario" && appointment.vetId)) ? <Form method="post" className="flex gap-2"><input type="hidden" name="intent" value="change-status" /><input type="hidden" name="record_id" value={appointment.id} /><select name="status" defaultValue={appointment.status} className="h-9 min-w-28 rounded-lg border border-line bg-bg px-2 text-xs">{["pendiente","confirmada","completada","cancelada"].map(s => <option key={s} value={s}>{statusLabel(s)}</option>)}</select><button type="submit" className="rounded-lg border border-line px-2 py-1 text-xs font-semibold">Guardar</button></Form> : null}
                     {userRole !== "veterinario" ? <Form method="post" onSubmit={event => { if (!window.confirm("¿Eliminar esta cita? Esta acción no se puede deshacer.")) event.preventDefault(); }}><input type="hidden" name="intent" value="delete" /><input type="hidden" name="record_id" value={appointment.id} /><button type="submit" className="rounded-lg border border-tone-red-soft px-3 py-2 text-xs font-semibold text-tone-red-fg hover:bg-tone-red-soft">Eliminar cita</button></Form> : null}
                   </div></td>
                 </tr>
