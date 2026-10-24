@@ -44,7 +44,7 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
           </span>
           <div>
             <p className="text-xs text-ink-muted">Área de trabajo</p>
-            <p className="font-semibold">{moduleKey === "reportes" ? "Vista analítica" : "Datos actualizados"}</p>
+            <p className="font-semibold">{moduleKey === "reportes" ? "Vista analítica" : "Vista de gestión"}</p>
           </div>
         </div>
       }
