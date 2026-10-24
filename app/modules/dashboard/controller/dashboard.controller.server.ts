@@ -2,6 +2,7 @@ import { data, type LoaderFunctionArgs } from "react-router";
 import { requireUser } from "~/modules/auth/controller/session.controller.server";
 import { PatientRepository } from "~/modules/pacientes/model/patient.repository.server";
 import { SupabaseDashboardRepository } from "../model/supabase-dashboard.repository.server";
+import { SupabaseVetAgendaRepository } from "../model/vet-agenda.repository.server";
 
 export class DashboardController {
   loader = async ({ request }: LoaderFunctionArgs) => {
@@ -16,7 +17,7 @@ export class DashboardController {
         ? new PatientRepository(supabase).getOptions()
         : Promise.resolve(null),
       user.role === "veterinario"
-        ? repository.getVetAgenda(user.id)
+        ? new SupabaseVetAgendaRepository(supabase).getVetAgenda(user.id)
         : Promise.resolve(null),
     ]);
 
