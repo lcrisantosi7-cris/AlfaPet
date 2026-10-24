@@ -7,13 +7,21 @@ export class DashboardController {
   loader = async ({ request }: LoaderFunctionArgs) => {
     const { supabase, headers, user } = await requireUser(request);
 
-    const [snapshot, patientOptions] = await Promise.all([
-      new SupabaseDashboardRepository(supabase).getSnapshot(),
-      new PatientRepository(supabase).getOptions(),
+    const repository = new SupabaseDashboardRepository(supabase);
+    const canRegisterPatients = user.role === "admin" || user.role === "recepcion";
+
+    const [snapshot, patientOptions, vetAgenda] = await Promise.all([
+      repository.getSnapshot(),
+      canRegisterPatients
+        ? new PatientRepository(supabase).getOptions()
+        : Promise.resolve(null),
+      user.role === "veterinario"
+        ? repository.getVetAgenda(user.id)
+        : Promise.resolve(null),
     ]);
 
     const firstName = user.name.split(" ")[0] ?? user.name;
-    return data({ snapshot, patientOptions, firstName }, { headers });
+    return data({ snapshot, patientOptions, vetAgenda, userRole: user.role, firstName }, { headers });
   };
 }
 
