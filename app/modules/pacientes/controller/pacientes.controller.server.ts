@@ -91,6 +91,13 @@ export async function pacientesAction({ request }: ActionFunctionArgs) {
     return data({ ok: false, message: "El correo del propietario no tiene un formato válido." }, { status: 400, headers });
   }
 
+  if (ownerPhone && !/^[0-9]{9}$/.test(ownerPhone)) {
+    return data({ ok: false, message: "El teléfono debe contener exactamente 9 dígitos." }, { status: 400, headers });
+  }
+  if (ownerDocument && !/^[0-9]{8}$/.test(ownerDocument)) {
+    return data({ ok: false, message: "El DNI debe contener exactamente 8 dígitos." }, { status: 400, headers });
+  }
+
   const { data: speciesRow, error: speciesError } = await supabase
     .from("species_catalog").select("id,code").eq("code", species.toLowerCase()).eq("is_active", true).maybeSingle();
   if (speciesError || !speciesRow) {
