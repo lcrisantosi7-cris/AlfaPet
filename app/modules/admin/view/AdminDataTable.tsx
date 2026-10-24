@@ -52,7 +52,7 @@ export function AdminDataTable({ moduleKey, rows, columns, readOnly, categories 
             <Search className="size-4 shrink-0 text-ink-muted" aria-hidden />
             <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar registros…" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink-muted" aria-label="Buscar en los registros" />
           </label> : null}
-          <span className="whitespace-nowrap text-xs text-ink-muted">{filteredRows.length} de {rows.length}</span>
+          <span className="whitespace-nowrap text-xs text-ink-muted">{filteredRows.length} de {rows.length}{rows.length === 300 ? " · límite de 300" : ""}</span>
           {rows.length > 0 ? <button type="button" onClick={exportCsv} className="ui-button inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-line px-3 text-xs font-semibold hover:bg-surface-muted"><FileBarChart className="size-4" aria-hidden /> Exportar CSV</button> : null}
         </div>
       </div>
