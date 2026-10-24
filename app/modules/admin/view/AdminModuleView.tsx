@@ -62,9 +62,12 @@ function displayValue(column: string, value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
   if (typeof value === "boolean") return value ? "Activo" : "Inactivo";
   if (["created_at", "updated_at", "starts_at", "applied_at", "due_date", "birth_date"].includes(column)) {
-    const date = new Date(String(value));
-    if (Number.isNaN(date.getTime())) return String(value);
-    const hasTime = String(value).includes("T") && !["applied_at", "due_date", "birth_date"].includes(column);
+    const rawDate = String(value);
+    const hasTime = rawDate.includes("T") && !["applied_at", "due_date", "birth_date"].includes(column);
+    const date = hasTime
+      ? new Date(rawDate)
+      : new Date(rawDate.slice(0, 10) + "T12:00:00");
+    if (Number.isNaN(date.getTime())) return rawDate;
     return new Intl.DateTimeFormat("es-PE", hasTime
       ? { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }
       : { day: "2-digit", month: "short", year: "numeric" }).format(date);
