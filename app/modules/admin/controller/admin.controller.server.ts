@@ -276,7 +276,12 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   const rawColumns = [...new Set(safeRows.flatMap((row) => Object.keys(row)))];
   const columns = [...new Set(rawColumns
     .map((key) => replacements[key] && safeRows.some((row) => row[replacements[key]] != null) ? replacements[key] : key)
-    .filter((key) => !excluded.includes(key) && !key.endsWith("_id")))]
+    .filter((key) =>
+      !excluded.includes(key) &&
+      !key.endsWith("_id") &&
+      (!["patient_name", "appointment_label", "vet_name", "administered_by_name", "vaccine_name"].includes(key) ||
+        safeRows.some((row) => row[key] != null)),
+    ))]
     .slice(0, 10);
   return data({
     moduleKey: item.key, title: TITLES[item.key], rows: safeRows, metrics: [], columns,
