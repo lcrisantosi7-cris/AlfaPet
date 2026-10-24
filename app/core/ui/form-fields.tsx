@@ -14,12 +14,13 @@ interface A11yProps {
 interface FieldProps {
     label: string;
     error?: string;
+    hint?: string;
     required?: boolean;
     className?: string;
     children: (a11y: A11yProps) => ReactNode;
 }
 
-function Field({ label, error, required, className, children }: FieldProps) {
+function Field({ label, error, hint, required, className, children }: FieldProps) {
     const id = useId();
     const errorId = `${id}-error`;
 
@@ -34,6 +35,7 @@ function Field({ label, error, required, className, children }: FieldProps) {
                 )}
             </label>
             {children({ id, "aria-invalid": Boolean(error), "aria-describedby": error ? errorId : undefined })}
+            {hint && !error && <p className="text-xs text-ink-muted">{hint}</p>}
             {error && (
                 <p id={errorId} className="text-xs text-tone-orange-fg">
                     {error}
@@ -46,11 +48,12 @@ function Field({ label, error, required, className, children }: FieldProps) {
 type TextFieldProps = InputHTMLAttributes<HTMLInputElement> & {
     label: string;
     error?: string;
+    hint?: string;
 };
 
-export function TextField({ label, error, className, ...input }: TextFieldProps) {
+export function TextField({ label, error, hint, className, ...input }: TextFieldProps) {
     return (
-        <Field label={label} error={error} required={input.required} className={className}>
+        <Field label={label} error={error} hint={hint} required={input.required} className={className}>
             {(a11y) => <input className={CONTROL} {...a11y} {...input} />}
         </Field>
     );
