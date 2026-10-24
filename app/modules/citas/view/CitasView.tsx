@@ -49,26 +49,26 @@ export function CitasView({ appointments, filters, careTypes, vets, patients, us
     </header>
 
     {actionData?.message ? <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p> : null}
-    {userRole !== "veterinario" ? <details className="rounded-2xl border border-line bg-surface shadow-card">
+    {userRole !== "veterinario" ? <details className="ui-card rounded-2xl border border-line bg-surface shadow-card">
       <summary className="cursor-pointer list-none px-5 py-4 font-bold">Programar nueva cita <span className="ml-2 text-xs font-normal text-ink-muted">Abrir formulario</span></summary>
       <Form method="post" className="grid gap-4 border-t border-line p-5 sm:grid-cols-2 xl:grid-cols-3">
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Paciente *
-          <select name="patient_id" required className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
+          <select name="patient_id" required className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
             <option value="">Selecciona un paciente</option>
             {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </label>
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Tipo de atención *
-          <select name="care_type_id" required className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
+          <select name="care_type_id" required className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
             <option value="">Selecciona la atención</option>
             {careTypes.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
           </select>
         </label>
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Fecha y hora *
-          <input name="starts_at" type="datetime-local" required min={new Date().toISOString().slice(0, 16)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" />
+          <input name="starts_at" type="datetime-local" required min={new Date().toISOString().slice(0, 16)} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" />
         </label>
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Veterinario
-          <select name="vet_id" className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
+          <select name="vet_id" className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink">
             <option value="">Sin asignar</option>
             {vets.map(v => <option key={v.id} value={v.id}>{v.full_name}</option>)}
           </select>
@@ -81,21 +81,21 @@ export function CitasView({ appointments, filters, careTypes, vets, patients, us
     </details> : <div className="rounded-2xl border border-brand/15 bg-brand-soft/50 p-4 text-sm">Puedes tomar una cita pendiente sin asignar o actualizar el estado de una cita asignada a ti.</div>}
 
     <div className="grid gap-4 sm:grid-cols-3">
-      <article className="rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Citas cargadas</p><p className="mt-2 text-3xl font-extrabold">{appointments.length}</p><p className="mt-1 text-xs text-ink-muted">Según permisos de tu usuario</p></article>
-      <article className="rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Pendientes</p><p className="mt-2 text-3xl font-extrabold">{appointments.filter(a => a.status === "pendiente").length}</p><p className="mt-1 text-xs text-ink-muted">Requieren seguimiento</p></article>
-      <article className="rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Otros estados</p><p className="mt-2 text-3xl font-extrabold">{appointments.filter(a => a.status !== "pendiente").length}</p><p className="mt-1 text-xs text-ink-muted">Estados distintos de pendiente</p></article>
+      <article className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Citas cargadas</p><p className="mt-2 text-3xl font-extrabold">{appointments.length}</p><p className="mt-1 text-xs text-ink-muted">Según permisos de tu usuario</p></article>
+      <article className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Pendientes</p><p className="mt-2 text-3xl font-extrabold">{appointments.filter(a => a.status === "pendiente").length}</p><p className="mt-1 text-xs text-ink-muted">Requieren seguimiento</p></article>
+      <article className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Otros estados</p><p className="mt-2 text-3xl font-extrabold">{appointments.filter(a => a.status !== "pendiente").length}</p><p className="mt-1 text-xs text-ink-muted">Estados distintos de pendiente</p></article>
     </div>
 
-    <div className="rounded-2xl border border-line bg-surface shadow-card">
+    <div className="ui-card rounded-2xl border border-line bg-surface shadow-card">
       <div className="grid gap-3 border-b border-line p-4 md:grid-cols-2 xl:grid-cols-[repeat(3,minmax(120px,1fr))_repeat(2,minmax(130px,1fr))_minmax(220px,1.5fr)_auto_auto] xl:items-end">
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Desde<input type="date" value={from} onChange={e => setFrom(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Hasta<input type="date" value={to} min={from || undefined} onChange={e => setTo(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Desde<input type="date" value={from} onChange={e => setFrom(e.target.value)} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Hasta<input type="date" value={to} min={from || undefined} onChange={e => setTo(e.target.value)} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
         <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">
           Estado
           <select
             value={status}
             onChange={e => setStatus(e.target.value)}
-            className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"
+            className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"
           >
             <option value="todos">Todos los estados</option>
             {availableStatuses.map(value => (
@@ -105,8 +105,8 @@ export function CitasView({ appointments, filters, careTypes, vets, patients, us
             ))}
           </select>
         </label>
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Veterinario<select value={vetFilter} onChange={e => setVetFilter(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="todos">Todos</option><option value="Sin asignar">Sin asignar</option>{availableVets.map(v => <option key={v} value={v}>{v}</option>)}</select></label>
-        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Especie<select value={speciesFilter} onChange={e => setSpeciesFilter(e.target.value)} className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="todos">Todas</option>{availableSpecies.map(s => <option key={s} value={s}>{statusLabel(s)}</option>)}</select></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Veterinario<select value={vetFilter} onChange={e => setVetFilter(e.target.value)} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="todos">Todos</option><option value="Sin asignar">Sin asignar</option>{availableVets.map(v => <option key={v} value={v}>{v}</option>)}</select></label>
+        <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Especie<select value={speciesFilter} onChange={e => setSpeciesFilter(e.target.value)} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="todos">Todas</option>{availableSpecies.map(s => <option key={s} value={s}>{statusLabel(s)}</option>)}</select></label>
         <label className="relative flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">Buscar cita<span className="relative"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2" /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Paciente, dueño o veterinario" className="h-11 w-full rounded-xl border border-line bg-bg pl-9 pr-3 text-sm font-normal text-ink" /></span></label>
         <button onClick={applyFilters} className="h-11 rounded-xl bg-brand px-4 text-sm font-semibold text-on-brand hover:opacity-90"><SlidersHorizontal className="mr-2 inline size-4" />Aplicar</button>
         <button onClick={reset} className="h-11 rounded-xl border border-line px-4 text-sm font-semibold hover:bg-surface-muted">Limpiar</button>
