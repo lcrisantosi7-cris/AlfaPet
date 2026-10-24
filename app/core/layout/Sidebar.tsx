@@ -1,4 +1,4 @@
-import { Activity, CircleCheck } from "lucide-react";
+import { Activity } from "lucide-react";
 import { NavLink } from "react-router";
 import type { NavItem } from "~/core/config/navigation";
 import { cn } from "~/core/lib/cn";
@@ -69,7 +69,7 @@ function SidebarFooter() {
             <p className="truncate text-xs font-semibold text-sidebar-ink">AlfaPet</p>
             <p className="mt-0.5 text-[0.68rem] text-sidebar-ink/55">Gestión veterinaria</p>
           </div>
-          <CircleCheck className="size-4 text-emerald-300" aria-label="Sistema disponible" />
+          <span className="size-1.5 shrink-0 rounded-full bg-brand" aria-hidden />
         </div>
       </div>
     </div>
