@@ -249,3 +249,62 @@
     transform: none !important;
   }
 }
+
+
+/* Respaldo transversal para controles que aún no usan una clase de componente. */
+@layer base {
+  button:not(:disabled) {
+    transition:
+      transform 150ms ease,
+      color 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  button:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  button:active:not(:disabled) {
+    transform: translateY(0) scale(0.985);
+  }
+
+  a[href] {
+    transition:
+      color 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    transition:
+      border-color 150ms ease,
+      background-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 15%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    button:not(:disabled),
+    a[href],
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea {
+      transition: none !important;
+    }
+
+    button:hover:not(:disabled),
+    button:active:not(:disabled) {
+      transform: none !important;
+    }
+  }
+}
