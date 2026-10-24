@@ -8,23 +8,17 @@ import type { DashboardSnapshot, VetAgenda } from "../model/dashboard.types";
 
 interface VeterinarianDashboardViewProps {
   firstName: string;
+  todayLabel: string;
   snapshot: DashboardSnapshot;
   agenda: VetAgenda;
 }
 
-const todayLabel = new Intl.DateTimeFormat("es-PE", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  timeZone: "America/Lima",
-});
-
 export function VeterinarianDashboardView({
   firstName,
+  todayLabel,
   snapshot,
   agenda,
 }: VeterinarianDashboardViewProps) {
-  const today = todayLabel.format(new Date());
   const relevantStats = snapshot.stats.filter((stat) => stat.kind !== "productsInStock");
 
   return (
@@ -35,7 +29,7 @@ export function VeterinarianDashboardView({
           <CalendarDays className="size-6" aria-hidden />
         </div>
         <p className="mb-2 text-xs font-bold tracking-[0.16em] text-brand-text uppercase">
-          Agenda clínica · {today}
+          Agenda clínica · {todayLabel}
         </p>
         <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
           Hola, <span className="text-brand">{firstName}</span>
