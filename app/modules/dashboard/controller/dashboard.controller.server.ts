@@ -21,7 +21,14 @@ export class DashboardController {
     ]);
 
     const firstName = user.name.split(" ")[0] ?? user.name;
-    return data({ snapshot, patientOptions, vetAgenda, userRole: user.role, firstName }, { headers });
+    const todayLabel = new Intl.DateTimeFormat("es-PE", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      timeZone: "America/Lima",
+    }).format(new Date());
+
+    return data({ snapshot, patientOptions, vetAgenda, userRole: user.role, firstName, todayLabel }, { headers });
   };
 }
 
