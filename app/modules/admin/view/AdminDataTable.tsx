@@ -47,14 +47,14 @@ export function AdminDataTable({ moduleKey, rows, columns, readOnly, categories 
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
-      <div className="flex flex-col gap-4 border-b border-line px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="ui-card overflow-hidden border border-line bg-surface">
+      <div className="flex flex-col gap-4 border-b border-line bg-surface px-4 py-4 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h2 className="font-bold">{moduleKey === "configuracion" ? "Datos del perfil" : moduleKey === "historial" ? "Registros clínicos" : moduleKey === "reportes" ? "Resumen de la clínica" : moduleKey === "productos" ? "Inventario de productos" : "Registros"}</h2>
           <p className="mt-1 text-xs text-ink-muted">Consulta, filtra y revisa los datos de esta sección.</p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          {rows.length > 0 ? <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-line bg-bg px-3 focus-within:border-brand sm:w-64">
+          {rows.length > 0 ? <label className="flex h-10 min-w-0 items-center gap-2 rounded-xl border border-line bg-surface-muted px-3 transition focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/10 sm:w-64">
             <Search className="size-4 shrink-0 text-ink-muted" aria-hidden />
             <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar registros…" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-ink-muted" aria-label="Buscar en los registros" />
           </label> : null}
@@ -74,8 +74,8 @@ export function AdminDataTable({ moduleKey, rows, columns, readOnly, categories 
               : ["consultas", "vacunas", "productos"].includes(moduleKey)
                 ? "Registra el primer elemento con el formulario de esta sección y quedará disponible en esta tabla."
                 : "No hay información disponible para mostrar en este momento."}</p>
-      </div> : <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
+      </div> : <div className="ui-table-wrap">
+        <table className="ui-data-table min-w-[720px] text-left">
           <thead className="sticky top-0 z-10 bg-surface-muted text-xs uppercase tracking-wide text-ink-muted"><tr>{columns.map((column) => <th key={column} className="px-5 py-4">{label(column)}</th>)}{!readOnly && ["consultas", "vacunas", "productos"].includes(moduleKey) && <th className="px-5 py-4">Acciones</th>}</tr></thead>
           <tbody className="divide-y divide-line">{filteredRows.map((row, index) => <tr key={String(row.id ?? index)} className="transition-colors hover:bg-surface-muted/60">
             {columns.map((column) => <td key={column} className="max-w-sm px-5 py-4 align-top">
