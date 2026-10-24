@@ -8,6 +8,7 @@ import { StatsGrid } from "./StatsGrid";
 import { UpcomingAppointmentsCard } from "./UpcomingAppointmentsCard";
 import { WeeklyAppointmentsCard } from "./WeeklyAppointmentsCard";
 import { WelcomeBanner } from "./WelcomeBanner";
+import { AdminWelcomeBanner } from "./AdminWelcomeBanner";
 import { VeterinarianDashboardView } from "./VeterinarianDashboardView";
 
 interface DashboardViewProps {
@@ -43,11 +44,20 @@ export function DashboardView({
   return (
     <div className="mx-auto grid w-full max-w-[1500px] gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
       <div className="flex min-w-0 flex-col gap-6">
-        <WelcomeBanner
-          firstName={firstName}
-          appointmentsToday={appointmentsToday}
-          action={patientOptions ? <NewPatientDialog options={patientOptions} /> : null}
-        />
+        {userRole === "admin" ? (
+          <AdminWelcomeBanner
+            firstName={firstName}
+            appointmentsToday={appointmentsToday}
+            todayLabel={todayLabel}
+            action={patientOptions ? <NewPatientDialog options={patientOptions} /> : null}
+          />
+        ) : (
+          <WelcomeBanner
+            firstName={firstName}
+            appointmentsToday={appointmentsToday}
+            action={patientOptions ? <NewPatientDialog options={patientOptions} /> : null}
+          />
+        )}
         <StatsGrid stats={snapshot.stats} />
         <div className="grid gap-6 lg:grid-cols-2">
           <WeeklyAppointmentsCard data={snapshot.weekly} />
