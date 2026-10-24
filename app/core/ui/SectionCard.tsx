@@ -25,7 +25,7 @@ export function SectionCard({
   return (
     <section
       aria-labelledby={titleId}
-      className={cn("rounded-2xl border border-line bg-surface shadow-card", className)}
+      className={cn("ui-card rounded-2xl border border-line bg-surface shadow-card", className)}
     >
       <header className="flex items-center justify-between gap-3 px-5 pt-5">
         <h2 id={titleId} className="flex items-center gap-2.5 text-base font-bold">
