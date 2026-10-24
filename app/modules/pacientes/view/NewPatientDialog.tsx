@@ -37,9 +37,7 @@ export function NewPatientDialog({ options }: { options: PatientOptions }) {
                 <Plus className="size-5" aria-hidden />
                 Registrar paciente
             </button>
-            <p role="status" className="mt-2 text-sm font-semibold text-tone-green-fg">
-                {saved ? "Paciente registrado correctamente." : ""}
-            </p>
+            {saved ? <p role="status" className="mt-2 text-sm font-semibold text-tone-green-fg">Paciente registrado correctamente.</p> : null}
 
             <Modal open={open} onClose={() => setOpen(false)} title="Registrar paciente">
                 <fetcher.Form key={formKey} method="post" action="/pacientes/nuevo">
