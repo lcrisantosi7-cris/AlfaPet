@@ -54,7 +54,7 @@ export function VeterinarianDashboardView({
             </span>
             <span>
               <span className="block text-lg leading-tight font-extrabold tabular-nums">{agenda.unassigned.length}</span>
-              <span className="block text-xs text-ink-muted">Sin asignar hoy</span>
+              <span className="block text-xs text-ink-muted">Pendientes sin asignar</span>
             </span>
           </div>
         </div>
@@ -69,7 +69,7 @@ export function VeterinarianDashboardView({
         />
         <VetAppointmentList
           title="Citas sin asignar"
-          description="Atenciones pendientes de hoy que puedes incorporar a tu agenda."
+          description="Próximas atenciones pendientes sin veterinario, ordenadas por fecha y hora."
           items={agenda.unassigned}
           mode="unassigned"
         />
