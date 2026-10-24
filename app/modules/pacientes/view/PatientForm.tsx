@@ -21,6 +21,7 @@ export function PatientForm({ options, errors, formError, submitting, onCancel }
                 <TextField label="Nombre completo" name="ownerName" required maxLength={120} autoComplete="off" error={first("ownerName")} className="sm:col-span-2" />
                 <TextField
                     label="Teléfono"
+                    hint="9 dígitos, sin espacios ni guiones."
                     name="ownerPhone"
                     type="tel"
                     inputMode="numeric"
@@ -37,6 +38,7 @@ export function PatientForm({ options, errors, formError, submitting, onCancel }
                 <TextField label="Correo" name="ownerEmail" type="email" maxLength={160} error={first("ownerEmail")} />
                 <TextField
                     label="DNI"
+                    hint="8 dígitos, sin puntos ni espacios."
                     name="ownerDocument"
                     inputMode="numeric"
                     autoComplete="off"
