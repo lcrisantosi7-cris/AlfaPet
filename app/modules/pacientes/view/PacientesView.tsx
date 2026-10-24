@@ -32,7 +32,7 @@ export function PacientesView({ patients, options, userRole }: { patients: Patie
   }, [patients, query, species, status]);
 
   return (
-    <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
+    <section className="mx-auto flex max-w-[1500px] flex-col gap-5">
       <PageHeader
         eyebrow={isVeterinarian ? "Atención clínica" : "Gestión asistencial"}
         title="Pacientes"
@@ -85,7 +85,7 @@ export function PacientesView({ patients, options, userRole }: { patients: Patie
             {query && <button onClick={() => { setQuery(""); setSpecies("todos"); setStatus("activos"); }} className="ui-button mt-4 rounded-lg border border-line px-4 py-2 text-sm font-semibold hover:bg-surface-muted">Limpiar filtros</button>}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="ui-table-wrap">
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted"><tr><th className="px-5 py-4 font-semibold">Paciente</th><th className="px-5 py-4 font-semibold">Propietario</th><th className="px-5 py-4 font-semibold">Ficha</th><th className="px-5 py-4 font-semibold">Registro</th><th className="px-5 py-4 font-semibold">Estado</th>{canCreate && <th className="px-5 py-4 font-semibold">Acciones</th>}{isVeterinarian && <th className="px-5 py-4 font-semibold">Acceso clínico</th>}</tr></thead>
               <tbody className="divide-y divide-line">
