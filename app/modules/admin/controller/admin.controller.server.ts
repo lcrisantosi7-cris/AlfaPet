@@ -271,7 +271,10 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   const excluded = ["id", "created_by", "updated_at"];
   const rawColumns = [...new Set(safeRows.flatMap((row) => Object.keys(row)))];
   const columns = [...new Set(rawColumns
-    .map((key) => replacements[key] && safeRows.some((row) => row[replacements[key]] != null) ? replacements[key] : key)
+    .map((key) => {
+      const replacement = replacements[key];
+      return replacement && safeRows.some((row) => row[replacement] != null) ? replacement : key;
+    })
     .filter((key) =>
       !excluded.includes(key) &&
       !key.endsWith("_id") &&
