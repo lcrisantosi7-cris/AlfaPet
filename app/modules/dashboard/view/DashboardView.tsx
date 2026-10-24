@@ -16,6 +16,7 @@ interface DashboardViewProps {
   vetAgenda: VetAgenda | null;
   userRole: Role;
   firstName: string;
+  todayLabel: string;
 }
 
 export function DashboardView({
@@ -24,6 +25,7 @@ export function DashboardView({
   vetAgenda,
   userRole,
   firstName,
+  todayLabel,
 }: DashboardViewProps) {
   const appointmentsToday = snapshot.stats.find((stat) => stat.kind === "appointmentsToday")?.value ?? 0;
 
@@ -32,6 +34,7 @@ export function DashboardView({
       <VeterinarianDashboardView
         firstName={firstName}
         snapshot={snapshot}
+        todayLabel={todayLabel}
         agenda={vetAgenda ?? { assigned: [], unassigned: [] }}
       />
     );
