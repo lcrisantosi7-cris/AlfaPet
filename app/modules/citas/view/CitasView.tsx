@@ -54,7 +54,7 @@ export function CitasView({ appointments, filters, careTypes, vets, patients, us
           {appointments.length} citas en resultados
         </div>
       }
-    />der>
+    />
 
     {actionData?.message ? <p role="status" className={`rounded-xl border px-4 py-3 text-sm ${actionData.ok ? "border-tone-green-soft bg-tone-green-soft text-tone-green-fg" : "border-tone-amber-soft bg-tone-amber-soft text-tone-amber-fg"}`}>{actionData.message}</p> : null}
     {userRole !== "veterinario" ? <details className="ui-card rounded-2xl border border-line bg-surface shadow-card">
