@@ -51,8 +51,8 @@ function Field({ name, title, type = "text", required = false, step, min, max, d
       className="h-11 rounded-xl border border-line bg-bg px-3 text-sm font-normal text-ink" />
   </label>;
 }
-function SelectField({ name, title, options, required = false, placeholder = "Selecciona..." }: {
-  name: string; title: string; options: { id: string | number; name: string }[]; required?: boolean; placeholder?: string;
+function SelectField({ name, title, options, required = false, placeholder = "Selecciona...", defaultValue = "" }: {
+  name: string; title: string; options: { id: string | number; name: string }[]; required?: boolean; placeholder?: string; defaultValue?: string;
 }) {
   return <label className="flex flex-col gap-1.5 text-xs font-semibold text-ink-muted">
     {title}
