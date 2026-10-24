@@ -14,7 +14,7 @@ export function ThemeToggle() {
       <button
         type="submit"
         aria-label={next === "dark" ? "Activar modo oscuro" : "Activar modo claro"}
-        className="flex size-11 items-center justify-center rounded-full border border-line bg-surface text-ink-muted transition-colors hover:text-brand-text"
+        className="ui-icon-button flex size-11 items-center justify-center rounded-full border border-line bg-surface text-ink-muted hover:border-brand/50 hover:text-brand-text"
       >
         {theme === "dark" ? <Sun className="size-5" aria-hidden /> : <Moon className="size-5" aria-hidden />}
       </button>
