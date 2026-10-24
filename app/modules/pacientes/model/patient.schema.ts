@@ -8,6 +8,17 @@ const optionalText = (max: number) =>
         .transform((value) => value || undefined)
         .optional();
 
+const optionalDigits = (length: number, label: string) =>
+    z
+        .string()
+        .trim()
+        .refine(
+            (value) => value === "" || new RegExp("^[0-9]{" + length + "}$").test(value),
+            label + " debe contener exactamente " + length + " dígitos",
+        )
+        .transform((value) => value || undefined)
+        .optional();
+
 const optionalEmail = z
     .string()
     .trim()
@@ -34,9 +45,9 @@ const optionalWeight = z
 /** Reglas de entrada del formulario "Nuevo paciente" (el servidor es la autoridad). */
 export const newPatientSchema = z.object({
     ownerName: z.string().trim().min(2, "Ingresa el nombre del dueño").max(120, "Máximo 120 caracteres"),
-    ownerPhone: optionalText(30),
+    ownerPhone: optionalDigits(9, "El teléfono"),
     ownerEmail: optionalEmail,
-    ownerDocument: optionalText(20),
+    ownerDocument: optionalDigits(8, "El DNI"),
     ownerAddress: optionalText(200),
     name: z.string().trim().min(1, "Ingresa el nombre del paciente").max(80, "Máximo 80 caracteres"),
     species: z.string().trim().min(1, "Elige la especie"),
