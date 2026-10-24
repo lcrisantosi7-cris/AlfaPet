@@ -1,4 +1,4 @@
-import { ArrowRight, Eye, EyeOff, HeartPulse, PawPrint, ShieldCheck, Stethoscope } from "lucide-react";
+import { ArrowRight, CalendarDays, Eye, EyeOff, HeartPulse, PawPrint, ShieldCheck, Stethoscope } from "lucide-react";
 import { useState } from "react";
 import { Form, useNavigation } from "react-router";
 import { LOGO_SRC } from "~/core/layout/BrandLogo";
@@ -116,5 +116,5 @@ export function LoginView({ error, inactive }: LoginViewProps) {
 }
 
 function CalendarBadge() {
-  return <PawPrint className="size-5 text-[#ffd3a3]" aria-hidden />;
+  return <CalendarDays className="size-5 text-[#ffd3a3]" aria-hidden />;
 }
