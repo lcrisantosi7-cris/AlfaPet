@@ -27,14 +27,14 @@ export function Sidebar({ items, onNavigate }: SidebarProps) {
                   onClick={onNavigate}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-colors",
+                      "ui-nav-link flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold",
                       isActive
                         ? "bg-brand text-on-brand shadow-lg shadow-black/20"
                         : "text-sidebar-ink/85 hover:bg-white/10",
                     )
                   }
                 >
-                  <Icon className="size-5" aria-hidden />
+                  <Icon className="ui-nav-icon size-5" aria-hidden />
                   {item.label}
                 </NavLink>
               </li>
