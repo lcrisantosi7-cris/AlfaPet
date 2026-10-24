@@ -405,3 +405,101 @@ html[data-navigation="loading"] .route-content-enter {
   }
   .route-content-enter { opacity: 1; transform: none; }
 }
+
+
+/* Login y panel de administración: capas discretas, sin alterar el tema global. */
+@layer components {
+  .login-shell {
+    isolation: isolate;
+    background:
+      radial-gradient(ellipse at 12% 12%, color-mix(in srgb, var(--brand) 8%, transparent), transparent 34rem),
+      radial-gradient(ellipse at 92% 90%, color-mix(in srgb, var(--brand) 7%, transparent), transparent 32rem),
+      var(--bg);
+  }
+
+  .login-orb {
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 9999px;
+    filter: blur(1px);
+    opacity: .65;
+  }
+
+  .login-orb-one {
+    top: 7%;
+    left: -7rem;
+    width: 15rem;
+    height: 15rem;
+    border: 1px solid color-mix(in srgb, var(--brand) 18%, transparent);
+  }
+
+  .login-orb-two {
+    right: -6rem;
+    bottom: 5%;
+    width: 18rem;
+    height: 18rem;
+    border: 1px solid color-mix(in srgb, var(--brand) 14%, transparent);
+  }
+
+  .login-brand-panel {
+    background:
+      radial-gradient(ellipse at 10% 10%, rgb(255 255 255 / .12), transparent 45%),
+      linear-gradient(145deg, var(--sidebar) 0%, var(--sidebar-deep) 100%);
+  }
+
+  .login-panel-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: .16;
+    background-image: radial-gradient(rgb(255 255 255 / .55) .7px, transparent .7px);
+    background-size: 18px 18px;
+    mask-image: linear-gradient(to bottom right, black, transparent 78%);
+    pointer-events: none;
+  }
+
+  .login-frame {
+    animation: login-frame-enter 460ms cubic-bezier(.2,.75,.25,1) both;
+  }
+
+  .login-paw-decoration {
+    animation: login-paw-float 9s ease-in-out infinite;
+  }
+
+  .admin-welcome-panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at 90% 0%, color-mix(in srgb, var(--brand) 10%, transparent), transparent 24rem),
+      var(--surface);
+  }
+
+  .admin-welcome-panel::after {
+    position: absolute;
+    z-index: -1;
+    top: -3rem;
+    right: -2rem;
+    width: 13rem;
+    height: 13rem;
+    border: 1px solid color-mix(in srgb, var(--brand) 12%, transparent);
+    border-radius: 50%;
+    content: "";
+    box-shadow: 0 0 0 1.5rem color-mix(in srgb, var(--brand) 3%, transparent), 0 0 0 3rem color-mix(in srgb, var(--brand) 2%, transparent);
+    pointer-events: none;
+  }
+}
+
+@keyframes login-frame-enter {
+  from { opacity: 0; transform: translateY(12px) scale(.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes login-paw-float {
+  0%, 100% { transform: rotate(-18deg) translateY(0); }
+  50% { transform: rotate(-14deg) translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-frame, .login-paw-decoration { animation: none !important; }
+}
