@@ -151,6 +151,19 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
     ].sort((a, b) => String(b.created_at ?? b.applied_at ?? "").localeCompare(String(a.created_at ?? a.applied_at ?? "")));
   }
 
+  let categories: { id: number; name: string }[] = [];
+  if (item.key === "productos") {
+    const { data: categoryRows, error: categoryError } = await supabase
+      .from("product_categories")
+      .select("id,name")
+      .eq("is_active", true)
+      .order("name");
+    if (categoryError) {
+      throw new Response(`No se pudieron cargar las categorías: ${categoryError.message}`, { status: 500, headers });
+    }
+    categories = categoryRows ?? [];
+  }
+
   const excluded = ["id", "created_by", "updated_at"];
   const columns = [...new Set(safeRows.flatMap((row) => Object.keys(row)))]
     .filter((key) => !excluded.includes(key)).slice(0, 10);
@@ -255,9 +268,24 @@ export async function adminModuleAction({ request }: ActionFunctionArgs) {
       if (!name || !sku || price === null) {
         return data({ ok: false, message: "Nombre, SKU y precio son obligatorios." }, { status: 400, headers });
       }
+      const categoryIdRaw = String(form.get("category_id") ?? "").trim();
+      let category: { id: number; name: string } | null = null;
+      if (categoryIdRaw) {
+        const categoryId = Number(categoryIdRaw);
+        if (!Number.isSafeInteger(categoryId) || categoryId <= 0) {
+          return data({ ok: false, message: "Selecciona una categoría válida." }, { status: 400, headers });
+        }
+        const { data: foundCategory, error: categoryError } = await supabase
+          .from("product_categories").select("id,name").eq("id", categoryId).eq("is_active", true).maybeSingle();
+        if (categoryError || !foundCategory) {
+          return data({ ok: false, message: "La categoría seleccionada no existe o está inactiva." }, { status: 400, headers });
+        }
+        category = foundCategory;
+      }
       const insert = {
         name, sku, price, stock: stock ?? 0, min_stock: minStock ?? 0,
-        category: textField(form, "category", 60),
+        category: category?.name ?? null,
+        category_id: category?.id ?? null,
       };
       const { error } = await supabase.from("products").insert(insert);
       if (error) return data({ ok: false, message: `No se pudo guardar el producto: ${error.message}` }, { status: 400, headers });
@@ -291,7 +319,25 @@ export async function adminModuleAction({ request }: ActionFunctionArgs) {
         if (!name || !sku || price === null || stock === null || minStock === null) {
           return data({ ok: false, message: "Completa nombre, SKU, precio y existencias válidas." }, { status: 400, headers });
         }
-        Object.assign(editable, { name, sku, price, stock, min_stock: minStock, category: textField(form, "category", 60) });
+        const categoryIdRaw = String(form.get("category_id") ?? "").trim();
+        let category: { id: number; name: string } | null = null;
+        if (categoryIdRaw) {
+          const categoryId = Number(categoryIdRaw);
+          if (!Number.isSafeInteger(categoryId) || categoryId <= 0) {
+            return data({ ok: false, message: "Selecciona una categoría válida." }, { status: 400, headers });
+          }
+          const { data: foundCategory, error: categoryError } = await supabase
+            .from("product_categories").select("id,name").eq("id", categoryId).eq("is_active", true).maybeSingle();
+          if (categoryError || !foundCategory) {
+            return data({ ok: false, message: "La categoría seleccionada no existe o está inactiva." }, { status: 400, headers });
+          }
+          category = foundCategory;
+        }
+        Object.assign(editable, {
+          name, sku, price, stock, min_stock: minStock,
+          category: category?.name ?? null,
+          category_id: category?.id ?? null,
+        });
       } else if (item.key === "consultas") {
         const diagnosis = textField(form, "diagnosis", 2000);
         if (!diagnosis) return data({ ok: false, message: "El diagnóstico es obligatorio." }, { status: 400, headers });
