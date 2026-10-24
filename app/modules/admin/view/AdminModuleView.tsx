@@ -45,6 +45,53 @@ function pretty(value: unknown): string {
 function label(value: string) {
   return LABELS[value] ?? value.replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase());
 }
+
+const STATUS_LABELS: Record<string, string> = {
+  pendiente: "Pendiente",
+  confirmada: "Confirmada",
+  completada: "Atendida",
+  cancelada: "Cancelada",
+  activo: "Activo",
+  inactivo: "Inactivo",
+  admin: "Administrador",
+  veterinario: "Veterinario",
+  recepcion: "Recepción",
+};
+
+function displayValue(column: string, value: unknown): string {
+  if (value === null || value === undefined || value === "") return "—";
+  if (typeof value === "boolean") return value ? "Activo" : "Inactivo";
+  if (["created_at", "updated_at", "starts_at", "applied_at", "due_date", "birth_date"].includes(column)) {
+    const date = new Date(String(value));
+    if (Number.isNaN(date.getTime())) return String(value);
+    const hasTime = String(value).includes("T") && !["applied_at", "due_date", "birth_date"].includes(column);
+    return new Intl.DateTimeFormat("es-PE", hasTime
+      ? { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }
+      : { day: "2-digit", month: "short", year: "numeric" }).format(date);
+  }
+  if (column === "price") {
+    const amount = Number(value);
+    return Number.isFinite(amount) ? new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" }).format(amount) : String(value);
+  }
+  if (column === "status" || column === "role") return STATUS_LABELS[String(value)] ?? String(value);
+  return pretty(value);
+}
+
+function statusTone(value: unknown): string {
+  switch (String(value ?? "").toLowerCase()) {
+    case "completada":
+    case "activo":
+      return "bg-tone-green-soft text-tone-green-fg";
+    case "confirmada":
+    case "pendiente":
+      return "bg-tone-blue-soft text-tone-blue-fg";
+    case "cancelada":
+    case "inactivo":
+      return "bg-tone-red-soft text-tone-red-fg";
+    default:
+      return "bg-surface-muted text-ink-muted";
+  }
+}
 export function AdminModuleView({ moduleKey, title, rows, metrics, columns, readOnly, patients, appointments, vaccines, reportFilters, categories = [], veterinarians = [] }: Props) {
   const Icon = ICONS[moduleKey] ?? Activity;
   const actionData = useActionData() as ActionResult | undefined;
@@ -68,17 +115,24 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
   const canCreate = ["consultas", "vacunas", "productos"].includes(moduleKey);
   return <section className="mx-auto flex max-w-[1500px] flex-col gap-6">
     <PageHeader
-      eyebrow="AlfaPet · Gestión"
+      eyebrow={moduleKey === "reportes" ? "Análisis y seguimiento" : moduleKey === "configuracion" ? "Cuenta y preferencias" : "Administración · AlfaPet"}
       title={title}
-      description="Información consultada desde Supabase y sujeta a los permisos de tu sesión."
+      description={{
+        consultas: "Registros de atención para dar continuidad al cuidado de cada paciente.",
+        historial: "Consulta cronológica de las atenciones y vacunaciones registradas.",
+        vacunas: "Control de aplicaciones y próximas dosis para mantener al día cada esquema.",
+        productos: "Supervisa existencias, precios y alertas para reponer a tiempo.",
+        reportes: "Indicadores de actividad clínica e inventario para tomar decisiones.",
+        configuracion: "Mantén tus datos de acceso actualizados y seguros.",
+      }[moduleKey] ?? "Información de la clínica organizada para una gestión más clara."}
       action={
-        <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3">
-          <span className="flex size-11 items-center justify-center rounded-xl bg-brand-soft text-brand-text">
+        <div className="hidden items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 sm:flex">
+          <span className="flex size-10 items-center justify-center rounded-xl bg-brand-soft text-brand-text">
             <Icon className="size-5" aria-hidden />
           </span>
           <div>
-            <p className="text-xs text-ink-muted">Datos de la clínica</p>
-            <p className="font-semibold">Conexión Supabase</p>
+            <p className="text-xs text-ink-muted">Área de trabajo</p>
+            <p className="font-semibold">{moduleKey === "reportes" ? "Vista analítica" : "Datos actualizados"}</p>
           </div>
         </div>
       }
@@ -146,9 +200,9 @@ export function AdminModuleView({ moduleKey, title, rows, metrics, columns, read
     </details> : null}
 
     {moduleKey === "productos" ? <div className="grid gap-4 sm:grid-cols-3">
-      <article className="rounded-2xl border border-tone-red-soft bg-tone-red-soft/40 p-5"><p className="text-sm font-medium text-tone-red-fg">Stock en alerta</p><p className="mt-2 text-3xl font-extrabold">{rows.filter(row => Number(row.stock ?? 0) <= 10).length}</p><p className="mt-1 text-xs text-tone-red-fg">10 unidades o menos</p></article>
-      <article className="rounded-2xl border border-tone-amber-soft bg-tone-amber-soft/40 p-5"><p className="text-sm font-medium text-tone-amber-fg">Stock moderado</p><p className="mt-2 text-3xl font-extrabold">{rows.filter(row => Number(row.stock ?? 0) > 10 && Number(row.stock ?? 0) <= 20).length}</p><p className="mt-1 text-xs text-tone-amber-fg">De 11 a 20 unidades</p></article>
-      <article className="rounded-2xl border border-tone-green-soft bg-tone-green-soft/40 p-5"><p className="text-sm font-medium text-tone-green-fg">Stock normal</p><p className="mt-2 text-3xl font-extrabold">{rows.filter(row => Number(row.stock ?? 0) > 20).length}</p><p className="mt-1 text-xs text-tone-green-fg">Más de 20 unidades</p></article>
+      <article className="ui-card rounded-2xl border border-tone-red-soft bg-tone-red-soft/40 p-5"><p className="text-sm font-medium text-tone-red-fg">Agotados</p><p className="mt-2 text-3xl font-extrabold tabular-nums">{rows.filter(row => Number(row.stock ?? 0) <= 0).length}</p><p className="mt-1 text-xs text-tone-red-fg">Sin unidades disponibles</p></article>
+      <article className="ui-card rounded-2xl border border-tone-amber-soft bg-tone-amber-soft/40 p-5"><p className="text-sm font-medium text-tone-amber-fg">Bajo el mínimo</p><p className="mt-2 text-3xl font-extrabold tabular-nums">{rows.filter(row => Number(row.stock ?? 0) > 0 && Number(row.stock ?? 0) <= Number(row.min_stock ?? 0)).length}</p><p className="mt-1 text-xs text-tone-amber-fg">Necesitan reposición</p></article>
+      <article className="ui-card rounded-2xl border border-tone-green-soft bg-tone-green-soft/40 p-5"><p className="text-sm font-medium text-tone-green-fg">Stock suficiente</p><p className="mt-2 text-3xl font-extrabold tabular-nums">{rows.filter(row => Number(row.stock ?? 0) > Number(row.min_stock ?? 0)).length}</p><p className="mt-1 text-xs text-tone-green-fg">Por encima del mínimo configurado</p></article>
     </div> : null}
 
     {moduleKey === "reportes" ? <Form method="get" className="grid gap-3 rounded-2xl border border-line bg-surface p-4 shadow-card sm:grid-cols-[1fr_1fr_auto_auto] sm:items-end">
