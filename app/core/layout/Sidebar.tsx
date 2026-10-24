@@ -20,7 +20,7 @@ export function Sidebar({ items, onNavigate }: SidebarProps) {
           Menú principal
         </p>
         <ul className="flex flex-col gap-1">
-          {items.map((item, index) => {
+          {items.map((item) => {
             const Icon = NAV_ICONS[item.icon];
             const isSectionStart = ["reportes", "configuracion"].includes(item.key);
 
