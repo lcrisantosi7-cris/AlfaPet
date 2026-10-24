@@ -181,6 +181,7 @@
 @media (prefers-reduced-motion: reduce) {
   .ui-card,
   .ui-stat-card,
+  .ui-stat-chevron,
   .ui-button,
   .ui-icon-button,
   .ui-text-link,
@@ -192,6 +193,7 @@
   }
 
   .ui-stat-card:hover,
+  .ui-stat-card:hover .ui-stat-chevron,
   .ui-button:hover:not(:disabled),
   .ui-icon-button:hover:not(:disabled),
   .ui-nav-link:not([aria-current="page"]):hover,
