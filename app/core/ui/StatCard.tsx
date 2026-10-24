@@ -26,7 +26,7 @@ export function StatCard({ label, value, to, tone, icon: Icon }: StatCardProps) 
     <Link
       to={to}
       className={cn(
-        "ui-stat-card flex flex-col gap-3 rounded-2xl border border-line p-4 hover:shadow-card",
+        "ui-stat-card flex flex-col gap-3 rounded-2xl border border-line p-4",
         styles.card,
       )}
     >
