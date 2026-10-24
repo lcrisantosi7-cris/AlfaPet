@@ -37,6 +37,22 @@ export interface PatientSummary {
   photoUrl?: string;
 }
 
+export interface VetAgendaAppointment {
+  id: string;
+  startsAt: string;
+  scheduleLabel: string;
+  status: string;
+  petName: string;
+  species: string;
+  ownerName: string;
+  careType: string;
+}
+
+export interface VetAgenda {
+  assigned: VetAgendaAppointment[];
+  unassigned: VetAgendaAppointment[];
+}
+
 export interface DashboardSnapshot {
   stats: DashboardStat[];
   weekly: WeekdayAppointments[];
