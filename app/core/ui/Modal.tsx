@@ -26,7 +26,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             aria-labelledby={titleId}
             onClose={onClose}
             onClick={(event) => event.target === event.currentTarget && onClose()}
-            className="m-auto max-h-[calc(100dvh-2rem)] w-[min(44rem,calc(100%-2rem))] overflow-y-auto rounded-3xl border border-line bg-surface p-0 text-ink shadow-card backdrop:bg-black/50"
+            className="ui-dialog m-auto max-h-[calc(100dvh-2rem)] w-[min(44rem,calc(100%-2rem))] overflow-y-auto rounded-3xl border border-line bg-surface p-0 text-ink shadow-card backdrop:bg-black/50"
         >
             <div className="p-6 sm:p-8">
                 <header className="mb-6 flex items-start justify-between gap-4">
