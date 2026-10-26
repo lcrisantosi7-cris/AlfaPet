@@ -1,5 +1,7 @@
 import { NewPatientDialog } from "~/modules/pacientes/view/NewPatientDialog";
 import { ConfirmForm } from "~/core/feedback/ConfirmForm";
+import { AdminDashboardView } from "./AdminDashboardView";
+import type { AdminOverview } from "../model/admin-overview.types";
 import type { PatientOptions } from "~/modules/pacientes/model/patient.types";
 import type { Role } from "~/modules/auth/model/user.types";
 import type { DashboardSnapshot, VetAgenda } from "../model/dashboard.types";
@@ -19,6 +21,8 @@ interface DashboardViewProps {
   userRole: Role;
   firstName: string;
   todayLabel: string;
+  overview: AdminOverview | null;
+  greeting: string;
 }
 
 export function DashboardView({
@@ -28,6 +32,8 @@ export function DashboardView({
   userRole,
   firstName,
   todayLabel,
+  overview,
+  greeting,
 }: DashboardViewProps) {
   const appointmentsToday = snapshot.stats.find((stat) => stat.kind === "appointmentsToday")?.value ?? 0;
 
@@ -38,6 +44,18 @@ export function DashboardView({
         snapshot={snapshot}
         todayLabel={todayLabel}
         agenda={vetAgenda ?? { assigned: [], unassigned: [] }}
+      />
+    );
+  }
+  if (userRole === "admin" && overview) {
+    return (
+      <AdminDashboardView
+        overview={overview}
+        snapshot={snapshot}
+        patientOptions={patientOptions}
+        greeting={greeting}
+        firstName={firstName}
+        todayLabel={todayLabel}
       />
     );
   }
