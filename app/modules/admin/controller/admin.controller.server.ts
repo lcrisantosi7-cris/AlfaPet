@@ -6,7 +6,7 @@ import { requireUser } from "~/modules/auth/controller/session.controller.server
 
 const TABLES: Record<string, string> = {
   consultas: "consultations",
-  historial: "consultations",
+  historial: "clinical_history",
   vacunas: "vaccinations",
   productos: "products",
 };
@@ -177,7 +177,8 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
     { data: appointments, error: appointmentsError },
     { data: vaccines, error: vaccinesError },
   ] = await Promise.all([
-    supabase.from(table).select("*").order("created_at", { ascending: false }).limit(300),
+    supabase.from(table).select("*").order(item.key === "historial" ? "occurred_at" : "created_at", { ascending: false }).limit(300),
+
     ["consultas", "historial", "vacunas"].includes(item.key)
       ? supabase.from("patients").select("id,name").eq("is_active", true).order("name").limit(500)
       : Promise.resolve({ data: [] as { id: string; name: string }[], error: null }),
@@ -195,15 +196,6 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   if (vaccinesError) throw new Response(`No se pudieron cargar las vacunas: ${vaccinesError.message}`, { status: 500, headers });
 
   let safeRows = (rows ?? []) as Record<string, unknown>[];
-  if (item.key === "historial") {
-    const { data: vaccineRows, error: vaccineHistoryError } = await supabase
-      .from("vaccinations").select("*").order("created_at", { ascending: false }).limit(300);
-    if (vaccineHistoryError) throw new Response(`No se pudo cargar el historial de vacunaciones: ${vaccineHistoryError.message}`, { status: 500, headers });
-    safeRows = [
-      ...safeRows.map((row) => ({ ...row, record_type: "Consulta" })),
-      ...((vaccineRows ?? []) as Record<string, unknown>[]).map((row) => ({ ...row, record_type: "Vacunación" })),
-    ].sort((a, b) => String(b.created_at ?? b.applied_at ?? "").localeCompare(String(a.created_at ?? a.applied_at ?? "")));
-  }
 
   let categories: { id: number; name: string }[] = [];
   if (item.key === "productos") {
@@ -268,7 +260,7 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
     administered_by: "administered_by_name",
     vaccine_id: "vaccine_name",
   };
-  const excluded = ["id", "created_by", "updated_at"];
+  const excluded = ["id", "created_by", "updated_at", "source_table"];
   const rawColumns = [...new Set(safeRows.flatMap((row) => Object.keys(row)))];
   const columns = [...new Set(rawColumns
     .map((key) => {

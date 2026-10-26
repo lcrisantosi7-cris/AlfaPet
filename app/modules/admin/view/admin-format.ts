@@ -12,6 +12,8 @@ const LABELS: Record<string, string> = {
   avatar_url: "URL de avatar", record_type: "Tipo de registro",
   patient_name: "Paciente", appointment_label: "Cita relacionada", vet_name: "Veterinario",
   vaccine_name: "Vacuna", administered_by_name: "Registrado por",
+  occurred_at: "Fecha", title: "Atención", detail: "Detalle", author_name: "Registrado por",
+
 };
 export function pretty(value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
@@ -36,12 +38,23 @@ const STATUS_LABELS: Record<string, string> = {
   admin: "Administrador",
   veterinario: "Veterinario",
   recepcion: "Recepción",
+  aplicada: "Aplicada",
+  programada: "Programada",
+  en_curso: "En curso",
+  completado: "Completado",
+  solicitado: "Solicitado",
+  muestra_tomada: "Muestra tomada",
+  en_proceso: "En proceso",
+  internado: "Internado",
+  alta: "Alta",
+  fallecido: "Fallecido",
+  cancelado: "Cancelado",
 };
 
 export function displayValue(column: string, value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
   if (typeof value === "boolean") return value ? "Activo" : "Inactivo";
-  if (["created_at", "updated_at", "starts_at", "applied_at", "due_date", "birth_date"].includes(column)) {
+  if (["created_at", "updated_at", "starts_at", "applied_at", "due_date", "birth_date", "occurred_at"].includes(column)) {
     const rawDate = String(value);
     const hasTime = rawDate.includes("T") && !["applied_at", "due_date", "birth_date"].includes(column);
     const date = hasTime
@@ -64,12 +77,23 @@ export function statusTone(value: unknown): string {
   if (typeof value === "boolean") return value ? "bg-tone-green-soft text-tone-green-fg" : "bg-tone-red-soft text-tone-red-fg";
   switch (String(value ?? "").toLowerCase()) {
     case "completada":
+    case "completado":
+    case "aplicada":
+    case "alta":
     case "activo":
       return "bg-tone-green-soft text-tone-green-fg";
     case "confirmada":
     case "pendiente":
+    case "programada":
+    case "solicitado":
+    case "muestra_tomada":
+    case "en_proceso":
+    case "en_curso":
+    case "internado":
       return "bg-tone-blue-soft text-tone-blue-fg";
     case "cancelada":
+    case "cancelado":
+    case "fallecido":
     case "inactivo":
       return "bg-tone-red-soft text-tone-red-fg";
     default:

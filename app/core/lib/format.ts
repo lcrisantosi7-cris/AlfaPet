@@ -10,3 +10,7 @@ export const formatDate = (iso: string) => dateFormatter.format(new Date(iso));
 
 /** "perro" → "Perro" */
 export const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+const moneyFormatter = new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN" });
+
+/** 12.5 → "S/ 12.50" */
+export const formatMoney = (amount: number) => moneyFormatter.format(amount);

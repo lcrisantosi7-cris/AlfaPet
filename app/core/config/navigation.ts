@@ -10,7 +10,12 @@ export type NavIconName =
   | "products"
   | "reports"
   | "settings"
-  | "users";
+  | "users"
+  | "sales"
+  | "admissions"
+  | "surgeries"
+  | "lab";
+
 
 export interface NavItem {
   key: string;
@@ -31,7 +36,11 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: "consultas", label: "Consultas", path: "/consultas", icon: "consultations", roles: CLINICAL },
   { key: "historial", label: "Historial Clínico", path: "/historial-clinico", icon: "history", roles: CLINICAL },
   { key: "vacunas", label: "Vacunas", path: "/vacunas", icon: "vaccines", roles: CLINICAL },
+  { key: "cirugias", label: "Cirugías", path: "/cirugias", icon: "surgeries", roles: ["admin", "veterinario"] },
+  { key: "analisis", label: "Análisis", path: "/analisis", icon: "lab", roles: ALL },
+  { key: "internamiento", label: "Internamiento", path: "/internamiento", icon: "admissions", roles: ALL },
   { key: "productos", label: "Productos", path: "/productos", icon: "products", roles: ["admin", "recepcion"] },
+  { key: "ventas", label: "Ventas y caja", path: "/ventas", icon: "sales", roles: ["admin", "recepcion"] },
   { key: "reportes", label: "Reportes", path: "/reportes", icon: "reports", roles: ["admin"] },
   { key: "personal", label: "Gestión de personal", path: "/personal", icon: "users", roles: ["admin"] },
   { key: "configuracion", label: "Mi perfil", path: "/configuracion", icon: "settings", roles: ALL },
