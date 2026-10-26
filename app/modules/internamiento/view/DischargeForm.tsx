@@ -8,7 +8,7 @@ export function DischargeForm({ admissionId }: { admissionId: string }) {
             confirm={{
                 tone: "danger",
                 title: "¿Cerrar este internamiento?",
-                description: "Se liberará la jaula y ya no se podrán agregar notas de evolución.",
+                description: "Se liberará la habitación y ya no se podrán agregar notas de evolución.",
                 confirmLabel: "Cerrar internamiento",
             }}
         >

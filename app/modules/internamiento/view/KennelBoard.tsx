@@ -12,7 +12,7 @@ interface KennelBoardProps {
 
 export function KennelBoard({ kennels, clinical, onAdmit }: KennelBoardProps) {
     return (
-        <ul aria-label="Tablero de jaulas" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <ul aria-label="Tablero de habitaciones" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
             {kennels.map((kennel) => {
                 const occupant = kennel.occupant;
                 return (

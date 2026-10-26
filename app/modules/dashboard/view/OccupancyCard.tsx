@@ -8,13 +8,13 @@ export function OccupancyCard({ active, capacity }: { active: number; capacity: 
     const free = Math.max(capacity - active, 0);
 
     return (
-        <SectionCard title="Ocupación de jaulas" icon={BedDouble} action={<ActionLink to="/internamiento">Ver tablero</ActionLink>}>
+        <SectionCard title="Ocupación de habitaciones" icon={BedDouble} action={<ActionLink to="/internamiento">Ver tablero</ActionLink>}>
             {capacity === 0 ? (
-                <EmptyState icon={BedDouble} title="Sin jaulas configuradas" />
+                <EmptyState icon={BedDouble} title="Sin habitaciones configuradas" />
             ) : (
                 <div className="flex items-center gap-5">
                     <div className="relative size-28 shrink-0">
-                        <svg viewBox="0 0 36 36" className="size-full -rotate-90" role="img" aria-label={`${active} de ${capacity} jaulas ocupadas`}>
+                        <svg viewBox="0 0 36 36" className="size-full -rotate-90" role="img" aria-label={`${active} de ${capacity} habitaciones ocupadas`}>
                             <circle cx="18" cy="18" r="15.9155" fill="none" stroke="var(--surface-muted)" strokeWidth="3.6" />
                             <circle
                                 cx="18" cy="18" r="15.9155" fill="none" stroke="var(--brand)" strokeWidth="3.6" strokeLinecap="round"

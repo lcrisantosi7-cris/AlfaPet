@@ -2,42 +2,40 @@ import { data, type ActionFunctionArgs, type LoaderFunctionArgs } from "react-ro
 import { assertSameOrigin } from "~/core/security/same-origin.server";
 import { requireUser } from "~/modules/auth/controller/session.controller.server";
 import { PatientRepository } from "../model/patient.repository.server";
+import type { PatientListRow } from "../model/patient.types";
+
 
 export async function pacientesLoader({ request }: LoaderFunctionArgs) {
   const { supabase, headers, user } = await requireUser(request);
-  const [{ data: patients, error }, options] = await Promise.all([
+  const [{ data: rows, error }, options] = await Promise.all([
     supabase
       .from("patients")
-      .select("id,name,species,breed,sex,birth_date,weight_kg,microchip,is_active,created_at,owner:owners(id,full_name,phone,email,document_number,address)")
+      .select("id,name,species,breed,sex,birth_date,current_weight_kg,microchip,is_active,life_status,created_at,owner:owners(id,full_name,phone,document_number)")
       .order("created_at", { ascending: false })
       .limit(500),
     new PatientRepository(supabase).getOptions(),
   ]);
-
   if (error) throw new Response("No se pudo cargar la lista de pacientes.", { status: 500, headers });
 
-  return data({
-    userRole: user.role,
-    options,
-    patients: (patients ?? []).map((p: any) => ({
-      id: p.id as string,
-      name: p.name as string,
-      species: String(p.species ?? ""),
-      breed: p.breed as string | null,
-      sex: p.sex as string | null,
-      birthDate: p.birth_date as string | null,
-      weightKg: p.weight_kg as number | null,
-      microchip: p.microchip as string | null,
-      isActive: Boolean(p.is_active),
-      createdAt: p.created_at as string,
-      ownerId: p.owner?.id as string | undefined,
-      ownerName: p.owner?.full_name as string | undefined,
-      ownerPhone: p.owner?.phone as string | undefined,
-      ownerEmail: p.owner?.email as string | undefined,
-      ownerDocument: p.owner?.document_number as string | undefined,
-      ownerAddress: p.owner?.address as string | undefined,
-    })),
-  }, { headers });
+  const patients: PatientListRow[] = (rows ?? []).map((p: any) => ({
+    id: p.id,
+    name: p.name,
+    species: String(p.species ?? ""),
+    breed: p.breed,
+    sex: p.sex,
+    birthDate: p.birth_date,
+    currentWeightKg: p.current_weight_kg,
+    microchip: p.microchip,
+    isActive: Boolean(p.is_active),
+    lifeStatus: p.life_status ?? "vivo",
+    createdAt: p.created_at,
+    ownerId: p.owner?.id,
+    ownerName: p.owner?.full_name,
+    ownerPhone: p.owner?.phone ?? undefined,
+    ownerDocument: p.owner?.document_number ?? undefined,
+  }));
+
+  return data({ userRole: user.role, options, patients }, { headers });
 }
 
 

@@ -1,7 +1,7 @@
 import type { AdmissionStatus, KennelKind } from "../model/admission.types";
 
 export const KIND_LABEL: Record<KennelKind, string> = {
-    jaula: "Jaula",
+    jaula: "Habitación",
     cama: "Cama",
     aislamiento: "Aislamiento",
 };

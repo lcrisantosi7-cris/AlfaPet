@@ -1,135 +1,132 @@
+import { PawPrint, Search, Skull, UserCheck, UserRound, Users, Weight } from "lucide-react";
 import { useMemo, useState } from "react";
-import { ConfirmForm } from "~/core/feedback/ConfirmForm";
-import { useActionToast } from "~/core/feedback/use-action-toast";
-import { Search, PawPrint, SlidersHorizontal, UserRound, CalendarDays, Weight, ClipboardList } from "lucide-react";
-import { Form, Link, useActionData } from "react-router";
-import { NewPatientDialog } from "./NewPatientDialog";
+import { Link, useNavigate } from "react-router";
+import { Badge } from "~/core/ui/Badge";
 import { PageHeader } from "~/core/ui/PageHeader";
-import type { PatientOptions } from "../model/patient.types";
+import type { OwnerOption, PatientListRow, PatientOptions } from "../model/patient.types";
+import { NewPatientDialog } from "./NewPatientDialog";
+import { ageLabel, patientState, speciesLabel } from "./patient-labels";
 
-type PatientRow = {
-  id: string; name: string; species: string; breed: string | null; sex: string | null;
-  birthDate: string | null; weightKg: number | null; microchip: string | null;
-  isActive: boolean; createdAt: string; ownerId?: string; ownerName?: string; ownerPhone?: string; ownerEmail?: string; ownerDocument?: string; ownerAddress?: string;
-};
+type Status = "activos" | "inactivos" | "fallecidos" | "todos";
+const CHIPS: { key: Status; label: string }[] = [
+  { key: "activos", label: "Activos" }, { key: "inactivos", label: "Inactivos" },
+  { key: "fallecidos", label: "Fallecidos" }, { key: "todos", label: "Todos" },
+];
 
-const speciesLabel = (value: string) => value.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase());
-const dateLabel = (value: string | null) => value ? new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(value + "T00:00:00Z")) : "No registrada";
-
-export function PacientesView({ patients, options, userRole }: { patients: PatientRow[]; options: PatientOptions; userRole: string }) {
-  const actionData = useActionData() as { ok?: boolean; message?: string } | undefined;
+export function PacientesView({ patients, options, userRole }: { patients: PatientListRow[]; options: PatientOptions; userRole: string }) {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [species, setSpecies] = useState("todos");
-  const [status, setStatus] = useState("activos");
-  const isVeterinarian = userRole === "veterinario";
+  const [status, setStatus] = useState<Status>("activos");
   const canCreate = userRole === "admin" || userRole === "recepcion";
+
+  const owners = useMemo<OwnerOption[]>(() => {
+    const map = new Map<string, OwnerOption>();
+    for (const p of patients) {
+      if (!p.ownerId) continue;
+      const cur = map.get(p.ownerId);
+      if (cur) cur.petCount++;
+      else map.set(p.ownerId, { id: p.ownerId, name: p.ownerName ?? "Sin nombre", phone: p.ownerPhone, document: p.ownerDocument, petCount: 1 });
+    }
+    return [...map.values()];
+  }, [patients]);
+
+  const counts = useMemo(() => ({
+    total: patients.length,
+    activos: patients.filter((p) => p.isActive).length,
+    fallecidos: patients.filter((p) => p.lifeStatus === "fallecido").length,
+    duenos: owners.length,
+  }), [patients, owners]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("es");
     return patients.filter((p) => {
-      const matchesQuery = !q || [p.name, p.ownerName, p.ownerPhone, p.microchip, p.breed].some((v) => v?.toLocaleLowerCase("es").includes(q));
-      const matchesSpecies = species === "todos" || p.species === species;
-      const matchesStatus = status === "todos" || (status === "activos" ? p.isActive : !p.isActive);
-      return matchesQuery && matchesSpecies && matchesStatus;
+      const dead = p.lifeStatus === "fallecido";
+      const okStatus = status === "todos" || (status === "activos" ? p.isActive : status === "fallecidos" ? dead : !p.isActive && !dead);
+      const okSpecies = species === "todos" || p.species === species;
+      const okQuery = !q || [p.name, p.ownerName, p.ownerPhone, p.ownerDocument, p.microchip, p.breed].some((v) => v?.toLocaleLowerCase("es").includes(q));
+      return okStatus && okSpecies && okQuery;
     });
   }, [patients, query, species, status]);
+
+  const kpis = [
+    { label: "Pacientes", value: counts.total, icon: PawPrint, tone: "bg-tone-orange-icon text-tone-orange-fg" },
+    { label: "Activos", value: counts.activos, icon: UserCheck, tone: "bg-tone-green-icon text-tone-green-fg" },
+    { label: "Dueños", value: counts.duenos, icon: Users, tone: "bg-tone-blue-icon text-tone-blue-fg" },
+    { label: "Fallecidos", value: counts.fallecidos, icon: Skull, tone: "bg-tone-purple-icon text-tone-purple-fg" },
+  ];
 
   return (
     <section className="mx-auto flex max-w-[1500px] flex-col gap-5">
       <PageHeader
-        eyebrow={isVeterinarian ? "Atención clínica" : "Gestión asistencial"}
+        eyebrow="Gestión asistencial"
         title="Pacientes"
-        description={isVeterinarian
-          ? "Consulta las fichas de tus pacientes y accede a su información clínica."
-          : "Administra las fichas de los pacientes y encuentra rápidamente sus datos y propietarios."}
-        action={canCreate ? <NewPatientDialog options={options} /> : null}
+        description="Haz clic en un paciente para ver su ficha completa, editarla o agregar otra mascota a su dueño."
+        action={canCreate ? <NewPatientDialog options={options} owners={owners} /> : null}
       />
 
-      {isVeterinarian && <div className="flex items-start gap-3 rounded-2xl border border-brand/15 bg-brand-soft/60 p-4 text-sm"><ClipboardList className="mt-0.5 size-5 shrink-0 text-brand-text" /><p>Modo de solo lectura para los datos generales. Para registrar hallazgos y tratamientos, utiliza Consultas.</p></div>}
-
-      <div className="grid gap-4 sm:grid-cols-3">
-        <article className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Pacientes registrados</p><p className="mt-2 text-3xl font-extrabold">{patients.length}</p><p className="mt-1 text-xs text-ink-muted">Registros accesibles según tus permisos</p></article>
-        <article className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Pacientes activos</p><p className="mt-2 text-3xl font-extrabold">{patients.filter(p => p.isActive).length}</p><p className="mt-1 text-xs text-ink-muted">Disponibles para la atención</p></article>
-        <article className="ui-card rounded-2xl border border-line bg-surface p-5 shadow-card"><p className="text-sm text-ink-muted">Resultados filtrados</p><p className="mt-2 text-3xl font-extrabold">{filtered.length}</p><p className="mt-1 text-xs text-ink-muted">Coincidencias de tu búsqueda</p></article>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {kpis.map(({ label, value, icon: Icon, tone }) => (
+          <article key={label} className="ui-card flex items-center gap-4 rounded-2xl border border-line bg-surface p-4 shadow-card">
+            <span className={`flex size-12 items-center justify-center rounded-xl ${tone}`}><Icon className="size-6" aria-hidden /></span>
+            <div><p className="text-2xl font-extrabold leading-none">{value}</p><p className="mt-1 text-xs text-ink-muted">{label}</p></div>
+          </article>
+        ))}
       </div>
 
       <div className="rounded-2xl border border-line bg-surface shadow-card">
         <div className="flex flex-col gap-3 border-b border-line p-4 lg:flex-row lg:items-center">
           <label className="relative min-w-0 flex-1">
             <Search aria-hidden className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-muted" />
-            <span className="sr-only">Buscar paciente, propietario, teléfono o microchip</span>
-            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar por paciente, propietario, teléfono o microchip..." className="ui-field h-11 w-full rounded-xl border border-line bg-bg pl-10 pr-3 text-sm outline-none" />
+            <span className="sr-only">Buscar</span>
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar mascota, dueño, DNI, teléfono o microchip…" className="ui-field h-11 w-full rounded-xl border border-line bg-bg pl-10 pr-3 text-sm" />
           </label>
-          <label className="flex h-11 items-center gap-2 rounded-xl border border-line px-3 text-sm">
-            <SlidersHorizontal aria-hidden className="size-4 text-ink-muted" />
-            <span className="sr-only">Filtrar por especie</span>
-            <select value={species} onChange={e => setSpecies(e.target.value)} className="max-w-40 bg-transparent outline-none">
-              <option value="todos">Todas las especies</option>
-              {options.species.map(item => <option key={item} value={item}>{speciesLabel(item)}</option>)}
-            </select>
-          </label>
-          <label className="flex h-11 items-center rounded-xl border border-line px-3 text-sm">
-            <span className="sr-only">Filtrar por estado</span>
-            <select value={status} onChange={e => setStatus(e.target.value)} className="bg-transparent outline-none">
-              <option value="activos">Solo activos</option>
-              <option value="inactivos">Solo inactivos</option>
-              <option value="todos">Todos los estados</option>
-            </select>
-          </label>
+          <select aria-label="Especie" value={species} onChange={(e) => setSpecies(e.target.value)} className="ui-field h-11 rounded-xl border border-line bg-bg px-3 text-sm">
+            <option value="todos">Todas las especies</option>
+            {options.species.map((s) => <option key={s} value={s}>{speciesLabel(s)}</option>)}
+          </select>
+          <div className="flex gap-1 rounded-xl bg-surface-muted p-1">
+            {CHIPS.map((c) => (
+              <button key={c.key} type="button" onClick={() => setStatus(c.key)} className={`ui-button h-9 rounded-lg px-3 text-xs font-semibold ${status === c.key ? "bg-brand text-on-brand shadow-sm" : "text-ink-muted hover:text-ink"}`}>{c.label}</button>
+            ))}
+          </div>
         </div>
 
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center px-6 py-16 text-center">
             <span className="flex size-14 items-center justify-center rounded-2xl bg-brand-soft text-brand-text"><PawPrint className="size-7" /></span>
             <h2 className="mt-4 text-lg font-bold">{patients.length === 0 ? "Todavía no hay pacientes" : "No encontramos coincidencias"}</h2>
-            <p className="mt-1 max-w-md text-sm text-ink-muted">{patients.length === 0 ? (canCreate ? "Registra el primer paciente para comenzar a construir el padrón de la veterinaria." : "Aún no hay pacientes registrados para consultar.") : "Prueba con otro nombre, teléfono, microchip o filtro."}</p>
-            {query && <button onClick={() => { setQuery(""); setSpecies("todos"); setStatus("activos"); }} className="ui-button mt-4 rounded-lg border border-line px-4 py-2 text-sm font-semibold hover:bg-surface-muted">Limpiar filtros</button>}
+            <p className="mt-1 max-w-md text-sm text-ink-muted">Prueba con otro nombre, DNI, teléfono o filtro.</p>
           </div>
         ) : (
           <div className="ui-table-wrap">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted"><tr><th className="px-5 py-4 font-semibold">Paciente</th><th className="px-5 py-4 font-semibold">Propietario</th><th className="px-5 py-4 font-semibold">Ficha</th><th className="px-5 py-4 font-semibold">Registro</th><th className="px-5 py-4 font-semibold">Estado</th>{canCreate && <th className="px-5 py-4 font-semibold">Acciones</th>}{isVeterinarian && <th className="px-5 py-4 font-semibold">Acceso clínico</th>}</tr></thead>
+            <table className="w-full min-w-[720px] text-left text-sm">
+              <thead className="bg-surface-muted text-xs uppercase tracking-wide text-ink-muted">
+                <tr><th className="px-5 py-4 font-semibold">Paciente</th><th className="px-5 py-4 font-semibold">Dueño</th><th className="px-5 py-4 font-semibold">Peso actual</th><th className="px-5 py-4 font-semibold">Estado</th><th className="px-5 py-4 text-right font-semibold">Detalle</th></tr>
+              </thead>
               <tbody className="divide-y divide-line">
-                {filtered.map(p => <tr key={p.id} className="transition-colors hover:bg-surface-muted/70">
-                  <td className="px-5 py-4"><div className="flex items-center gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-text"><PawPrint className="size-5" /></span><div><p className="font-bold">{p.name}</p><p className="mt-0.5 text-xs text-ink-muted">{speciesLabel(p.species)}{p.breed ? " · " + p.breed : ""}</p></div></div></td>
-                  <td className="px-5 py-4"><div className="flex items-start gap-2"><UserRound className="mt-0.5 size-4 text-ink-muted" /><div><p className="font-medium">{p.ownerName || "Propietario no disponible"}</p><p className="mt-0.5 text-xs text-ink-muted">{p.ownerPhone || "Sin teléfono"}</p></div></div></td>
-                  <td className="px-5 py-4"><div className="flex flex-col gap-1 text-xs text-ink-muted"><span className="inline-flex items-center gap-1"><CalendarDays className="size-3.5" />{dateLabel(p.birthDate)}</span><span className="inline-flex items-center gap-1"><Weight className="size-3.5" />{p.weightKg ? p.weightKg + " kg" : "Peso pendiente"}</span>{p.microchip && <span>Microchip: {p.microchip}</span>}</div></td>
-                  <td className="px-5 py-4 text-ink-muted">{dateLabel(p.createdAt.slice(0, 10))}</td>
-                  <td className="px-5 py-4"><span className={p.isActive ? "rounded-full bg-tone-green-soft px-2.5 py-1 text-xs font-semibold text-tone-green-fg" : "rounded-full bg-surface-muted px-2.5 py-1 text-xs font-semibold text-ink-muted"}>{p.isActive ? "Activo" : "Inactivo"}</span></td>
-                  {canCreate && <td className="px-5 py-4 align-top">
-                    <details className="min-w-40">
-                      <summary className="cursor-pointer rounded-lg border border-line px-3 py-2 text-center text-xs font-semibold hover:border-brand hover:text-brand-text">Editar ficha</summary>
-                      <div className="mt-2 min-w-[280px] max-w-xl rounded-xl border border-line bg-surface p-4">
-                        <Form method="post" className="grid gap-3 sm:grid-cols-2">
-                          <input type="hidden" name="intent" value="update" /><input type="hidden" name="patient_id" value={p.id} />
-                          <p className="font-bold sm:col-span-2">Datos del paciente</p>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Nombre *<input name="name" required maxLength={80} defaultValue={p.name} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Especie *<select name="species" required defaultValue={p.species} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink">{options.species.map(s => <option key={s} value={s}>{speciesLabel(s)}</option>)}</select></label>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Raza<input name="breed" maxLength={80} defaultValue={p.breed ?? ""} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Sexo<select name="sex" defaultValue={p.sex ?? ""} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink"><option value="">Sin especificar</option>{options.sex.map(s => <option key={s} value={s}>{speciesLabel(s)}</option>)}</select></label>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Nacimiento<input name="birth_date" type="date" max={new Date().toISOString().slice(0, 10)} defaultValue={p.birthDate ?? ""} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Peso (kg)<input name="weight_kg" type="number" min="0.01" max="5000" step="0.01" defaultValue={p.weightKg ?? ""} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted sm:col-span-2">Microchip<input name="microchip" maxLength={30} defaultValue={p.microchip ?? ""} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-                          <p className="font-bold sm:col-span-2">Datos del propietario</p>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted sm:col-span-2">Nombre completo *<input name="owner_name" required minLength={2} maxLength={120} defaultValue={p.ownerName ?? ""} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">Teléfono<input name="owner_phone" type="tel" inputMode="numeric" autoComplete="tel" maxLength={9} pattern="[0-9]{9}" title="Ingresa exactamente 9 dígitos." placeholder="987654321" defaultValue={p.ownerPhone ?? ""} onChange={(event) => { event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 9); }} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted">DNI<input name="owner_document" inputMode="numeric" maxLength={8} pattern="[0-9]{8}" title="Ingresa exactamente 8 dígitos." placeholder="12345678" defaultValue={p.ownerDocument ?? ""} onChange={(event) => { event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 8); }} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted sm:col-span-2">Correo<input name="owner_email" type="email" maxLength={160} defaultValue={p.ownerEmail ?? ""} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-                          <label className="flex flex-col gap-1 text-xs font-semibold text-ink-muted sm:col-span-2">Dirección<input name="owner_address" maxLength={200} defaultValue={p.ownerAddress ?? ""} className="ui-field h-10 rounded-lg border border-line bg-bg px-3 text-sm font-normal text-ink" /></label>
-                          <button type="submit" className="ui-button h-10 rounded-lg bg-brand px-4 text-sm font-bold text-on-brand sm:col-span-2">Guardar cambios</button>
-                        </Form>
-                        <ConfirmForm method="post" className="mt-3" confirm={p.isActive
-                          ? { tone: "danger", title: "¿Desactivar este paciente?", description: "Se conservará todo su historial clínico.", confirmLabel: "Desactivar" }
-                          : { title: "¿Reactivar este paciente?", description: "Volverá a estar disponible para atención.", confirmLabel: "Reactivar" }}></ConfirmForm>
-                      </div>
-                    </details>
-                  </td>}
-                  {isVeterinarian && <td className="px-5 py-4"><Link to={`/historial-clinico?patient_id=${encodeURIComponent(p.id)}`} className="inline-flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-xs font-semibold transition hover:border-brand hover:text-brand-text"><ClipboardList className="size-4" /> Ver historial</Link></td>}
-                </tr>)}
+                {filtered.map((p) => {
+                  const s = patientState(p);
+                  return (
+                    <tr key={p.id} onClick={() => navigate(`/pacientes/${p.id}`)} className="cursor-pointer transition-colors hover:bg-brand-soft/40">
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand-text"><PawPrint className="size-5" /></span>
+                          <div><p className="font-bold">{p.name}</p><p className="text-xs text-ink-muted">{speciesLabel(p.species)}{p.breed ? ` · ${p.breed}` : ""} · {ageLabel(p.birthDate)}</p></div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4"><div className="flex items-start gap-2"><UserRound className="mt-0.5 size-4 text-ink-muted" /><div><p className="font-medium">{p.ownerName ?? "—"}</p><p className="text-xs text-ink-muted">{p.ownerPhone || "Sin teléfono"}</p></div></div></td>
+                      <td className="px-5 py-4"><span className="inline-flex items-center gap-1.5 text-ink-muted"><Weight className="size-4" />{p.currentWeightKg ? `${p.currentWeightKg} kg` : "Pendiente"}</span></td>
+                      <td className="px-5 py-4"><Badge variant={s.variant} dot>{s.label}</Badge></td>
+                      <td className="px-5 py-4 text-right"><Link to={`/pacientes/${p.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex rounded-lg border border-line px-3 py-1.5 text-xs font-semibold hover:border-brand hover:text-brand-text">Abrir</Link></td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
-        <footer className="flex flex-col gap-2 border-t border-line px-5 py-3 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between"><span>Mostrando {filtered.length} de {patients.length} registros cargados</span><span>La lista está limitada a los 500 registros más recientes.</span></footer>
+        <footer className="border-t border-line px-5 py-3 text-xs text-ink-muted">Mostrando {filtered.length} de {patients.length} (máx. 500 recientes)</footer>
       </div>
     </section>
   );

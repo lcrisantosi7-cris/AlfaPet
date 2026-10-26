@@ -147,7 +147,7 @@ export class AdmissionRepository {
     private static toError(error: PostgrestError): AppError {
         switch (error.code) {
             case "23505":
-                return new ConflictError("El paciente ya está internado o la jaula está ocupada.");
+                return new ConflictError("El paciente ya está internado o la habitación está ocupada.");
             case "42501":
                 return new ForbiddenError("No tienes permiso para esta operación.");
             case "23514":

@@ -13,25 +13,30 @@ export class PatientRepository {
     constructor(private readonly supabase: SupabaseServerClient) { }
 
     /** Crea dueño (o reutiliza el existente por documento) y paciente en UNA transacción. */
+    /** Crea dueño + paciente, o agrega la mascota a un dueño existente (ownerId). */
     async create(input: NewPatientInput): Promise<string> {
-        const { data, error } = await this.supabase.rpc("create_patient_with_owner", {
-            p_owner: {
-                full_name: input.ownerName,
-                phone: input.ownerPhone,
-                email: input.ownerEmail,
-                document_number: input.ownerDocument,
-                address: input.ownerAddress,
-            },
-            p_patient: {
-                name: input.name,
-                species: input.species,
-                breed: input.breed,
-                sex: input.sex,
-                birth_date: input.birthDate,
-                weight_kg: input.weightKg,
-                microchip: input.microchip,
-            },
-        });
+        const patient = {
+            name: input.name,
+            species: input.species,
+            breed: input.breed,
+            sex: input.sex,
+            birth_date: input.birthDate,
+            weight_kg: input.weightKg,
+            microchip: input.microchip,
+        };
+
+        const { data, error } = input.ownerId
+            ? await this.supabase.rpc("add_patient_to_owner", { p_owner_id: input.ownerId, p_patient: patient })
+            : await this.supabase.rpc("create_patient_with_owner", {
+                p_owner: {
+                    full_name: input.ownerName,
+                    phone: input.ownerPhone,
+                    email: input.ownerEmail,
+                    document_number: input.ownerDocument,
+                    address: input.ownerAddress,
+                },
+                p_patient: patient,
+            });
 
         if (error) throw PatientRepository.toError(error);
         return data as string;

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const admitSchema = z.object({
-    kennelId: z.coerce.number("Elige una jaula").int().positive("Elige una jaula"),
+    kennelId: z.coerce.number("Elige una habitación").int().positive("Elige una habitación"),
     patientId: z.uuid("Elige un paciente"),
     vetId: z.uuid().optional(),
     reason: z.string().trim().min(1, "Indica el motivo del internamiento").max(1000, "Máximo 1000 caracteres"),

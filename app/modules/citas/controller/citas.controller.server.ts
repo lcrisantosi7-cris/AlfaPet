@@ -14,7 +14,7 @@ export async function citasLoader({ request }: LoaderFunctionArgs) {
   let query = supabase
     .from("appointments")
     .select(
-      "id,starts_at,status,notes,vet_id,patient:patients(id,name,species,owner:owners(full_name)),care_type:care_types(label),vet:profiles!appointments_vet_id_fkey(full_name)",
+      "id,starts_at,status,notes,vet_id,care_type_id,patient:patients(id,name,species,owner:owners(full_name)),care_type:care_types(label),vet:profiles!appointments_vet_id_fkey(full_name)",
     )
     .order("starts_at", { ascending: true })
     .limit(500);
@@ -43,7 +43,7 @@ export async function citasLoader({ request }: LoaderFunctionArgs) {
       .eq("is_active", true)
       .eq("role", "veterinario")
       .order("full_name"),
-    supabase.from("patients").select("id,name").eq("is_active", true).order("name").limit(500),
+    supabase.from("patients").select("id,name").eq("is_active", true).eq("life_status", "vivo").order("name").limit(500),
   ]);
 
   if (error) {
@@ -76,6 +76,7 @@ export async function citasLoader({ request }: LoaderFunctionArgs) {
         ownerName: row.patient?.owner?.full_name as string | undefined,
         careType: row.care_type?.label as string | undefined,
         vetName: row.vet?.full_name as string | undefined,
+        careTypeId: row.care_type_id as number | undefined,
       })),
       careTypes: careTypes ?? [],
       vets: vets ?? [],
@@ -150,7 +151,7 @@ export async function citasAction({ request }: ActionFunctionArgs) {
     .from("patients")
     .select("id")
     .eq("id", patientId)
-    .eq("is_active", true)
+    .eq("is_active", true).eq("life_status", "vivo")
     .maybeSingle();
   if (patientError || !patient) {
     return data(
@@ -201,12 +202,12 @@ export async function citasAction({ request }: ActionFunctionArgs) {
   if (intent === "update" && !recordId) return data({ ok: false, message: "No se recibió el identificador de la cita." }, { status: 400, headers });
   const { error: insertError } = intent === "update"
     ? await supabase.from("appointments").update({
-        patient_id: patientId,
-        care_type_id: careTypeId,
-        starts_at: startsAt.toISOString(),
-        notes: notes || null,
-        vet_id: vetId || null,
-      }).eq("id", recordId)
+      patient_id: patientId,
+      care_type_id: careTypeId,
+      starts_at: startsAt.toISOString(),
+      notes: notes || null,
+      vet_id: vetId || null,
+    }).eq("id", recordId)
     : await supabase.from("appointments").insert(insert);
   if (insertError) {
     return data(

@@ -121,7 +121,7 @@ export function AdminKpiGrid({ overview }: { overview: AdminOverview }) {
             />
             <Kpi
                 index={3} to="/internamiento" label="Internamiento" icon={BedDouble} tone="orange" value={admissions.active}
-                foot={`de ${admissions.capacity} jaulas`}
+                foot={`de ${admissions.capacity} habitaciones`}
                 visual={<Progress value={admissions.active} total={admissions.capacity} className="bg-brand" />}
             />
             <Kpi

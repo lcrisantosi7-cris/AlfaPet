@@ -19,7 +19,7 @@ export function InternamientoView({ kennels, patients, vets, defaultRate, clinic
 
     const occupied = kennels.filter((k) => k.occupant).length;
     const stats = [
-        { label: "Jaulas ocupadas", value: occupied },
+        { label: "Habitaciones ocupadas", value: occupied },
         { label: "Disponibles", value: kennels.length - occupied },
         { label: "Capacidad total", value: kennels.length },
     ];
@@ -30,8 +30,8 @@ export function InternamientoView({ kennels, patients, vets, defaultRate, clinic
                 eyebrow={clinical ? "Atención clínica" : "Vista de recepción"}
                 title="Internamiento"
                 description={clinical
-                    ? "Controla la ocupación de jaulas, registra la evolución diaria y gestiona las altas."
-                    : "Consulta qué jaulas están disponibles. Los datos clínicos solo los ve el personal veterinario."}
+                    ? "Controla la ocupación de habitaciones, registra la evolución diaria y gestiona las altas."
+                    : "Consulta qué habitaciones están disponibles. Los datos clínicos solo los ve el personal veterinario."}
             />
 
             <div className="grid gap-4 sm:grid-cols-3">
@@ -45,7 +45,7 @@ export function InternamientoView({ kennels, patients, vets, defaultRate, clinic
 
             {kennels.length === 0 ? (
                 <p className="rounded-2xl border border-line bg-surface p-10 text-center text-sm text-ink-muted">
-                    No hay jaulas configuradas. Un administrador debe registrarlas.
+                    No hay habitaciones configuradas. Un administrador debe registrarlas.
                 </p>
             ) : (
                 <KennelBoard kennels={kennels} clinical={clinical} onAdmit={setSelected} />

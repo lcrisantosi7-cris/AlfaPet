@@ -1,9 +1,11 @@
-import { Ban, Receipt } from "lucide-react";
+import { Ban, Eye, Receipt } from "lucide-react";
+import { useState } from "react";
 import { ConfirmForm } from "~/core/feedback/ConfirmForm";
 import { LimaTime } from "~/core/lib/lima-time";
 import { formatMoney } from "~/core/lib/format";
 import { Badge } from "~/core/ui/Badge";
 import { EmptyState } from "~/core/ui/EmptyState";
+import { Modal } from "~/core/ui/Modal";
 import type { SaleSummary } from "../model/sale.types";
 import { CHANNEL_LABEL, formatDateTime, PAYMENT_LABEL, saleNumber } from "./sale-labels";
 
@@ -14,6 +16,7 @@ interface SalesHistoryProps {
 }
 
 export function SalesHistory({ sales, today, isAdmin }: SalesHistoryProps) {
+    const [selected, setSelected] = useState<SaleSummary | null>(null);
     const todays = sales.filter((s) => LimaTime.dayKey(new Date(s.createdAt)) === today);
     const paidToday = todays.filter((s) => s.status === "pagada");
     const revenue = paidToday.reduce((sum, s) => sum + s.total, 0);
@@ -65,14 +68,9 @@ export function SalesHistory({ sales, today, isAdmin }: SalesHistoryProps) {
                                             {sale.voidReason && <p className="mt-1 max-w-48 text-xs text-ink-muted">{sale.voidReason}</p>}
                                         </td>
                                         <td className="px-4 py-3.5">
-                                            <details>
-                                                <summary className="cursor-pointer text-xs font-semibold text-brand-text">{sale.items.length} ítem(s)</summary>
-                                                <ul className="mt-2 space-y-1 text-xs text-ink-muted">
-                                                    {sale.items.map((item, i) => (
-                                                        <li key={i}>{item.quantity} × {item.description} — {formatMoney(item.subtotal)}</li>
-                                                    ))}
-                                                </ul>
-                                            </details>
+                                            <button type="button" onClick={() => setSelected(sale)} className="ui-button inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs font-semibold hover:border-brand hover:text-brand-text">
+                                                <Eye aria-hidden className="size-3.5" />Ver ({sale.items.length})
+                                            </button>
                                         </td>
                                         {isAdmin && (
                                             <td className="px-4 py-3.5">
@@ -105,6 +103,32 @@ export function SalesHistory({ sales, today, isAdmin }: SalesHistoryProps) {
                 )}
                 <footer className="border-t border-line px-5 py-3 text-xs text-ink-muted">Se muestran las 150 ventas más recientes.</footer>
             </div>
+            <Modal open={Boolean(selected)} onClose={() => setSelected(null)} title={selected ? `Venta ${saleNumber(selected.number)}` : "Venta"}>
+                {selected && (
+                    <div className="flex flex-col gap-5">
+                        <dl className="grid gap-3 text-sm sm:grid-cols-2">
+                            <div><dt className="text-xs font-semibold text-ink-muted uppercase">Fecha</dt><dd>{formatDateTime(selected.createdAt)}</dd></div>
+                            <div><dt className="text-xs font-semibold text-ink-muted uppercase">Canal</dt><dd>{CHANNEL_LABEL[selected.channel]}</dd></div>
+                            <div><dt className="text-xs font-semibold text-ink-muted uppercase">Cliente</dt><dd>{selected.ownerName ?? "Sin cliente"}</dd></div>
+                            <div><dt className="text-xs font-semibold text-ink-muted uppercase">Pago</dt><dd>{PAYMENT_LABEL[selected.paymentMethod]}</dd></div>
+                            <div><dt className="text-xs font-semibold text-ink-muted uppercase">Vendedor</dt><dd>{selected.sellerName ?? "—"}</dd></div>
+                            <div><dt className="text-xs font-semibold text-ink-muted uppercase">Estado</dt><dd><Badge variant={selected.status === "pagada" ? "success" : "danger"}>{selected.status === "pagada" ? "Pagada" : "Anulada"}</Badge></dd></div>
+                            {selected.voidReason && <div className="sm:col-span-2"><dt className="text-xs font-semibold text-ink-muted uppercase">Motivo de anulación</dt><dd>{selected.voidReason}</dd></div>}
+                        </dl>
+                        <div className="overflow-x-auto rounded-xl border border-line">
+                            <table className="w-full min-w-[420px] text-left text-sm">
+                                <thead className="bg-surface-muted text-xs text-ink-muted uppercase"><tr><th className="px-3 py-2">Descripción</th><th className="px-3 py-2 text-right">Cant.</th><th className="px-3 py-2 text-right">P. unit.</th><th className="px-3 py-2 text-right">Subtotal</th></tr></thead>
+                                <tbody className="divide-y divide-line">
+                                    {selected.items.map((item, i) => (
+                                        <tr key={i}><td className="px-3 py-2">{item.description}</td><td className="px-3 py-2 text-right tabular-nums">{item.quantity}</td><td className="px-3 py-2 text-right tabular-nums">{formatMoney(item.unitPrice)}</td><td className="px-3 py-2 text-right font-semibold tabular-nums">{formatMoney(item.subtotal)}</td></tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <p className="text-right text-lg font-extrabold">Total: {formatMoney(selected.total)}</p>
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 }
