@@ -1,52 +1,64 @@
--- AlfaPet: prueba estructural de integridad y RLS.
+-- AlfaPet: prueba estructural de integridad y RLS adaptada para pgTAP.
 -- Ejecutar en un entorno Supabase de desarrollo con: supabase test db
+
 begin;
 
-do $$
-begin
-  if not exists (
-    select 1 from pg_indexes
-    where schemaname = 'public'
-      and indexname = 'owners_document_number_normalized_uidx'
-  ) then
-    raise exception 'Falta el índice de unicidad de documentos de propietarios';
-  end if;
+-- Definimos exactamente 5 aserciones
+select plan(5);
 
-  if not exists (
+-- 1. Verificar el índice único de documentos en propietarios
+select has_index(
+  'public',
+  'owners',
+  'owners_document_number_normalized_uidx',
+  'Debe existir el índice de unicidad de documentos de propietarios'
+);
+
+-- 2. Verificar la restricción de solapamiento por veterinario en appointments
+select ok(
+  exists (
     select 1 from pg_constraint
     where conrelid = 'public.appointments'::regclass
       and conname = 'appointments_vet_schedule_excl'
-  ) then
-    raise exception 'Falta la restricción de solapamiento de citas por veterinario';
-  end if;
+  ),
+  'Debe existir la restricción de solapamiento de citas por veterinario'
+);
 
-  if not exists (
+-- 3. Verificar la restricción de solapamiento por paciente en appointments
+select ok(
+  exists (
     select 1 from pg_constraint
     where conrelid = 'public.appointments'::regclass
       and conname = 'appointments_patient_schedule_excl'
-  ) then
-    raise exception 'Falta la restricción de solapamiento de citas por paciente';
-  end if;
+  ),
+  'Debe existir la restricción de solapamiento de citas por paciente'
+);
 
-  if not exists (
+-- 4. Verificar la política RLS de actualización en appointments
+select ok(
+  exists (
     select 1 from pg_policies
     where schemaname = 'public'
       and tablename = 'appointments'
       and policyname = 'appointments_update'
       and cmd = 'UPDATE'
-  ) then
-    raise exception 'Falta la política RLS de actualización de citas';
-  end if;
+  ),
+  'Debe existir la política RLS de actualización de citas'
+);
 
-  if not exists (
+-- 5. Verificar que RLS esté activo en la tabla appointments
+select ok(
+  exists (
     select 1 from pg_class c
     join pg_namespace n on n.oid = c.relnamespace
     where n.nspname = 'public'
       and c.relname = 'appointments'
-      and c.relrowsecurity
-  ) then
-    raise exception 'RLS no está habilitado en appointments';
-  end if;
-end $$;
+      and c.relrowsecurity = true
+  ),
+  'RLS debe estar habilitado en la tabla appointments'
+);
+
+-- Finalizar el plan de pruebas
+select * from finish();
 
 rollback;

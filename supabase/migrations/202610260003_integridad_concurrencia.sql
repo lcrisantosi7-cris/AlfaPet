@@ -28,6 +28,31 @@ alter table public.appointments
 
 create extension if not exists btree_gist;
 
+-- 1. Funciones helpers inmutables
+create or replace function public.is_not_cancelled(p_status text)
+returns boolean
+language sql
+immutable
+as $$
+  select coalesce(p_status, '') <> 'cancelada';
+$$;
+
+create or replace function public.is_not_cancelled(p_status public.appointment_status)
+returns boolean
+language sql
+immutable
+as $$
+  select coalesce(p_status::text, '') <> 'cancelada';
+$$;
+
+create or replace function public.appointment_range(starts_at timestamptz, duration_mins int)
+returns tstzrange
+language sql
+immutable
+as $$
+  select tstzrange(starts_at, starts_at + (duration_mins || ' minutes')::interval, '[)');
+$$;
+
 do $$
 begin
   if exists (
@@ -35,30 +60,33 @@ begin
     from public.appointments
     where status::text <> 'cancelada'
       and vet_id is not null
-    group by vet_id, tstzrange(starts_at, starts_at + make_interval(mins => duration_minutes), '[)')
+    group by vet_id, public.appointment_range(starts_at, duration_minutes)
     having count(*) > 1
   ) then
     raise exception 'No se pueden proteger los horarios: existen citas solapadas para un veterinario. Resuélvelas antes de aplicar la migración.' using errcode = '23P01';
   end if;
 end $$;
 
+-- 2. Restricciones usando las funciones inmutables
 alter table public.appointments
   drop constraint if exists appointments_vet_schedule_excl;
+
 alter table public.appointments
   add constraint appointments_vet_schedule_excl
   exclude using gist (
     vet_id with =,
-    tstzrange(starts_at, starts_at + make_interval(mins => duration_minutes), '[)') with &&
-  ) where (vet_id is not null and status::text <> 'cancelada');
+    public.appointment_range(starts_at, duration_minutes) with &&
+  ) where (vet_id is not null and public.is_not_cancelled(status));
 
 alter table public.appointments
   drop constraint if exists appointments_patient_schedule_excl;
+
 alter table public.appointments
   add constraint appointments_patient_schedule_excl
   exclude using gist (
     patient_id with =,
-    tstzrange(starts_at, starts_at + make_interval(mins => duration_minutes), '[)') with &&
-  ) where (status::text <> 'cancelada');
+    public.appointment_range(starts_at, duration_minutes) with &&
+  ) where (public.is_not_cancelled(status));
 
 -- La validación no depende únicamente del controlador web.
 create or replace function public.guard_appointment_vet_update()
