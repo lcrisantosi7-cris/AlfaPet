@@ -196,6 +196,11 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   if (vaccinesError) throw new Response(`No se pudieron cargar las vacunas: ${vaccinesError.message}`, { status: 500, headers });
 
   let safeRows = (rows ?? []) as Record<string, unknown>[];
+  const appointmentOptions = (appointments ?? []).map((appointment: any) => ({
+    id: appointment.id as string,
+    starts_at: appointment.starts_at as string,
+    patient: (Array.isArray(appointment.patient) ? appointment.patient[0] : appointment.patient) as { name?: string } | null,
+  }));
 
   let categories: { id: number; name: string }[] = [];
   if (item.key === "productos") {
@@ -277,7 +282,7 @@ export async function adminModuleLoader({ request }: LoaderFunctionArgs) {
   return data({
     moduleKey: item.key, title: TITLES[item.key], rows: safeRows, metrics: [], columns,
     readOnly: item.key === "historial", message: null,
-    patients: patients ?? [], appointments: appointments ?? [], vaccines: vaccines ?? [], categories,
+    patients: patients ?? [], appointments: appointmentOptions, vaccines: vaccines ?? [], categories,
   }, { headers });
 }
 

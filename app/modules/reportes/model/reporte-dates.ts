@@ -8,6 +8,8 @@ export const addDays = (d: string, n: number) => {
 };
 export const diffDays = (a: string, b: string) => Math.round((+new Date(b + "T00:00:00Z") - +new Date(a + "T00:00:00Z")) / 86400000);
 
+export type BucketMode = "day" | "week" | "month";
+
 const mondayOf = (d: string) => {
     const x = new Date(d + "T00:00:00Z");
     x.setUTCDate(x.getUTCDate() - ((x.getUTCDay() + 6) % 7));
@@ -18,7 +20,7 @@ const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "
 /** Agrupa por día (≤45 días), semana (≤140) o mes, para que el gráfico siempre sea legible. */
 export function buildBuckets(from: string, to: string) {
     const span = diffDays(from, to) + 1;
-    const mode = span <= 45 ? "day" : span <= 140 ? "week" : "month";
+    const mode: BucketMode = span <= 45 ? "day" : span <= 140 ? "week" : "month";
     const keyOf = (date: string) => (mode === "day" ? date : mode === "week" ? mondayOf(date) : date.slice(0, 7));
     const keys: string[] = [];
     for (let d = from; d <= to; d = addDays(d, 1)) {
